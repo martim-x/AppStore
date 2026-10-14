@@ -80,5 +80,8 @@ namespace Project.Services
 
         public string HashPassword(string password) =>
             Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(password))).ToLower();
+
+        public static string HashPasswordStatic(string password) =>
+            Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(password))).ToLower();
     }
 }

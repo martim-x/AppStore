@@ -99,14 +99,14 @@ namespace Project.Configuration
         private void LoadFromEnvironment()
         {
             // Переменные окружения перекрывают .env
-            SetProperty("DB_HOST", Environment.GetEnvironmentVariable("DB_HOST"));
-            SetProperty("DB_PORT_FROM", Environment.GetEnvironmentVariable("DB_PORT_FROM"));
-            SetProperty("DB_NAME", Environment.GetEnvironmentVariable("DB_NAME"));
-            SetProperty("DB_ADMIN", Environment.GetEnvironmentVariable("DB_ADMIN"));
-            SetProperty("DB_ADMIN_PASS", Environment.GetEnvironmentVariable("DB_ADMIN_PASS"));
-            SetProperty("APP_ENV", Environment.GetEnvironmentVariable("APP_ENV"));
-            SetProperty("DEFAULT_LANGUAGE", Environment.GetEnvironmentVariable("DEFAULT_LANGUAGE"));
-            SetProperty("DEFAULT_THEME", Environment.GetEnvironmentVariable("DEFAULT_THEME"));
+            SetProperty("DB_HOST", System.Environment.GetEnvironmentVariable("DB_HOST"));
+            SetProperty("DB_PORT_FROM", System.Environment.GetEnvironmentVariable("DB_PORT_FROM"));
+            SetProperty("DB_NAME", System.Environment.GetEnvironmentVariable("DB_NAME"));
+            SetProperty("DB_ADMIN", System.Environment.GetEnvironmentVariable("DB_ADMIN"));
+            SetProperty("DB_ADMIN_PASS", System.Environment.GetEnvironmentVariable("DB_ADMIN_PASS"));
+            SetProperty("APP_ENV", System.Environment.GetEnvironmentVariable("APP_ENV"));
+            SetProperty("DEFAULT_LANGUAGE", System.Environment.GetEnvironmentVariable("DEFAULT_LANGUAGE"));
+            SetProperty("DEFAULT_THEME", System.Environment.GetEnvironmentVariable("DEFAULT_THEME"));
         }
 
         private void SetProperty(string key, string? value)
@@ -116,7 +116,10 @@ namespace Project.Configuration
             switch (key)
             {
                 case "DB_HOST": DbHost = value; break;
-                case "DB_PORT_FROM": int.TryParse(value, out var p) && p > 0 ? DbPort = p : DbPort; break;
+                case "DB_PORT_FROM":
+                    if (int.TryParse(value, out var p) && p > 0)
+                        DbPort = p;
+                    break;
                 case "DB_NAME": DbName = value; break;
                 case "DB_ADMIN": DbUser = value; break;
                 case "DB_ADMIN_PASS": DbPassword = value; break;

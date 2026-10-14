@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Project.Configuration;
 
 namespace Project.Data
 {
@@ -20,7 +20,7 @@ namespace Project.Data
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
-                optionsBuilder.UseNpgsql(PostgreSQLRepEF.LoadConnectionString());
+                optionsBuilder.UseNpgsql(Settings.Instance.ConnectionString);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -121,7 +121,7 @@ namespace Project.Data
             _userId = currentUserId;
 
             var options = new DbContextOptionsBuilder<PostgreDbContext>()
-                .UseNpgsql(LoadConnectionString())
+                .UseNpgsql(Settings.Instance.ConnectionString)
                 .Options;
 
             _db = new PostgreDbContext(options);
@@ -138,54 +138,6 @@ namespace Project.Data
         public void SetCurrentUser(Guid? userId)
         {
             _userId = userId ?? Guid.Empty;
-        }
-
-        public static string LoadConnectionString()
-        {
-            var envPath = Path.Combine(AppContext.BaseDirectory, ".env");
-            if (!File.Exists(envPath))
-                envPath = Path.Combine(Directory.GetCurrentDirectory(), ".env");
-
-            string host = "localhost",
-                port = "5433",
-                database = "postgres",
-                username = "postgres",
-                password = "111";
-
-            if (File.Exists(envPath))
-            {
-                foreach (var raw in File.ReadAllLines(envPath))
-                {
-                    var line = raw.Trim();
-                    if (line.StartsWith('#') || !line.Contains('='))
-                        continue;
-
-                    var eqIdx = line.IndexOf('=');
-                    var key = line[..eqIdx].Trim();
-                    var val = line[(eqIdx + 1)..].Trim().Trim('"');
-
-                    switch (key)
-                    {
-                        case "DB_HOST":
-                            host = val;
-                            break;
-                        case "DB_PORT_FROM":
-                            port = val;
-                            break;
-                        case "DB_NAME":
-                            database = val;
-                            break;
-                        case "DB_ADMIN":
-                            username = val;
-                            break;
-                        case "DB_ADMIN_PASS":
-                            password = val;
-                            break;
-                    }
-                }
-            }
-
-            return $"Host={host};Port={port};Database={database};Username={username};Password={password}";
         }
 
         private void EnsureDatabaseCreated()
