@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>Project</AssemblyName>
+    <RootNamespace>Project</RootNamespace>
+    <Platforms>AnyCPU</Platforms>
+    <StartupObject>Project.ApplicationApp</StartupObject>
+    <ApplicationIcon>Resources\Icons\app.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.0" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Icons\app.ico" />
+    <Resource Include="Resources\Cursors\arrow.cur" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Resources\Buffer\apps.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Resources\Buffer\users.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Update=".env" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

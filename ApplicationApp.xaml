@@ -1,0 +1,50 @@
+<!--
+    ApplicationApp.xaml — точка входа в ресурсную систему WPF.
+    Всё, что объявлено здесь, доступно в любом окне/контроле
+    через {StaticResource} или {DynamicResource}.
+-->
+<Application
+  x:Class="Project.ApplicationApp"
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:converters="clr-namespace:Project.Converters"
+>
+  <Application.Resources>
+    <!--
+        ResourceDictionary — корневой словарь приложения.
+        MergedDictionaries подключаются первыми; ключи из них
+        доступны наравне с ключами, c:\users\tim\documents\objectorientedprogramming\term2\lab4-12\appstore\applicationapp.xaml.cs
+c:\users\tim\documents\objectorientedprogramming\term2\lab4-12\appstore\applicationapp.xaml
+объявленными напрямую здесь.
+    -->
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="Resources/Styles/LightAppTheme.xaml" />
+        <ResourceDictionary Source="Resources/Localization/en.xaml" />
+      </ResourceDictionary.MergedDictionaries>
+      <!--
+          Глобальный стиль для ВСЕХ окон приложения (Window и наследники).
+          TargetType без x:Key — применяется неявно к каждому Window.
+      -->
+      <Style TargetType="{x:Type Window}">
+        <Setter Property="Icon" Value="pack://application:,,,/Resources/Icons/app.ico" />
+      </Style>
+      <!-- ═══════════════════════════════════════════════════
+           Конвертеры значений — зарегистрированы глобально,
+           доступны во всех XAML-файлах без повторной декларации.
+           Используются в {Binding Converter={StaticResource ...}}
+           ═══════════════════════════════════════════════════ -->
+      <converters:BoolToVisibilityConverter x:Key="BoolToVis" />
+      <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVis" />
+      <converters:NullToVisibilityConverter x:Key="NullToVis" />
+      <converters:PriceConverter x:Key="PriceConv" />
+      <converters:DownloadCountConverter x:Key="DlCountConv" />
+      <converters:RatingToStarsConverter x:Key="RatingStars" />
+      <converters:SizeConverter x:Key="SizeConv" />
+      <converters:StringToColorBrushConverter x:Key="ColorBrush" />
+      <converters:DiscountVisibilityConverter x:Key="DiscountVis" />
+      <converters:RoleNameConverter x:Key="RoleNameConv" />
+      <converters:ButtonLabelConverter x:Key="ButtonLabelConv" />
+    </ResourceDictionary>
+  </Application.Resources>
+</Application>

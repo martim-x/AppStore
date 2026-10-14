@@ -1,0 +1,24 @@
+[
+  {
+    "Id": "2a8860e1-0fbd-4973-9efc-df6545dfc3f9",
+    "Login": "admin",
+    "PasswordHash": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+    "FirstName": "Admin11",
+    "LastName": "User1",
+    "Email": "admin@appstore.local",
+    "Role": 1,
+    "AvatarColor": "#FF3B30",
+    "AvatarLetter": "A"
+  },
+  {
+    "Id": "9c2b918f-4259-44ba-bfaa-09c4eeb4966b",
+    "Login": "user",
+    "PasswordHash": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
+    "FirstName": "Tim111",
+    "LastName": "Mar",
+    "Email": "user@appstore.local",
+    "Role": 0,
+    "AvatarColor": "#34C759",
+    "AvatarLetter": "U"
+  }
+]
