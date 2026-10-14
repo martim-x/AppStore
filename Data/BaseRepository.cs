@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
+using BCrypt.Net;
 
 namespace Project.Data
 {
@@ -32,7 +33,16 @@ namespace Project.Data
 
         // ── Общие утилиты ────────────────────────────────────────────────────────
 
+        /// <summary>
+        /// Хеширует пароль через BCrypt (work factor 12). Используется для seed-данных.
+        /// </summary>
         protected static string HashPassword(string password) =>
+            BCrypt.Net.BCrypt.HashPassword(password, 12);
+
+        /// <summary>
+        /// Legacy SHA-256 для обратной совместимости (если нужно).
+        /// </summary>
+        protected static string HashPasswordSHA256(string password) =>
             Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(password))).ToLower();
 
         protected static DateTime Utc(int year, int month, int day) =>
@@ -47,7 +57,7 @@ namespace Project.Data
                 {
                     Id = Guid.Parse("e7b8991e-9449-40d0-a576-c43a7a761a70"),
                     ShortName = "Figma",
-                    FullName = "Figma \u2013 Design & Prototype",
+                    FullName = "Figma – Design & Prototype",
                     Description =
                         "Figma is a collaborative interface design tool used by teams around the world.",
                     Developer = "Figma, Inc.",
@@ -70,7 +80,7 @@ namespace Project.Data
                 {
                     Id = Guid.Parse("60f93d8d-8fcf-42eb-a54d-0fd84e16602a"),
                     ShortName = "Slack",
-                    FullName = "Slack \u2013 Business Communication",
+                    FullName = "Slack – Business Communication",
                     Description =
                         "Slack is a messaging app for business that connects people to the information they need.",
                     Developer = "Slack Technologies, LLC",
@@ -93,7 +103,7 @@ namespace Project.Data
                 {
                     Id = Guid.Parse("c1b8015f-1bc0-4b78-8112-ce391eceee54"),
                     ShortName = "Xcode",
-                    FullName = "Xcode \u2013 Apple Developer IDE",
+                    FullName = "Xcode – Apple Developer IDE",
                     Description =
                         "Xcode is Apple's integrated development environment for macOS, iOS, watchOS, and tvOS.",
                     Developer = "Apple",
@@ -140,7 +150,7 @@ namespace Project.Data
                 {
                     Id = Guid.Parse("1e3b0e67-c70d-47ff-ba5b-f65540239a9f"),
                     ShortName = "Notion",
-                    FullName = "Notion \u2013 Notes & Workspace",
+                    FullName = "Notion – Notes & Workspace",
                     Description =
                         "Notion is an all-in-one workspace for notes, tasks, wikis, and databases.",
                     Developer = "Notion Labs, Inc.",
@@ -163,7 +173,7 @@ namespace Project.Data
                 {
                     Id = Guid.Parse("63ad3a22-fc71-4724-a8a9-5101e15376b5"),
                     ShortName = "Discord",
-                    FullName = "Discord \u2013 Talk, Chat & Hang Out",
+                    FullName = "Discord – Talk, Chat & Hang Out",
                     Description = "Discord is the easiest way to talk over voice, video, and text.",
                     Developer = "Discord Inc.",
                     Category = "Social",
@@ -254,7 +264,7 @@ namespace Project.Data
                 {
                     Id = Guid.Parse("81bf2563-391e-4b32-8955-863f98b20d65"),
                     ShortName = "Steam",
-                    FullName = "Steam \u2013 Game Launcher",
+                    FullName = "Steam – Game Launcher",
                     Description = "Steam is a video game digital distribution service by Valve.",
                     Developer = "Valve Corporation",
                     Category = "Games",
@@ -276,7 +286,7 @@ namespace Project.Data
                 {
                     Id = Guid.Parse("7f98ddcd-e009-4aaf-9354-94e5b7c7e0e9"),
                     ShortName = "Spotify",
-                    FullName = "Spotify \u2013 Music & Podcasts",
+                    FullName = "Spotify – Music & Podcasts",
                     Description = "Spotify is a digital music, podcast, and video service.",
                     Developer = "Spotify AB",
                     Category = "Media",

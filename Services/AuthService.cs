@@ -1,6 +1,5 @@
 using System;
-using System.Security.Cryptography;
-using System.Text;
+using BCrypt.Net;
 using Project.Data;
 
 namespace Project.Services
@@ -8,22 +7,25 @@ namespace Project.Services
     public class AuthService : IAuthService
     {
         private readonly IRepository _repo;
+        private readonly IPasswordHasher _passwordHasher;
+        private readonly SHA256Hasher _sha256Hasher;
         private User? _currentUser;
 
         public User? CurrentUser => _currentUser;
         public bool IsAdmin => _currentUser?.Role == UserRole.Admin;
 
-        public AuthService(IRepository repo)
+        public AuthService(IRepository repo, IPasswordHasher passwordHasher, SHA256Hasher sha256Hasher)
         {
             _repo = repo;
+            _passwordHasher = passwordHasher;
+            _sha256Hasher = sha256Hasher;
         }
 
         public User? Login(string login, string password)
         {
-            var hash = HashPassword(password);
             var user = _repo.GetUserByLogin(login);
 
-            if (user == null || user.PasswordHash != hash)
+            if (user == null || !VerifyPassword(password, user.PasswordHash))
                 return null;
 
             _currentUser = user;
@@ -70,18 +72,29 @@ namespace Project.Services
             if (_currentUser == null)
                 throw new InvalidOperationException("No user is logged in.");
 
-            var oldHash = HashPassword(oldPassword);
-            if (_currentUser.PasswordHash != oldHash)
+            if (!VerifyPassword(oldPassword, _currentUser.PasswordHash))
                 throw new UnauthorizedAccessException("Old password is incorrect.");
 
-            _currentUser.PasswordHash = HashPassword(newPassword);
+            _currentUser.PasswordHash = _passwordHasher.HashPassword(newPassword);
             _repo.UpdateUser(_currentUser);
         }
 
-        public string HashPassword(string password) =>
-            Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(password))).ToLower();
+        private bool VerifyPassword(string password, string hash)
+        {
+            // Try BCrypt first (new passwords)
+            try
+            {
+                if (BCrypt.Net.BCrypt.Verify(password, hash))
+                    return true;
+            }
+            catch { }
 
+            // Fallback to SHA-256 (legacy passwords)
+            return _sha256Hasher.VerifyPassword(password, hash);
+        }
+
+        // Kept for backward compatibility (tests, seed data)
         public static string HashPasswordStatic(string password) =>
-            Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(password))).ToLower();
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(password))).ToLower();
     }
 }

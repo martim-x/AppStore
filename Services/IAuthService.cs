@@ -11,6 +11,5 @@ namespace Project.Services
         void Logout();
         void UpdateProfile(string? firstName, string? lastName, string? email);
         void ChangePassword(string oldPassword, string newPassword);
-        string HashPassword(string password);
     }
 }

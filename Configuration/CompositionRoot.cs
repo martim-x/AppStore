@@ -21,8 +21,14 @@ namespace Project.Configuration
             // Settings is a singleton, accessed via Settings.Instance
             services.AddSingleton(_ => Settings.Instance);
 
+            // ── Password Hashing ───────────────────────────────────────────────
+            // Default to BCrypt for new passwords, SHA-256 available for compat
+            services.AddSingleton<IPasswordHasher, BCryptHasher>();
+            services.AddSingleton<SHA256Hasher>();
+
             // ── Database / Repository ──────────────────────────────────────────
             services.AddScoped<IRepository, PostgreSQLRepEF>();
+            services.AddScoped<PostgreSQLRepEF>();
 
             // ── Services ───────────────────────────────────────────────────────
             services.AddSingleton<IThemeService, ThemeService>();
