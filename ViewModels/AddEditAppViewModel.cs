@@ -43,23 +43,31 @@ namespace Project.ViewModels
         public Action? OnSaved { get; set; }
         public Action? OnCancelled { get; set; }
 
-        public AddEditAppViewModel(IRepository repo, App? existing = null)
+        public AddEditAppViewModel(IRepository repo)
         {
             _repo = repo;
+            Reset();
+            SaveCommand = new RelayCommand(Save, () => !string.IsNullOrWhiteSpace(App.ShortName));
+            CancelCommand = new RelayCommand(() => OnCancelled?.Invoke());
+        }
 
+        public void LoadExisting(App existing)
+        {
             if (existing != null)
             {
-                _app = Clone(existing);
-                _isEditMode = true;
+                App = Clone(existing);
+                IsEditMode = true;
             }
             else
             {
-                _app = new App { ReleaseDate = DateTime.Now };
-                _isEditMode = false;
+                Reset();
             }
+        }
 
-            SaveCommand = new RelayCommand(Save, () => !string.IsNullOrWhiteSpace(App.ShortName));
-            CancelCommand = new RelayCommand(() => OnCancelled?.Invoke());
+        private void Reset()
+        {
+            App = new App { ReleaseDate = DateTime.Now };
+            IsEditMode = false;
         }
 
         private void Save()

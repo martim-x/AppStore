@@ -9,13 +9,17 @@ namespace Project.Views
 {
     public partial class LoginWindow : Window
     {
-        private readonly IAuthService _auth;
+        private IAuthService _auth;
 
-        public LoginWindow(IAuthService auth)
+        public LoginWindow()
         {
             InitializeComponent();
-            _auth = auth;
             LoginBox.Focus();
+        }
+
+        public void Initialize(IAuthService auth)
+        {
+            _auth = auth;
         }
 
         private void OnSignIn(object sender, RoutedEventArgs e) => TryLogin();

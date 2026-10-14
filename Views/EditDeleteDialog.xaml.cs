@@ -8,11 +8,13 @@ namespace Project.Views
     public partial class EditDeleteDialog : Window
     {
         private readonly MainViewModel _vm;
+        private readonly IServiceProvider _services;
 
-        public EditDeleteDialog(MainViewModel vm)
+        public EditDeleteDialog(MainViewModel vm, IServiceProvider services = null)
         {
             InitializeComponent();
             _vm = vm;
+            _services = services;
             AppNameText.Text = vm.SelectedApp?.FullName ?? "";
         }
 
@@ -21,10 +23,11 @@ namespace Project.Views
             Close();
             if (_vm.SelectedApp == null)
                 return;
-            var dlg = new AddEditWindow(_vm.Repository, _vm.SelectedApp)
-            {
-                Owner = Application.Current.MainWindow,
-            };
+
+            var dlg = _services?.GetService(typeof(AddEditWindow)) as AddEditWindow ?? new AddEditWindow(_services);
+            dlg.Initialize(_vm.SelectedApp);
+            dlg.Owner = Application.Current.MainWindow;
+
             if (dlg.ShowDialog() == true)
                 _vm.RefreshCommand.Execute(null);
         }
@@ -34,6 +37,7 @@ namespace Project.Views
             Close();
             if (_vm.SelectedApp == null)
                 return;
+
             var dlg = new ConfirmDialog(
                 (string)Application.Current.Resources["DeleteConfirmTitle"],
                 (string)Application.Current.Resources["DeleteConfirmMsg"],
@@ -43,6 +47,7 @@ namespace Project.Views
             {
                 Owner = Application.Current.MainWindow,
             };
+
             if (dlg.ShowDialog() == true)
                 _vm.DeleteCommand.Execute(_vm.SelectedApp.Id);
         }

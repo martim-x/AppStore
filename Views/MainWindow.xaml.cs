@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using Microsoft.Extensions.DependencyInjection;
 using Project.Commands;
 using Project.Data;
 using Project.ViewModels;
@@ -13,11 +14,13 @@ namespace Project.Views
     public partial class MainWindow : Window
     {
         private MainViewModel Vm => (MainViewModel)DataContext;
+        private readonly IServiceProvider _services;
 
         public ObservableCollection<string> EventLog { get; } = new();
 
-        public MainWindow()
+        public MainWindow(IServiceProvider services = null)
         {
+            _services = services;
             InitializeComponent();
 
             try
@@ -36,49 +39,35 @@ namespace Project.Views
             Debug.WriteLine(message);
         }
 
-        // =========================
-        // RoutedEvent demo
-        // =========================
-
-        // FeaturedBannerView: Tunnel
         private void Banner_PreviewBannerClick(object sender, RoutedEventArgs e)
         {
             Log("PreviewBannerClick (Tunneling) -> MainWindow");
         }
 
-        // FeaturedBannerView: Direct
         private void Banner_BannerLoaded(object sender, RoutedEventArgs e)
         {
             Log("BannerLoaded (Direct) -> MainWindow");
         }
 
-        // FeaturedBannerView: Bubble
         private void Banner_BannerClicked(object sender, RoutedEventArgs e)
         {
             Log("BannerClicked (Bubbling) -> MainWindow");
         }
 
-        // AppCardView: Tunnel
         private void AppCard_PreviewCardClick(object sender, RoutedEventArgs e)
         {
             Log("PreviewCardClick (Tunneling) -> MainWindow");
         }
 
-        // AppCardView: Bubble
         private void AppCard_CardClicked(object sender, RoutedEventArgs e)
         {
             Log("CardClicked (Bubbling) -> MainWindow");
         }
 
-        // AppRowView: Bubble
         private void AppRow_RowClicked(object sender, RoutedEventArgs e)
         {
             Log("AppRow RowClicked (Bubbling) -> MainWindow");
         }
-
-        // =========================
-        // RoutedUICommand demo
-        // =========================
 
         private void DownloadApp_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
@@ -112,10 +101,6 @@ namespace Project.Views
             }
         }
 
-        // =========================
-        // Existing code
-        // =========================
-
         private void OnSearchGotFocus(object sender, RoutedEventArgs e)
         {
             SearchBorder.BorderThickness = new Thickness(1.5);
@@ -140,12 +125,12 @@ namespace Project.Views
         }
 
         private void OnAddAppClick(object sender, RoutedEventArgs e)
-        {
-            var dlg = new AddEditWindow(Vm.Repository) { Owner = this };
+                {
+                    var dlg = _services?.GetService<AddEditWindow>() ?? new AddEditWindow(_services);
 
-            if (dlg.ShowDialog() == true)
-                Vm.RefreshCommand.Execute(null);
-        }
+                    if (dlg.ShowDialog() == true)
+                        Vm.RefreshCommand.Execute(null);
+                }
 
         private void OnResetFilters(object sender, RoutedEventArgs e)
         {
@@ -175,16 +160,17 @@ namespace Project.Views
         }
 
         private void OnProfileClick(object sender, RoutedEventArgs e)
-        {
-            var popup = new ProfilePopup(Vm.AuthService, Vm.ThemeService, this);
-            popup.Show();
+                {
+                    var popup = _services?.GetService<ProfilePopup>() ?? new ProfilePopup(_services);
+                    popup.Initialize(this);
+                    popup.Show();
 
-            popup.Closed += (_, __) =>
-            {
-                if (popup.LoggedOut)
-                    Vm.LogoutCommand.Execute(null);
-            };
-        }
+                    popup.Closed += (_, __) =>
+                    {
+                        if (popup.LoggedOut)
+                            Vm.LogoutCommand.Execute(null);
+                    };
+                }
 
         private void OnGridAppClick(object sender, MouseButtonEventArgs e)
         {

@@ -2,6 +2,8 @@ using System;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
+using Microsoft.Extensions.DependencyInjection;
+using Project.Configuration;
 using Project.Data;
 using Project.Services;
 using Project.ViewModels;
@@ -11,8 +13,7 @@ namespace Project
 {
     public partial class ApplicationApp : Application
     {
-        // Экземплярное поле — живёт весь цикл приложения, переживает logout
-        private readonly IThemeService _themeService = new ThemeService();
+        private IServiceProvider _serviceProvider;
 
         [STAThread]
         public static void Main()
@@ -27,13 +28,15 @@ namespace Project
             this.ShutdownMode = ShutdownMode.OnExplicitShutdown;
             base.OnStartup(e);
 
+            // Build DI container
+            _serviceProvider = CompositionRoot.Build();
+
+            // Register global cursor
             var resourceInfo = Application.GetResourceStream(
-                new Uri("Resources/Cursors/arrow.cur", UriKind.Relative)
-            );
+                new Uri("Resources/Cursors/arrow.cur", UriKind.Relative));
             if (resourceInfo != null)
             {
                 var appCursor = new Cursor(resourceInfo.Stream);
-
                 EventManager.RegisterClassHandler(
                     typeof(Window),
                     Window.LoadedEvent,
@@ -42,20 +45,21 @@ namespace Project
                         {
                             if (sender is Window window)
                                 window.Cursor = appCursor;
-                        }
-                    )
+                        })
                 );
             }
+
             this.ShowLogin();
         }
 
         private void ShowLogin()
         {
-            //var repo = new JsonRep();
-            var repo = new PostgreSQLRepEF();
-            // var repo = new PostgreSQLRepADO();
-            var auth = new AuthService(repo);
-            var login = new LoginWindow(auth);
+            var repo = _serviceProvider.GetRequiredService<IRepository>();
+            var auth = _serviceProvider.GetRequiredService<IAuthService>();
+            var login = _serviceProvider.GetRequiredService<Views.LoginWindow>();
+
+            // Inject dependencies into LoginWindow
+            login.Initialize(auth);
 
             // Закрыли логин без входа — завершаем процесс
             if (login.ShowDialog() != true)
@@ -64,14 +68,17 @@ namespace Project
                 return;
             }
 
-            this.OpenCatalog(repo, auth);
+            this.OpenCatalog();
         }
 
-        // Открывает каталог; управляет двумя сценариями закрытия окна
-        private void OpenCatalog(IRepository repo, IAuthService auth)
+        private void OpenCatalog()
         {
-            var vm = new MainViewModel(repo, new LocalizationService(), auth, this._themeService);
-            var window = new MainWindow { DataContext = vm };
+            var repo = _serviceProvider.GetRequiredService<IRepository>();
+            var auth = _serviceProvider.GetRequiredService<IAuthService>();
+            var vm = _serviceProvider.GetRequiredService<MainViewModel>();
+            var window = _serviceProvider.GetRequiredService<Views.MainWindow>();
+
+            window.DataContext = vm;
             var isLogout = false;
 
             // Закрываем каталог — завершаем процесс

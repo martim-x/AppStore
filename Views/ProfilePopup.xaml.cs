@@ -1,6 +1,7 @@
 using System;
 using System.Windows;
 using System.Windows.Media;
+using Microsoft.Extensions.DependencyInjection;
 using Project.Data;
 using Project.Services;
 using Project.ViewModels;
@@ -9,25 +10,31 @@ namespace Project.Views
 {
     public partial class ProfilePopup : Window
     {
-        private readonly IAuthService _auth;
+        private readonly IServiceProvider _services;
         public bool LoggedOut { get; private set; }
 
-        public ProfilePopup(IAuthService auth, IThemeService theme, Window owner)
+        public ProfilePopup(IServiceProvider services = null)
         {
+            _services = services;
             InitializeComponent();
-            _auth = auth;
-            Owner = owner;
+        }
 
+        public void Initialize(Window owner)
+        {
+            var auth = _services?.GetRequiredService<IAuthService>();
+            var theme = _services?.GetRequiredService<IThemeService>();
+
+            if (auth == null || theme == null)
+                return;
+
+            Owner = owner;
             var user = auth.CurrentUser!;
             AvatarLetter.Text = user.AvatarLetter;
             LoginText.Text = user.Login;
 
-            // Avatar background
             AvatarBorder.Background = new SolidColorBrush(
-                (Color)ColorConverter.ConvertFromString(user.AvatarColor)
-            );
+                (Color)ColorConverter.ConvertFromString(user.AvatarColor));
 
-            // Role badge
             if (user.Role == UserRole.Admin)
             {
                 RoleText.Text = "Admin";
@@ -39,7 +46,6 @@ namespace Project.Views
                 RoleBadge.Background = new SolidColorBrush(Color.FromRgb(0, 114, 247));
             }
 
-            // Setup ViewModel
             var vm = new ProfileViewModel(auth, theme);
             vm.GetOldPassword = () => OldPasswordBox.Password;
             vm.GetNewPassword = () => NewPasswordBox.Password;
@@ -61,18 +67,15 @@ namespace Project.Views
         private void OnLogout(object sender, RoutedEventArgs e)
         {
             LoggedOut = true;
-            _auth.Logout();
+            var auth = _services?.GetRequiredService<IAuthService>();
+            auth?.Logout();
             Close();
         }
 
-        private void OnDeactivated(object sender, System.EventArgs e)
-        {
-            // Don't close if user is typing
-        }
+        private void OnDeactivated(object sender, System.EventArgs e) { }
 
         private void OnPasswordBoxGotFocus(object sender, RoutedEventArgs e)
         {
-            // Highlight border
             if (sender == OldPasswordBox && OldPwBorder != null)
                 OldPwBorder.BorderBrush = (Brush)FindResource("AccentBlueBrush");
             if (sender == NewPasswordBox && NewPwBorder != null)
