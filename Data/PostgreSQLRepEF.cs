@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Project.Configuration;
 
 namespace Project.Data
@@ -20,7 +21,14 @@ namespace Project.Data
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
-                optionsBuilder.UseNpgsql(Settings.Instance.ConnectionString);
+                optionsBuilder
+                    .UseNpgsql(Settings.Instance.ConnectionString, npgsql =>
+                    {
+                        npgsql.EnableRetryOnFailure(
+                            maxRetryCount: 3,
+                            maxRetryDelay: TimeSpan.FromSeconds(5),
+                            errorCodesToAdd: null);
+                    });
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -61,7 +69,11 @@ namespace Project.Data
                             string.IsNullOrWhiteSpace(v)
                                 ? new List<string>()
                                 : v.Split(",", StringSplitOptions.RemoveEmptyEntries).ToList()
-                    );
+                    )
+                    .Metadata.SetValueComparer(new ValueComparer<List<string>>(
+                        (c1, c2) => c1.SequenceEqual(c2),
+                        c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                        c => c.ToList()));
 
                 e.Ignore(a => a.FinalPrice);
                 e.Ignore(a => a.ButtonLabel);
@@ -121,13 +133,22 @@ namespace Project.Data
             _userId = currentUserId;
 
             var options = new DbContextOptionsBuilder<PostgreDbContext>()
-                .UseNpgsql(Settings.Instance.ConnectionString)
+                .UseNpgsql(Settings.Instance.ConnectionString, npgsql =>
+                {
+                    npgsql.EnableRetryOnFailure(
+                        maxRetryCount: 3,
+                        maxRetryDelay: TimeSpan.FromSeconds(5),
+                        errorCodesToAdd: null);
+                })
                 .Options;
 
             _db = new PostgreDbContext(options);
 
-            EnsureDatabaseCreated();
+            // Database is managed by migrations, not EnsureDatabaseCreated
+            // Ensure database is created (for first run if migrations not applied)
+            _db.Database.EnsureCreated();
 
+            // Seed data only if tables are empty
             if (!_db.Apps.Any())
                 SeedAppsToDb();
 
@@ -138,61 +159,6 @@ namespace Project.Data
         public void SetCurrentUser(Guid? userId)
         {
             _userId = userId ?? Guid.Empty;
-        }
-
-        private void EnsureDatabaseCreated()
-        {
-            _db.Database.ExecuteSqlRaw(
-                """
-                create table if not exists users
-                (
-                    id uuid primary key,
-                    login text not null unique,
-                    password_hash text not null,
-                    first_name text null,
-                    last_name text null,
-                    email text null,
-                    role integer not null,
-                    avatar_color text not null
-                );
-
-                create table if not exists apps
-                (
-                    id uuid primary key,
-                    short_name text not null,
-                    full_name text not null,
-                    description text not null,
-                    developer text not null,
-                    category text not null,
-                    rating double precision not null,
-                    rating_count integer not null,
-                    price double precision not null,
-                    version text not null,
-                    size_mb double precision not null,
-                    country text not null,
-                    age_rating text not null,
-                    color text not null,
-                    is_featured boolean not null,
-                    is_in_stock boolean not null,
-                    download_count integer not null,
-                    discount_percent double precision null,
-                    release_date timestamp without time zone not null,
-                    tags text not null
-                );
-
-                create table if not exists users_apps
-                (
-                    user_id uuid not null,
-                    app_id uuid not null,
-                    installed_at timestamp without time zone not null,
-                    primary key (user_id, app_id),
-                    constraint fk_users_apps_user
-                        foreign key (user_id) references users(id) on delete cascade,
-                    constraint fk_users_apps_app
-                        foreign key (app_id) references apps(id) on delete cascade
-                );
-                """
-            );
         }
 
         public override List<App> GetAllApps()
