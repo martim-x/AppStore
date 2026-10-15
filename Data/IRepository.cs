@@ -24,7 +24,7 @@ namespace Project.Data
         /// <summary>Удалить приложение по ID.</summary>
         void DeleteApp(Guid id);
 
-        /// <summary>Установить/удалить приложение (download/install).</summary>
+        /// <summary>Установить (скачать) приложение.</summary>
         void DownloadApp(Guid id);
 
         /// <summary>Удалить установленное приложение (uninstall).</summary>
