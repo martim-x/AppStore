@@ -31,14 +31,6 @@ namespace AppStore.UnitTests.Services
         }
 
         [Fact]
-        public void Debug_HashOldPass_Verify()
-        {
-            // Direct test of BCrypt.Verify
-            var result = BCrypt.Net.BCrypt.Verify("oldpass", HashOldPass);
-            result.Should().BeTrue("BCrypt.Verify should work with HashOldPass");
-        }
-
-        [Fact]
         public void IsLegacySha256Hash_BCryptHash_ReturnsFalse()
         {
             var user = new User { Id = Guid.NewGuid(), Login = "testuser", PasswordHash = HashPassword, Role = UserRole.User };
@@ -170,9 +162,6 @@ namespace AppStore.UnitTests.Services
             _passwordHasherMock.Setup(h => h.HashPassword("newpass")).Returns(HashNewPass);
 
             _authService.Login("testuser", "oldpass");
-
-            // Debug: check hash after login
-            _authService.CurrentUser.PasswordHash.Should().Be(HashOldPass, "hash should be HashOldPass after login");
 
             _authService.ChangePassword("oldpass", "newpass");
 
