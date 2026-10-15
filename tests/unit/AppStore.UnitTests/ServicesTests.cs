@@ -12,28 +12,64 @@ namespace AppStore.UnitTests.Services
     public class AuthServiceTests
     {
         private readonly Mock<IRepository> _repoMock;
-                private readonly Mock<IPasswordHasher> _passwordHasherMock;
-                private readonly SHA256Hasher _sha256Hasher;
-                private readonly AuthService _authService;
+        private readonly Mock<IPasswordHasher> _passwordHasherMock;
+        private readonly SHA256Hasher _sha256Hasher;
+        private readonly AuthService _authService;
 
-                public AuthServiceTests()
-                        {
-                            _repoMock = new Mock<IRepository>();
-                            _passwordHasherMock = new Mock<IPasswordHasher>();
-                            _sha256Hasher = new SHA256Hasher();
-                            _authService = new AuthService(_repoMock.Object, _passwordHasherMock.Object, _sha256Hasher);
-                        }
+        // Real BCrypt hashes (work factor 12)
+        private const string HashOldPass = "$2a$12$Nv39VG./Y9NbG8iX.Vbxw.5XjBeZz.mq0gDjBSEb/Y8wW/yLPc4sq"; // "oldpass"
+        private const string HashNewPass = "$2a$12$xrHHvSmIWCpCtZIy7s38ueX4Kyfmh69fvQ3Di4a5avr5SAHJnVxja"; // "newpass"
+        private const string HashPassword = "$2a$12$V4zaGZews.4dfKfhB8vcj.Cl.H0HNhM6t5JBC4QerBllRiZL454dO"; // "password"
+        private const string HashTestPass123 = "$2a$12$AbYyWITYw79Zm.x2/6LDSOgXNrws2h3ZH20DDbtRH4.M3xVSF91Li"; // "testpass123"
+
+        public AuthServiceTests()
+        {
+            _repoMock = new Mock<IRepository>();
+            _passwordHasherMock = new Mock<IPasswordHasher>();
+            _sha256Hasher = new SHA256Hasher();
+            _authService = new AuthService(_repoMock.Object, _passwordHasherMock.Object, _sha256Hasher);
+        }
+
+        [Fact]
+        public void Debug_HashOldPass_Verify()
+        {
+            // Direct test of BCrypt.Verify
+            var result = BCrypt.Net.BCrypt.Verify("oldpass", HashOldPass);
+            result.Should().BeTrue("BCrypt.Verify should work with HashOldPass");
+        }
+
+        [Fact]
+        public void IsLegacySha256Hash_BCryptHash_ReturnsFalse()
+        {
+            var user = new User { Id = Guid.NewGuid(), Login = "testuser", PasswordHash = HashPassword, Role = UserRole.User };
+            _repoMock.Setup(r => r.GetUserByLogin("testuser")).Returns(user);
+            
+            _authService.Login("testuser", "password");
+            
+            _repoMock.Verify(r => r.UpdateUser(It.IsAny<User>()), Times.Never);
+        }
+
+        [Fact]
+        public void IsLegacySha256Hash_SHA256Hash_ReturnsTrue()
+        {
+            var sha256Hash = AuthService.HashPasswordStatic("password");
+            var user = new User { Id = Guid.NewGuid(), Login = "legacyuser", PasswordHash = sha256Hash, Role = UserRole.User };
+            _repoMock.Setup(r => r.GetUserByLogin("legacyuser")).Returns(user);
+            _passwordHasherMock.Setup(h => h.HashPassword("password")).Returns(HashPassword);
+            
+            _authService.Login("legacyuser", "password");
+            
+            _repoMock.Verify(r => r.UpdateUser(It.IsAny<User>()), Times.Once);
+        }
 
         [Fact]
         public void Login_ValidCredentials_ReturnsUser()
         {
-            var password = "testpass123";
-            var hash = AuthService.HashPasswordStatic(password);
-            var user = new User { Id = Guid.NewGuid(), Login = "testuser", PasswordHash = hash, Role = UserRole.User };
-            
+            var user = new User { Id = Guid.NewGuid(), Login = "testuser", PasswordHash = HashTestPass123, Role = UserRole.User };
+
             _repoMock.Setup(r => r.GetUserByLogin("testuser")).Returns(user);
 
-            var result = _authService.Login("testuser", password);
+            var result = _authService.Login("testuser", "testpass123");
 
             result.Should().NotBeNull();
             result!.Login.Should().Be("testuser");
@@ -44,7 +80,7 @@ namespace AppStore.UnitTests.Services
         [Fact]
         public void Login_InvalidPassword_ReturnsNull()
         {
-            var user = new User { Id = Guid.NewGuid(), Login = "testuser", PasswordHash = "wrong_hash", Role = UserRole.User };
+            var user = new User { Id = Guid.NewGuid(), Login = "testuser", PasswordHash = HashTestPass123, Role = UserRole.User };
             _repoMock.Setup(r => r.GetUserByLogin("testuser")).Returns(user);
 
             var result = _authService.Login("testuser", "wrongpassword");
@@ -64,24 +100,41 @@ namespace AppStore.UnitTests.Services
         }
 
         [Fact]
-                public void Login_CaseInsensitive_Works()
-                {
-                    var password = "testpass123";
-                    var hash = AuthService.HashPasswordStatic(password);
-                    var user = new User { Id = Guid.NewGuid(), Login = "TestUser", PasswordHash = hash, Role = UserRole.User };
-                    _repoMock.Setup(r => r.GetUserByLogin(It.Is<string>(s => s.Equals("testuser", StringComparison.OrdinalIgnoreCase)))).Returns(user);
+        public void Login_CaseInsensitive_Works()
+        {
+            var user = new User { Id = Guid.NewGuid(), Login = "TestUser", PasswordHash = HashTestPass123, Role = UserRole.User };
+            _repoMock.Setup(r => r.GetUserByLogin(It.Is<string>(s => s.Equals("testuser", StringComparison.OrdinalIgnoreCase)))).Returns(user);
 
-                    var result = _authService.Login("TESTUSER", password);
+            var result = _authService.Login("TESTUSER", "testpass123");
 
-                    result.Should().NotBeNull();
-                }
+            result.Should().NotBeNull();
+        }
+
+        [Fact]
+        public void Login_LegacySha256_AutoRehashesToBCrypt()
+        {
+            var password = "password";
+            var sha256Hash = AuthService.HashPasswordStatic(password); // legacy SHA-256
+            var bcryptHash = HashPassword; // BCrypt hash of "password"
+            var user = new User { Id = Guid.NewGuid(), Login = "legacyuser", PasswordHash = sha256Hash, Role = UserRole.User };
+
+            _repoMock.Setup(r => r.GetUserByLogin("legacyuser")).Returns(user);
+            _passwordHasherMock.Setup(h => h.HashPassword(password)).Returns(bcryptHash);
+            _repoMock.Setup(r => r.UpdateUser(user)).Callback(() => user.PasswordHash = bcryptHash);
+
+            var result = _authService.Login("legacyuser", password);
+
+            result.Should().NotBeNull();
+            _repoMock.Verify(r => r.UpdateUser(user), Times.Once);
+            user.PasswordHash.Should().Be(bcryptHash); // rehashed to BCrypt
+        }
 
         [Fact]
         public void Logout_ClearsCurrentUser()
         {
-            var user = new User { Id = Guid.NewGuid(), Login = "testuser", Role = UserRole.User };
+            var user = new User { Id = Guid.NewGuid(), Login = "testuser", PasswordHash = HashTestPass123, Role = UserRole.User };
             _repoMock.Setup(r => r.GetUserByLogin("testuser")).Returns(user);
-            _authService.Login("testuser", "password");
+            _authService.Login("testuser", "testpass123");
 
             _authService.Logout();
 
@@ -90,47 +143,50 @@ namespace AppStore.UnitTests.Services
         }
 
         [Fact]
-                public void IsAdmin_AdminUser_ReturnsTrue()
-                {
-                    var password = "password";
-                    var hash = AuthService.HashPasswordStatic(password);
-                    var user = new User { Id = Guid.NewGuid(), Login = "admin", PasswordHash = hash, Role = UserRole.Admin };
-                    _repoMock.Setup(r => r.GetUserByLogin("admin")).Returns(user);
-                    _authService.Login("admin", password);
+        public void IsAdmin_AdminUser_ReturnsTrue()
+        {
+            var user = new User { Id = Guid.NewGuid(), Login = "admin", PasswordHash = HashPassword, Role = UserRole.Admin };
+            _repoMock.Setup(r => r.GetUserByLogin("admin")).Returns(user);
+            _authService.Login("admin", "password");
 
-                    _authService.IsAdmin.Should().BeTrue();
-                }
+            _authService.IsAdmin.Should().BeTrue();
+        }
 
-                [Fact]
-                public void IsAdmin_RegularUser_ReturnsFalse()
-                {
-                    var password = "password";
-                    var hash = AuthService.HashPasswordStatic(password);
-                    var user = new User { Id = Guid.NewGuid(), Login = "user", PasswordHash = hash, Role = UserRole.User };
-                    _repoMock.Setup(r => r.GetUserByLogin("user")).Returns(user);
-                    _authService.Login("user", password);
+        [Fact]
+        public void IsAdmin_RegularUser_ReturnsFalse()
+        {
+            var user = new User { Id = Guid.NewGuid(), Login = "user", PasswordHash = HashPassword, Role = UserRole.User };
+            _repoMock.Setup(r => r.GetUserByLogin("user")).Returns(user);
+            _authService.Login("user", "password");
 
-                    _authService.IsAdmin.Should().BeFalse();
-                }
+            _authService.IsAdmin.Should().BeFalse();
+        }
 
         [Fact]
         public void ChangePassword_CorrectOldPassword_UpdatesHash()
         {
-            var user = new User { Id = Guid.NewGuid(), Login = "testuser", PasswordHash = AuthService.HashPasswordStatic("oldpass"), Role = UserRole.User };
+            var user = new User { Id = Guid.NewGuid(), Login = "testuser", PasswordHash = HashOldPass, Role = UserRole.User };
             _repoMock.Setup(r => r.GetUserByLogin("testuser")).Returns(user);
-            _authService.Login("testuser", "oldpass");
+            _passwordHasherMock.Setup(h => h.HashPassword("newpass")).Returns(HashNewPass);
 
+            _authService.Login("testuser", "oldpass");
+            
+            // Debug: check hash after login
+            _authService.CurrentUser.PasswordHash.Should().Be(HashOldPass, "hash should be HashOldPass after login");
+            
             _authService.ChangePassword("oldpass", "newpass");
 
-            user.PasswordHash.Should().Be(AuthService.HashPasswordStatic("newpass"));
+            user.PasswordHash.Should().Be(HashNewPass);
             _repoMock.Verify(r => r.UpdateUser(user), Times.Once);
         }
 
         [Fact]
         public void ChangePassword_WrongOldPassword_ThrowsUnauthorizedAccessException()
         {
-            var user = new User { Id = Guid.NewGuid(), Login = "testuser", PasswordHash = AuthService.HashPasswordStatic("oldpass"), Role = UserRole.User };
+            var sha256OldPass = AuthService.HashPasswordStatic("oldpass");
+            var user = new User { Id = Guid.NewGuid(), Login = "testuser", PasswordHash = sha256OldPass, Role = UserRole.User };
             _repoMock.Setup(r => r.GetUserByLogin("testuser")).Returns(user);
+            _passwordHasherMock.Setup(h => h.HashPassword("oldpass")).Returns(HashOldPass);
             _authService.Login("testuser", "oldpass");
 
             Action act = () => _authService.ChangePassword("wrongpass", "newpass");
@@ -149,21 +205,19 @@ namespace AppStore.UnitTests.Services
         }
 
         [Fact]
-                public void UpdateProfile_LoggedInUser_UpdatesFields()
-                {
-                    var password = "password";
-                    var hash = AuthService.HashPasswordStatic(password);
-                    var user = new User { Id = Guid.NewGuid(), Login = "testuser", PasswordHash = hash, Role = UserRole.User };
-                    _repoMock.Setup(r => r.GetUserByLogin("testuser")).Returns(user);
-                    _authService.Login("testuser", password);
+        public void UpdateProfile_LoggedInUser_UpdatesFields()
+        {
+            var user = new User { Id = Guid.NewGuid(), Login = "testuser", PasswordHash = HashPassword, Role = UserRole.User };
+            _repoMock.Setup(r => r.GetUserByLogin("testuser")).Returns(user);
+            _authService.Login("testuser", "password");
 
-                    _authService.UpdateProfile("John", "Doe", "john@example.com");
+            _authService.UpdateProfile("John", "Doe", "john@example.com");
 
-                    user.FirstName.Should().Be("John");
-                    user.LastName.Should().Be("Doe");
-                    user.Email.Should().Be("john@example.com");
-                    _repoMock.Verify(r => r.UpdateUser(user), Times.Once);
-                }
+            user.FirstName.Should().Be("John");
+            user.LastName.Should().Be("Doe");
+            user.Email.Should().Be("john@example.com");
+            _repoMock.Verify(r => r.UpdateUser(user), Times.Once);
+        }
 
         [Fact]
         public void HashPassword_SameInput_ProducesSameHash()
@@ -221,9 +275,9 @@ namespace AppStore.UnitTests.Services
         {
             var executed = false;
             _service.Push(new TestUndoRedoAction(undo: () => executed = true));
-            
+
             _service.Undo();
-            
+
             executed.Should().BeTrue();
         }
 
@@ -235,10 +289,10 @@ namespace AppStore.UnitTests.Services
             _service.Push(new TestUndoRedoAction(
                 undo: () => undoExecuted = true,
                 redo: () => redoExecuted = true));
-            
+
             _service.Undo();
             _service.Redo();
-            
+
             undoExecuted.Should().BeTrue();
             redoExecuted.Should().BeTrue();
         }
@@ -262,7 +316,7 @@ namespace AppStore.UnitTests.Services
         {
             _service.Push(new TestUndoRedoAction());
             _service.Clear();
-            
+
             _service.CanUndo.Should().BeFalse();
             _service.CanRedo.Should().BeFalse();
         }
@@ -279,9 +333,7 @@ namespace AppStore.UnitTests.Services
             }
 
             public string Name => "TestAction";
-
             public void Undo() => _undo();
-
             public void Redo() => _redo();
         }
     }
