@@ -43,9 +43,9 @@ namespace AppStore.UnitTests.Services
         {
             var user = new User { Id = Guid.NewGuid(), Login = "testuser", PasswordHash = HashPassword, Role = UserRole.User };
             _repoMock.Setup(r => r.GetUserByLogin("testuser")).Returns(user);
-            
+
             _authService.Login("testuser", "password");
-            
+
             _repoMock.Verify(r => r.UpdateUser(It.IsAny<User>()), Times.Never);
         }
 
@@ -56,9 +56,9 @@ namespace AppStore.UnitTests.Services
             var user = new User { Id = Guid.NewGuid(), Login = "legacyuser", PasswordHash = sha256Hash, Role = UserRole.User };
             _repoMock.Setup(r => r.GetUserByLogin("legacyuser")).Returns(user);
             _passwordHasherMock.Setup(h => h.HashPassword("password")).Returns(HashPassword);
-            
+
             _authService.Login("legacyuser", "password");
-            
+
             _repoMock.Verify(r => r.UpdateUser(It.IsAny<User>()), Times.Once);
         }
 
@@ -170,10 +170,10 @@ namespace AppStore.UnitTests.Services
             _passwordHasherMock.Setup(h => h.HashPassword("newpass")).Returns(HashNewPass);
 
             _authService.Login("testuser", "oldpass");
-            
+
             // Debug: check hash after login
             _authService.CurrentUser.PasswordHash.Should().Be(HashOldPass, "hash should be HashOldPass after login");
-            
+
             _authService.ChangePassword("oldpass", "newpass");
 
             user.PasswordHash.Should().Be(HashNewPass);
