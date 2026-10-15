@@ -16,18 +16,18 @@ namespace Project.Services
         private User? _currentUser;
 
         /// <summary>Текущий авторизованный пользователь.</summary>
-                public User? CurrentUser => _currentUser;
+        public User? CurrentUser => _currentUser;
 
-                /// <summary>Флаг: текущий пользователь — администратор.</summary>
-                public bool IsAdmin => _currentUser?.Role == UserRole.Admin;
+        /// <summary>Флаг: текущий пользователь — администратор.</summary>
+        public bool IsAdmin => _currentUser?.Role == UserRole.Admin;
 
-                /// <summary>
-                /// Конструктор с внедрением зависимостей.
-                /// </summary>
-                /// <param name="repo">Репозиторий пользователей.</param>
-                /// <param name="passwordHasher">Хешер паролей (BCrypt).</param>
-                /// <param name="sha256Hasher">Fallback-хешер (SHA-256 для legacy-паролей).</param>
-                public AuthService(IRepository repo, IPasswordHasher passwordHasher, SHA256Hasher sha256Hasher)
+        /// <summary>
+        /// Конструктор с внедрением зависимостей.
+        /// </summary>
+        /// <param name="repo">Репозиторий пользователей.</param>
+        /// <param name="passwordHasher">Хешер паролей (BCrypt).</param>
+        /// <param name="sha256Hasher">Fallback-хешер (SHA-256 для legacy-паролей).</param>
+        public AuthService(IRepository repo, IPasswordHasher passwordHasher, SHA256Hasher sha256Hasher)
         {
             _repo = repo;
             _passwordHasher = passwordHasher;
@@ -35,51 +35,51 @@ namespace Project.Services
         }
 
         /// <summary>
-                /// Аутентификация пользователя по логину и паролю.
-                /// При успешном входе с legacy SHA-256 паролем — перехеширует в BCrypt.
-                /// </summary>
-                /// <param name="login">Логин пользователя.</param>
-                /// <param name="password">Пароль в открытом виде.</param>
-                /// <returns>Пользователь при успехе, null — при неудаче.</returns>
-                public User? Login(string login, string password)
-                {
-                    var user = _repo.GetUserByLogin(login);
+        /// Аутентификация пользователя по логину и паролю.
+        /// При успешном входе с legacy SHA-256 паролем — перехеширует в BCrypt.
+        /// </summary>
+        /// <param name="login">Логин пользователя.</param>
+        /// <param name="password">Пароль в открытом виде.</param>
+        /// <returns>Пользователь при успехе, null — при неудаче.</returns>
+        public User? Login(string login, string password)
+        {
+            var user = _repo.GetUserByLogin(login);
 
-                    if (user == null || !VerifyPassword(password, user.PasswordHash))
-                        return null;
+            if (user == null || !VerifyPassword(password, user.PasswordHash))
+                return null;
 
-                    // Rehash legacy SHA-256 password to BCrypt on first successful login
-                    if (IsLegacySha256Hash(user.PasswordHash))
-                    {
-                        user.PasswordHash = _passwordHasher.HashPassword(password);
-                        _repo.UpdateUser(user);
-                    }
+            // Rehash legacy SHA-256 password to BCrypt on first successful login
+            if (IsLegacySha256Hash(user.PasswordHash))
+            {
+                user.PasswordHash = _passwordHasher.HashPassword(password);
+                _repo.UpdateUser(user);
+            }
 
-                    _currentUser = user;
+            _currentUser = user;
 
-                    if (_repo is JsonRep jsonRep)
-                        jsonRep.SetCurrentUser(user.Id);
+            if (_repo is JsonRep jsonRep)
+                jsonRep.SetCurrentUser(user.Id);
 
-                    if (_repo is PostgreSQLRepADO adoRep)
-                        adoRep.SetCurrentUser(user.Id);
+            if (_repo is PostgreSQLRepADO adoRep)
+                adoRep.SetCurrentUser(user.Id);
 
-                    if (_repo is PostgreSQLRepEF efRep)
-                        efRep.SetCurrentUser(user.Id);
+            if (_repo is PostgreSQLRepEF efRep)
+                efRep.SetCurrentUser(user.Id);
 
-                    return _currentUser;
-                }
+            return _currentUser;
+        }
 
-                /// <summary>
-                /// Проверяет, является ли хеш legacy SHA-256 (64 hex chars, no $2a$/$2b$/$2y$ prefix).
-                /// </summary>
-                private static bool IsLegacySha256Hash(string hash)
-                {
-                    if (string.IsNullOrEmpty(hash) || hash.Length != 64)
-                        return false;
+        /// <summary>
+        /// Проверяет, является ли хеш legacy SHA-256 (64 hex chars, no $2a$/$2b$/$2y$ prefix).
+        /// </summary>
+        private static bool IsLegacySha256Hash(string hash)
+        {
+            if (string.IsNullOrEmpty(hash) || hash.Length != 64)
+                return false;
 
-                    // BCrypt hashes start with $2a$, $2b$, $2y$
-                    return !hash.StartsWith("$2a$") && !hash.StartsWith("$2b$") && !hash.StartsWith("$2y$");
-                }
+            // BCrypt hashes start with $2a$, $2b$, $2y$
+            return !hash.StartsWith("$2a$") && !hash.StartsWith("$2b$") && !hash.StartsWith("$2y$");
+        }
 
         /// <summary>
         /// Выход пользователя (очистка сессии).

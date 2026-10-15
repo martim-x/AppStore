@@ -1,4 +1,5 @@
 # AppStore WPF - GitLab CI/CD Pipeline
+# Strategy: Linux runners for restore/build/test (with EnableWindowsTargeting), Windows runner for package
 
 stages:
   - restore
@@ -8,6 +9,9 @@ stages:
 
 variables:
   DOTNET_VERSION: "8.0"
+  # NuGet cache must point into project directory
+  NUGET_PACKAGES: "$CI_PROJECT_DIR/.nuget/packages"
+  # PostgreSQL for integration tests (Linux service container)
   POSTGRES_DB: "appstore_test"
   POSTGRES_USER: "postgres"
   POSTGRES_PASSWORD: "postgres"
@@ -25,9 +29,6 @@ restore:
 
 build:
   stage: build
-  # Use Windows runner for WPF (net8.0-windows)
-  tags:
-    - windows
   image: mcr.microsoft.com/dotnet/sdk:8.0
   needs: [restore]
   script:
@@ -44,21 +45,17 @@ build:
 
 test:unit:
   stage: test
-  tags:
-    - windows
   image: mcr.microsoft.com/dotnet/sdk:8.0
   needs: [build]
   script:
-    - dotnet test tests/unit/AppStore.UnitTests/AppStore.UnitTests.csproj --no-build -c Release --logger "trx;LogFileName=unit-tests.trx"
+    - dotnet test tests/unit/AppStore.UnitTests/AppStore.UnitTests.csproj --no-build -c Release --logger "junit;LogFilePath=test-results/unit-tests.xml"
   artifacts:
     reports:
-      junit: "tests/unit/AppStore.UnitTests/TestResults/*.trx"
+      junit: "test-results/unit-tests.xml"
     expire_in: 1 week
 
 test:integration:
   stage: test
-  tags:
-    - windows
   image: mcr.microsoft.com/dotnet/sdk:8.0
   needs: [build]
   services:
@@ -70,25 +67,26 @@ test:integration:
         POSTGRES_PASSWORD: "postgres"
   variables:
     DB_HOST: "postgres"
-    DB_PORT_FROM: "5432"
+    DB_PORT: "5432"
     DB_NAME: "appstore_test"
-    DB_ADMIN: "postgres"
-    DB_ADMIN_PASS: "postgres"
+    DB_USER: "postgres"
+    DB_PASS: "postgres"
   script:
-    - dotnet test tests/integration/AppStore.IntegrationTests/AppStore.IntegrationTests.csproj --no-build -c Release --logger "trx;LogFileName=integration-tests.trx"
+    - dotnet test tests/integration/AppStore.IntegrationTests/AppStore.IntegrationTests.csproj --no-build -c Release --logger "junit;LogFilePath=test-results/integration-tests.xml"
   artifacts:
     reports:
-      junit: "tests/integration/AppStore.IntegrationTests/TestResults/*.trx"
+      junit: "test-results/integration-tests.xml"
     expire_in: 1 week
 
 package:
   stage: package
+  # Windows runner required for WPF single-file publish
   tags:
     - windows
   image: mcr.microsoft.com/dotnet/sdk:8.0
   needs: [test:unit, test:integration]
   script:
-    - dotnet publish AppStore.sln -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:EnableWindowsTargeting=true -o ./publish
+    - dotnet publish Project.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:EnableWindowsTargeting=true -o ./publish
   artifacts:
     paths:
       - "./publish/"
