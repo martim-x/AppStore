@@ -65,10 +65,9 @@ namespace Project.Services
         }
 
         /// <summary>
-                /// Очистить историю (при logout — данные одного пользователя не видит другой).
-                /// </summary>
-                public void Clear()
-        public void Clear()
+                        /// Очистить историю (при logout — данные одного пользователя не видит другой).
+                        /// </summary>
+                        public void Clear()
         {
             _undoStack.Clear();
             _redoStack.Clear();

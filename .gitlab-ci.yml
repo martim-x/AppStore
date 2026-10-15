@@ -1,0 +1,89 @@
+# AppStore WPF - GitLab CI/CD Pipeline
+
+stages:
+  - restore
+  - build
+  - test
+  - package
+
+variables:
+  DOTNET_VERSION: "8.0"
+  POSTGRES_DB: "appstore_test"
+  POSTGRES_USER: "postgres"
+  POSTGRES_PASSWORD: "postgres"
+
+restore:
+  stage: restore
+  image: mcr.microsoft.com/dotnet/sdk:8.0
+  script:
+    - dotnet restore AppStore.sln
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - .nuget/packages
+      - **/obj/project.assets.json
+
+build:
+  stage: build
+  image: mcr.microsoft.com/dotnet/sdk:8.0
+  needs: [restore]
+  script:
+    - dotnet build AppStore.sln --no-restore -c Release
+  artifacts:
+    paths:
+      - **/bin/Release/net8.0-windows/
+    expire_in: 1 week
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - .nuget/packages
+      - **/obj/project.assets.json
+
+test:unit:
+  stage: test
+  image: mcr.microsoft.com/dotnet/sdk:8.0
+  needs: [build]
+  script:
+    - dotnet test tests/unit/AppStore.UnitTests/AppStore.UnitTests.csproj --no-build -c Release --logger "trx;LogFileName=unit-tests.trx"
+  artifacts:
+    reports:
+      junit: tests/unit/AppStore.UnitTests/TestResults/*.trx
+    expire_in: 1 week
+
+test:integration:
+  stage: test
+  image: mcr.microsoft.com/dotnet/sdk:8.0
+  needs: [build]
+  services:
+    - name: postgres:16-alpine
+      alias: postgres
+      variables:
+        POSTGRES_DB: appstore_test
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+  variables:
+    DB_HOST: postgres
+    DB_PORT_FROM: 5432
+    DB_NAME: appstore_test
+    DB_ADMIN: postgres
+    DB_ADMIN_PASS: postgres
+  script:
+    - dotnet test tests/integration/AppStore.IntegrationTests/AppStore.IntegrationTests.csproj --no-build -c Release --logger "trx;LogFileName=integration-tests.trx"
+  artifacts:
+    reports:
+      junit: tests/integration/AppStore.IntegrationTests/TestResults/*.trx
+    expire_in: 1 week
+
+package:
+  stage: package
+  image: mcr.microsoft.com/dotnet/sdk:8.0
+  needs: [test:unit, test:integration]
+  script:
+    - dotnet publish AppStore.sln -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o ./publish
+  artifacts:
+    paths:
+      - ./publish/
+    expire_in: 1 month
+  only:
+    - main
+    - tags
