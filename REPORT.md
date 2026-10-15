@@ -29,9 +29,9 @@
 - [x] DI Container (Microsoft.Extensions.DI)
 - [x] EF Core Migrations + EnableRetryOnFailure
 - [x] BCrypt Password Hashing + SHA-256 fallback **with auto-rehash on login**
-- [x] Unit Tests: 40/40 passing
+- [x] Unit Tests: 43/43 passing
 - [x] Integration Tests: 9/10 passing (1 flaky - tracked)
-- [x] GitLab CI/CD Pipeline (`.gitlab-ci.yml`)
+- [x] GitLab CI/CD Pipeline (`.gitlab-ci.yml`) - Fixed platform issues
 - [x] Documentation (ARCHITECTURE.md, FR_NFR.md, DATABASE.md, etc.)
 - [x] UML Diagrams (Use Case, Class, Sequence)
 - [x] Docker Compose (postgres:16-alpine)
@@ -44,7 +44,7 @@
 ## Test Coverage
 | Category | Tests | Status |
 |----------|-------|--------|
-| Unit Tests | 40 | ✅ All passing |
+| Unit Tests | 43 | ✅ All passing |
 | Integration Tests | 10 | ✅ 9/10 passing (1 flaky - tracked) |
 
 ## Security
@@ -54,10 +54,12 @@
 - Seed credentials documented in docs
 
 ## CI/CD Pipeline
-- **GitLab CI/CD** configured (`.gitlab-ci.yml`)
+- **GitLab CI/CD** configured (`.gitlab-ci.yml`) - Platform issues fixed
 - Stages: restore → build → test (unit + integration) → package
-- PostgreSQL service for integration tests
-- Artifacts: test reports (TRX/JUnit), publish artifacts
+- Linux runners: restore/build/test with EnableWindowsTargeting=true
+- Windows runner: package with Windows Server Core image
+- PostgreSQL service for integration tests on Linux runner
+- Artifacts: test reports (JUnit XML), publish artifacts
 
 ## Deployment
 - Docker Compose with pinned postgres:16-alpine
@@ -66,11 +68,12 @@
 
 ## GitLab Duo Review - Issues Addressed ✅
 1. ✅ **Security claim fixed**: SHA-256 fallback now explicitly documented with auto-rehash to BCrypt on first login
-2. ✅ **Nullable warnings acknowledged**: Documented as non-blocking WPF limitation
+2. ✅ **Nullable warnings acknowledged**: Documented as non-blocking WPF limitation (31 warnings)
 3. ✅ **Flaky test tracked**: Documented as tracked issue #2
 4. ✅ **CI/CD pipeline added**: `.gitlab-ci.yml` with full pipeline
 5. ✅ **Test projects included**: Unit + Integration test projects in repo
 6. ✅ **CI/CD pipeline included**: `.gitlab-ci.yml` in MR
+7. ✅ **Platform fixes**: restore job EnableWindowsTargeting, package job Windows Server Core image
 
 ## GitLab Duo Review - Remaining Items (Tracked)
 1. **Nullable warnings**: 31 warnings (CS8604, CS8618, CS8625) - documented as non-blocking WPF limitation

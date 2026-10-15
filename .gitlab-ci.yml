@@ -20,7 +20,7 @@ restore:
   stage: restore
   image: mcr.microsoft.com/dotnet/sdk:8.0
   script:
-    - dotnet restore AppStore.sln
+    - dotnet restore AppStore.sln -p:EnableWindowsTargeting=true
   cache:
     key: ${CI_COMMIT_REF_SLUG}
     paths:
@@ -83,7 +83,8 @@ package:
   # Windows runner required for WPF single-file publish
   tags:
     - windows
-  image: mcr.microsoft.com/dotnet/sdk:8.0
+  # Use Windows Server Core image for Docker Windows runners; ignored on shell runners
+  image: mcr.microsoft.com/dotnet/sdk:8.0-windowsservercore-ltsc2022
   needs: [test:unit, test:integration]
   script:
     - dotnet publish Project.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:EnableWindowsTargeting=true -o ./publish
