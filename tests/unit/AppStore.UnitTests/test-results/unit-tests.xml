@@ -1,0 +1,92 @@
+<testsuites>
+  <testsuite name="AppStore.UnitTests.dll" tests="40" skipped="0" failures="2" errors="0" time="0.08239710000000001" timestamp="2026-10-15T12:06:04" hostname="WIN11-DESKTOP-T" id="0" package="AppStore.UnitTests.dll">
+    <properties />
+    <testcase classname="AppStore.UnitTests.Models.UsersAppsTests" name="Constructor_SetsInstalledAtToNow" time="0.0051415" />
+    <testcase classname="AppStore.UnitTests.Models.AppTests" name="FinalPrice_With100PercentDiscount_ReturnsZero" time="0.0051380" />
+    <testcase classname="AppStore.UnitTests.Models.UserTests" name="AvatarLetter_EmptyLogin_ReturnsQuestionMark" time="0.0051415" />
+    <testcase classname="AppStore.UnitTests.Services.UndoRedoServiceTests" name="Redo_WhenEmpty_DoesNothing" time="0.0065294" />
+    <testcase classname="AppStore.UnitTests.Models.AppTests" name="Category_CanBeSet" time="0.0001512" />
+    <testcase classname="AppStore.UnitTests.Models.AppTests" name="Category_CanBeSet" time="0.0000922" />
+    <testcase classname="AppStore.UnitTests.Models.AppTests" name="Category_CanBeSet" time="0.0000104" />
+    <testcase classname="AppStore.UnitTests.Models.AppTests" name="Category_CanBeSet" time="0.0000013" />
+    <testcase classname="AppStore.UnitTests.Services.UndoRedoServiceTests" name="PushAction_CanUndoBecomesTrue" time="0.0004134" />
+    <testcase classname="AppStore.UnitTests.Services.UndoRedoServiceTests" name="Undo_WhenEmpty_DoesNothing" time="0.0002420" />
+    <testcase classname="AppStore.UnitTests.Services.UndoRedoServiceTests" name="Clear_RemovesAllActions" time="0.0001616" />
+    <testcase classname="AppStore.UnitTests.Services.UndoRedoServiceTests" name="PushMultipleActions_CanUndoTrue" time="0.0000599" />
+    <testcase classname="AppStore.UnitTests.Models.UserTests" name="AvatarLetter_FromLogin_ReturnsUppercaseFirstChar" time="0.0011107" />
+    <testcase classname="AppStore.UnitTests.Services.UndoRedoServiceTests" name="Undo_ThenRedo_ExecutesRedoAction" time="0.0001452" />
+    <testcase classname="AppStore.UnitTests.Services.UndoRedoServiceTests" name="Undo_ExecutesUndoAction" time="0.0000821" />
+    <testcase classname="AppStore.UnitTests.Services.UndoRedoServiceTests" name="InitialState_CanUndoAndCanRedoAreFalse" time="0.0000591" />
+    <testcase classname="AppStore.UnitTests.Models.UserTests" name="Role_CanBeSetToAdmin" time="0.0004396" />
+    <testcase classname="AppStore.UnitTests.Models.UserTests" name="AvatarLetter_NullLogin_ReturnsQuestionMark" time="0.0000656" />
+    <testcase classname="AppStore.UnitTests.Models.AppTests" name="ButtonLabel_NotDownloaded_PaidApp_ReturnsPrice" time="0.0013929" />
+    <testcase classname="AppStore.UnitTests.Models.UserTests" name="Role_DefaultIsUser" time="0.0000504" />
+    <testcase classname="AppStore.UnitTests.Models.AppTests" name="ButtonLabel_Downloaded_ReturnsOpen" time="0.0001052" />
+    <testcase classname="AppStore.UnitTests.Models.AppTests" name="Tags_CanAddMultiple" time="0.0009843" />
+    <testcase classname="AppStore.UnitTests.Models.AppTests" name="Tags_DefaultIsEmptyList" time="0.0011392" />
+    <testcase classname="AppStore.UnitTests.Models.AppTests" name="FinalPrice_WithDiscount_CalculatesCorrectly" time="0.0000773" />
+    <testcase classname="AppStore.UnitTests.Models.AppTests" name="FinalPrice_NoDiscount_ReturnsPrice" time="0.0000632" />
+    <testcase classname="AppStore.UnitTests.Models.AppTests" name="ButtonLabel_Discounted_ShowsFinalPrice" time="0.0002670" />
+    <testcase classname="AppStore.UnitTests.Models.AppTests" name="ButtonLabel_NotDownloaded_FreeApp_ReturnsDownload" time="0.0001156" />
+    <testcase classname="AppStore.UnitTests.Services.AuthServiceTests" name="UpdateProfile_LoggedInUser_UpdatesFields" time="0.0430284">
+      <failure type="failure" message="Moq.MockException : &#xD;&#xA;Expected invocation on the mock once, but was 2 times: r =&gt; r.UpdateUser(User)&#xD;&#xA;&#xD;&#xA;Performed invocations:&#xD;&#xA;&#xD;&#xA;   Mock&lt;IRepository:1&gt; (r):&#xD;&#xA;&#xD;&#xA;      IRepository.GetUserByLogin(&quot;testuser&quot;)&#xD;&#xA;      IRepository.UpdateUser(User)&#xD;&#xA;      IRepository.UpdateUser(User)&#xD;&#xA;">at Moq.Mock.Verify(Mock mock, LambdaExpression expression, Times times, String failMessage) in /_/src/Moq/Mock.cs:line 332
+   at Moq.Mock`1.Verify(Expression`1 expression, Times times) in /_/src/Moq/Mock`1.cs:line 727
+   at Moq.Mock`1.Verify(Expression`1 expression, Func`1 times) in /_/src/Moq/Mock`1.cs:line 741
+   at AppStore.UnitTests.Services.AuthServiceTests.UpdateProfile_LoggedInUser_UpdatesFields() in C:\Users\timof\Documents\Visual Studio Code\AppStore\tests\unit\AppStore.UnitTests\ServicesTests.cs:line 170
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)</failure>
+    </testcase>
+    <testcase classname="AppStore.UnitTests.Services.AuthServiceTests" name="Login_CaseInsensitive_Works" time="0.0017728" />
+    <testcase classname="AppStore.UnitTests.Services.AuthServiceTests" name="Login_NonExistentUser_ReturnsNull" time="0.0003538" />
+    <testcase classname="AppStore.UnitTests.Services.AuthServiceTests" name="ChangePassword_CorrectOldPassword_UpdatesHash" time="0.0005792">
+      <failure type="failure" message="System.UnauthorizedAccessException : Old password is incorrect.">at Project.Services.AuthService.ChangePassword(String oldPassword, String newPassword) in C:\Users\timof\Documents\Visual Studio Code\AppStore\Services\AuthService.cs:line 132
+   at AppStore.UnitTests.Services.AuthServiceTests.ChangePassword_CorrectOldPassword_UpdatesHash() in C:\Users\timof\Documents\Visual Studio Code\AppStore\tests\unit\AppStore.UnitTests\ServicesTests.cs:line 128
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)</failure>
+    </testcase>
+    <testcase classname="AppStore.UnitTests.Services.AuthServiceTests" name="ChangePassword_WrongOldPassword_ThrowsUnauthorizedAccessException" time="0.0044685" />
+    <testcase classname="AppStore.UnitTests.Services.AuthServiceTests" name="IsAdmin_RegularUser_ReturnsFalse" time="0.0004467" />
+    <testcase classname="AppStore.UnitTests.Services.AuthServiceTests" name="Logout_ClearsCurrentUser" time="0.0004137" />
+    <testcase classname="AppStore.UnitTests.Services.AuthServiceTests" name="HashPassword_SameInput_ProducesSameHash" time="0.0002758" />
+    <testcase classname="AppStore.UnitTests.Services.AuthServiceTests" name="IsAdmin_AdminUser_ReturnsTrue" time="0.0003055" />
+    <testcase classname="AppStore.UnitTests.Services.AuthServiceTests" name="ChangePassword_NoUserLoggedIn_ThrowsInvalidOperationException" time="0.0006147" />
+    <testcase classname="AppStore.UnitTests.Services.AuthServiceTests" name="HashPassword_DifferentInput_ProducesDifferentHash" time="0.0002423" />
+    <testcase classname="AppStore.UnitTests.Services.AuthServiceTests" name="Login_ValidCredentials_ReturnsUser" time="0.0004179" />
+    <testcase classname="AppStore.UnitTests.Services.AuthServiceTests" name="Login_InvalidPassword_ReturnsNull" time="0.0002980" />
+    <system-out>
+Test Framework Informational Messages:
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v2.8.2+699d445a1a (64-bit .NET 8.0.32)
+[xUnit.net 00:00:00.04]   Discovering: AppStore.UnitTests
+[xUnit.net 00:00:00.07]   Discovered:  AppStore.UnitTests
+[xUnit.net 00:00:00.07]   Starting:    AppStore.UnitTests
+[xUnit.net 00:00:00.14]       Moq.MockException : 
+[xUnit.net 00:00:00.14]       Expected invocation on the mock once, but was 2 times: r =&gt; r.UpdateUser(User)
+[xUnit.net 00:00:00.14]       
+[xUnit.net 00:00:00.14]       Performed invocations:
+[xUnit.net 00:00:00.14]       
+[xUnit.net 00:00:00.14]          Mock&lt;IRepository:1&gt; (r):
+[xUnit.net 00:00:00.14]       
+[xUnit.net 00:00:00.14]             IRepository.GetUserByLogin("testuser")
+[xUnit.net 00:00:00.14]             IRepository.UpdateUser(User)
+[xUnit.net 00:00:00.14]             IRepository.UpdateUser(User)
+[xUnit.net 00:00:00.14]       
+[xUnit.net 00:00:00.14]       Stack Trace:
+[xUnit.net 00:00:00.14]         /_/src/Moq/Mock.cs(332,0): at Moq.Mock.Verify(Mock mock, LambdaExpression expression, Times times, String failMessage)
+[xUnit.net 00:00:00.14]         /_/src/Moq/Mock`1.cs(727,0): at Moq.Mock`1.Verify(Expression`1 expression, Times times)
+[xUnit.net 00:00:00.14]         /_/src/Moq/Mock`1.cs(741,0): at Moq.Mock`1.Verify(Expression`1 expression, Func`1 times)
+[xUnit.net 00:00:00.14]         C:\Users\timof\Documents\Visual Studio Code\AppStore\tests\unit\AppStore.UnitTests\ServicesTests.cs(170,0): at AppStore.UnitTests.Services.AuthServiceTests.UpdateProfile_LoggedInUser_UpdatesFields()
+[xUnit.net 00:00:00.14]            at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+[xUnit.net 00:00:00.14]            at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:00.14]       System.UnauthorizedAccessException : Old password is incorrect.
+[xUnit.net 00:00:00.14]       Stack Trace:
+[xUnit.net 00:00:00.14]         C:\Users\timof\Documents\Visual Studio Code\AppStore\Services\AuthService.cs(132,0): at Project.Services.AuthService.ChangePassword(String oldPassword, String newPassword)
+[xUnit.net 00:00:00.14]         C:\Users\timof\Documents\Visual Studio Code\AppStore\tests\unit\AppStore.UnitTests\ServicesTests.cs(128,0): at AppStore.UnitTests.Services.AuthServiceTests.ChangePassword_CorrectOldPassword_UpdatesHash()
+[xUnit.net 00:00:00.14]            at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+[xUnit.net 00:00:00.14]            at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:00.15]   Finished:    AppStore.UnitTests
+</system-out>
+    <system-err>Error - [xUnit.net 00:00:00.14]     AppStore.UnitTests.Services.AuthServiceTests.UpdateProfile_LoggedInUser_UpdatesFields [FAIL]
+Error - [xUnit.net 00:00:00.14]     AppStore.UnitTests.Services.AuthServiceTests.ChangePassword_CorrectOldPassword_UpdatesHash [FAIL]
+</system-err>
+  </testsuite>
+</testsuites>

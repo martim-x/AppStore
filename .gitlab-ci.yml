@@ -48,10 +48,10 @@ test:unit:
   image: mcr.microsoft.com/dotnet/sdk:8.0
   needs: [build]
   script:
-    - dotnet test tests/unit/AppStore.UnitTests/AppStore.UnitTests.csproj --no-build -c Release --logger "junit;LogFilePath=test-results/unit-tests.xml"
+    - dotnet test tests/unit/AppStore.UnitTests/AppStore.UnitTests.csproj --no-build -c Release --logger "junit;LogFilePath=$CI_PROJECT_DIR/test-results/unit-tests.xml"
   artifacts:
     reports:
-      junit: "test-results/unit-tests.xml"
+      junit: "$CI_PROJECT_DIR/test-results/unit-tests.xml"
     expire_in: 1 week
 
 test:integration:
@@ -72,10 +72,10 @@ test:integration:
     DB_USER: "postgres"
     DB_PASS: "postgres"
   script:
-    - dotnet test tests/integration/AppStore.IntegrationTests/AppStore.IntegrationTests.csproj --no-build -c Release --logger "junit;LogFilePath=test-results/integration-tests.xml"
+    - dotnet test tests/integration/AppStore.IntegrationTests/AppStore.IntegrationTests.csproj --no-build -c Release --logger "junit;LogFilePath=$CI_PROJECT_DIR/test-results/integration-tests.xml"
   artifacts:
     reports:
-      junit: "test-results/integration-tests.xml"
+      junit: "$CI_PROJECT_DIR/test-results/integration-tests.xml"
     expire_in: 1 week
 
 package:

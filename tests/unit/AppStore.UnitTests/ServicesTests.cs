@@ -12,13 +12,17 @@ namespace AppStore.UnitTests.Services
     public class AuthServiceTests
     {
         private readonly Mock<IRepository> _repoMock;
-        private readonly AuthService _authService;
+                private readonly Mock<IPasswordHasher> _passwordHasherMock;
+                private readonly SHA256Hasher _sha256Hasher;
+                private readonly AuthService _authService;
 
-        public AuthServiceTests()
-        {
-            _repoMock = new Mock<IRepository>();
-            _authService = new AuthService(_repoMock.Object);
-        }
+                public AuthServiceTests()
+                        {
+                            _repoMock = new Mock<IRepository>();
+                            _passwordHasherMock = new Mock<IPasswordHasher>();
+                            _sha256Hasher = new SHA256Hasher();
+                            _authService = new AuthService(_repoMock.Object, _passwordHasherMock.Object, _sha256Hasher);
+                        }
 
         [Fact]
         public void Login_ValidCredentials_ReturnsUser()
