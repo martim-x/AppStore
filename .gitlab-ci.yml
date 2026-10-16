@@ -65,12 +65,13 @@ test:integration:
         POSTGRES_DB: "appstore_test"
         POSTGRES_USER: "postgres"
         POSTGRES_PASSWORD: "postgres"
+  # Variable names must match Settings.cs (LoadFromEnvironment / SetProperty)
   variables:
     DB_HOST: "postgres"
-    DB_PORT: "5432"
+    DB_PORT_FROM: "5432"
     DB_NAME: "appstore_test"
-    DB_USER: "postgres"
-    DB_PASS: "postgres"
+    DB_ADMIN: "postgres"
+    DB_ADMIN_PASS: "postgres"
   script:
     - dotnet test tests/integration/AppStore.IntegrationTests/AppStore.IntegrationTests.csproj --no-build -c Release --logger "junit;LogFilePath=$CI_PROJECT_DIR/test-results/integration-tests.xml"
   artifacts:

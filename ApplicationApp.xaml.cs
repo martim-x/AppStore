@@ -13,7 +13,7 @@ namespace Project
 {
     public partial class ApplicationApp : Application
     {
-        private IServiceProvider _serviceProvider;
+        private IServiceProvider _serviceProvider = null!;
 
         [STAThread]
         public static void Main()

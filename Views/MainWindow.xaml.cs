@@ -18,7 +18,7 @@ namespace Project.Views
 
         public ObservableCollection<string> EventLog { get; } = new();
 
-        public MainWindow(IServiceProvider services = null)
+        public MainWindow(IServiceProvider services = null!)
         {
             _services = services;
             InitializeComponent();
@@ -125,12 +125,12 @@ namespace Project.Views
         }
 
         private void OnAddAppClick(object sender, RoutedEventArgs e)
-                {
-                    var dlg = _services?.GetService<AddEditWindow>() ?? new AddEditWindow(_services);
+        {
+            var dlg = _services.GetService<AddEditWindow>() ?? new AddEditWindow(_services);
 
-                    if (dlg.ShowDialog() == true)
-                        Vm.RefreshCommand.Execute(null);
-                }
+            if (dlg.ShowDialog() == true)
+                Vm.RefreshCommand.Execute(null);
+        }
 
         private void OnResetFilters(object sender, RoutedEventArgs e)
         {
@@ -160,17 +160,17 @@ namespace Project.Views
         }
 
         private void OnProfileClick(object sender, RoutedEventArgs e)
-                {
-                    var popup = _services?.GetService<ProfilePopup>() ?? new ProfilePopup(_services);
-                    popup.Initialize(this);
-                    popup.Show();
+        {
+            var popup = _services.GetService<ProfilePopup>() ?? new ProfilePopup(_services);
+            popup.Initialize(this);
+            popup.Show();
 
-                    popup.Closed += (_, __) =>
-                    {
-                        if (popup.LoggedOut)
-                            Vm.LogoutCommand.Execute(null);
-                    };
-                }
+            popup.Closed += (_, __) =>
+            {
+                if (popup.LoggedOut)
+                    Vm.LogoutCommand.Execute(null);
+            };
+        }
 
         private void OnGridAppClick(object sender, MouseButtonEventArgs e)
         {

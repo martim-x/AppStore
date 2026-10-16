@@ -9,7 +9,7 @@ namespace Project.Views
 {
     public partial class LoginWindow : Window
     {
-        private IAuthService _auth;
+        private IAuthService _auth = null!;
 
         public LoginWindow()
         {

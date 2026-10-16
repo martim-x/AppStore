@@ -9,7 +9,7 @@ namespace Project.ViewModels
     public class AddEditAppViewModel : ViewModelBase
     {
         private readonly IRepository _repo;
-        private App _app;
+        private App _app = null!;
         private bool _isEditMode;
 
         public App App

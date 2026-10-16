@@ -10,12 +10,12 @@ namespace Project.Views
     {
         private readonly IServiceProvider _services;
 
-        public AddEditWindow(IServiceProvider services = null)
+        public AddEditWindow(IServiceProvider services = null!)
         {
             _services = services;
             InitializeComponent();
 
-            var repository = _services?.GetRequiredService<IRepository>();
+            var repository = _services.GetRequiredService<IRepository>();
             var vm = new AddEditAppViewModel(repository);
             vm.OnSaved = () =>
             {

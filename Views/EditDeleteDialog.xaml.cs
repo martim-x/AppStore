@@ -10,7 +10,7 @@ namespace Project.Views
         private readonly MainViewModel _vm;
         private readonly IServiceProvider _services;
 
-        public EditDeleteDialog(MainViewModel vm, IServiceProvider services = null)
+        public EditDeleteDialog(MainViewModel vm, IServiceProvider services = null!)
         {
             InitializeComponent();
             _vm = vm;
@@ -24,7 +24,7 @@ namespace Project.Views
             if (_vm.SelectedApp == null)
                 return;
 
-            var dlg = _services?.GetService(typeof(AddEditWindow)) as AddEditWindow ?? new AddEditWindow(_services);
+            var dlg = _services.GetService(typeof(AddEditWindow)) as AddEditWindow ?? new AddEditWindow(_services);
             dlg.Initialize(_vm.SelectedApp);
             dlg.Owner = Application.Current.MainWindow;
 
