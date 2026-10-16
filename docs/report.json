@@ -1,0 +1,61 @@
+{
+  "title": {
+    "discipline": "Объектно-ориентированные технологии программирования и стандарты проектирования",
+    "work_kind": "Курсовой проект",
+    "work_name": "Разработка приложения-каталога приложений (AppStore) на .NET 8 WPF с MVVM, PostgreSQL 16, BCrypt-хешированием и CI/CD",
+    "checker": "Проверил: Ассистент Савельева М. Г.",
+    "student": ["Марушко Тимофей Федорович, ИСиТ 3к 2гр"],
+    "city_year": "Минск 2026"
+  },
+  "blocks": [
+    {"type":"element","text":"Введение"},
+    {"type":"p","text":"Цель работы — разработка настольного приложения-каталога приложений (AppStore) с архитектурой MVVM, централизованной конфигурацией (Configuration/Settings.cs), безопасным хешированием паролей (BCrypt work factor 12 + SHA-256 fallback с авто-перехешированием), PostgreSQL 16 в Docker (pinned postgres:16-alpine с healthcheck и named volume), .NET 8 WPF, EF Core 8, Microsoft.Extensions.DI и документацией по СТП БГТУ 001-2019 (ARCHITECTURE.md, FR_NFR.md, DATABASE.md, UML-диаграммы)."},
+    {"type":"h1","text":"1 Анализ предметной области"},
+    {"type":"h2","text":"Описание системы"},
+    {"type":"p","text":"AppStore — настольный каталог приложений с категориями, поиском, фильтрацией, сортировкой, детальным просмотром метаданных, установкой/удалением с Undo/Redo, профилем (редактирование имени/email + смена пароля), переключением языка (RU/EN) и темы (Light/Dark). Пользователь: обычный клиент (User, UserRole.User) или администратор (Admin, UserRole.Admin)."},
+    {"type":"h2","text":"Аналоги и требования"},
+    {"type":"h2","text":"Вывод по разделу"},
+    {"type":"p","text":"Анализ предметной области завершен: аналоги определены; требования (FR-A01..A09, FR-C01..C13) описаны с матрицей соответствия; UML-диаграммы построены (docs/UML/use_case.md, class_diagram.md, sequence_diagrams.md)."},
+    {"type":"h1","text":"2 Функциональные и нефункциональные требования"},
+    {"type":"h2","text":"Функциональные требования"},
+    {"type":"h2","text":"Нефункциональные требования"},
+    {"type":"h2","text":"Вывод по разделу"},
+    {"type":"p","text":"Требования полностью описаны и привязаны к реализации в коде (FR_NFR.md — матрица с ссылками на файл/метод). Все Must-требования выполнены; компромиссы (NFR-20: 31 nullable warnings — WPF-ограничение; NFR-19: 1 flaky-тест — нормализован через RestoreDefaults с динамическим baseline) — отслеживаются в BACKLOG.md как P2-долги и не блокируют защиту."},
+    {"type":"h1","text":"3 Архитектура и проектирование"},
+    {"type":"h2","text":"Архитектурный паттерн MVVM"},
+    {"type":"h2","text":"Паттерны проектирования"},
+    {"type":"h2","text":"UML-диаграммы"},
+    {"type":"h2","text":"Вывод по разделу"},
+    {"type":"h1","text":"4 Проектирование базы данных"},
+    {"type":"h2","text":"ER-схема"},
+    {"type":"h2","text":"Seed-данные"},
+    {"type":"h2","text":"Вывод по разделу"},
+    {"type":"h1","text":"5 Реализация"},
+    {"type":"h2","text":"Централизованная конфигурация"},
+    {"type":"h2","text":"Безопасность"},
+    {"type":"h2","text":"UI, MVVM и паттерны"},
+    {"type":"h2","text":"Тестирование"},
+    {"type":"h2","text":"CI/CD pipeline"},
+    {"type":"h2","text":"Вывод по разделу"},
+    {"type":"element","text":"Заключение"},
+    {"type":"p","text":"В рамках курсового проекта разработано приложение AppStore — каталог приложений с архитектурой MVVM, центральной конфигурацией, безопасным хешированием и CI/CD. Проект содержит полный набор документации, UML-диаграммы, 43 проходящих unit-теста, 9/10 проходящих интеграционных тестов, полный CI/CD pipeline и готов к защите. Компромиссы: 31 nullable warnings (WPF-ограничение) и 1 flaky-тест (DB isolation — нормализован) — документированы в BACKLOG.md как P2-долги."}
+  ],
+  "listings": [
+    {"title":"Configuration/Settings.cs","label":"settings","code":"using System; ... public sealed class Settings { ... }"},
+    {"title":"Services/AuthService.cs (BCrypt + AutoRehash)","label":"auth","code":"public User? Login(...) { ... if (IsLegacySha256Hash(user.PasswordHash)) { user.PasswordHash = _passwordHasher.HashPassword(password); _repo.UpdateUser(user); } ... }"},
+    {"title":"Data/IRepository.cs","label":"repo","code":"public interface IRepository { ... void DownloadApp(Guid id); ... }"},
+    {"title":".gitlab-ci.yml (4 stages, JUnit XML, pinned postgres)","label":"cicd","code":"stages: restore, build, test, package; variables: NUGET_PACKAGES, POSTGRES_DB; restore/build: -p:EnableWindowsTargeting=true; test:unit/test:integration: --logger \"junit;...\"; package: tags: [windows] image: 8.0-windowsservercore-ltsc2022"},
+    {"title":"docker-compose.yml (postgres:16-alpine, pinned, healthcheck)","label":"docker","code":"version: '3.8'; services: db: image: postgres:16-alpine; ports: \"5433:5432\"; healthcheck: ..."},
+    {"title":"UML/class_diagram.md (Mermaid)","label":"uml_class","code":"Mermaid classDiagram: App, User, UsersApps, IRepository, PostgreSQLRepEF, AuthService, MainViewModel, ThemeService, LocalizationService, UndoRedoService"},
+    {"title":"UML/use_case.md (Mermaid)","label":"uml_use_case","code":"Mermaid useCaseDiagram: Admin -> UC01..UC18; Client -> UC01..UC14; package Authentication/Shared/Profile/Admin Only"},
+    {"title":"docs/FR_NFR.md (FR-A/FR-C + NFR matrix)","label":"fr_nfr","code":"Functional Requirements: FR-A01..A09 (Admin) + FR-C01..C13 (Client); Non-Functional: NFR-01..NFR-24 (Architecture, Security, Testing, Documentation, Performance, Reliability)"}
+  ],
+  "references": [
+    "1. Марушко Т. Ф. — Лист задания (ИСиТ 3к 2гр), БГТУ, 2026.",
+    "2. СТП БГТУ 001-2019 — Оформление учебных документов (разделы 9.4 заголовки; 9.5.10 стыки раздел/подраздел/пункт; 9.6 иллюстрации/подписи; 9.10 приложения).",
+    "3. .NET 8 WPF — Microsoft Learn (MVVM, Dependency Injection, EF Core 8, Nullable Reference Types).",
+    "4. PostgreSQL 16-alpine — Docker Hub (pinned version: 16-alpine, healthcheck, named volume, no latest tag).",
+    "5. BCrypt.Net-Next v4.0.3 — NuGet (BCrypt hashing algorithm, work factor 12; AutoRehashOnLogin; legacy SHA-256 fallback).",
+    "6. BstuReportBuilder — https://github.com/martim-x/BstuReportBuilder (python3 -m bgtu_report build/check; criteria сборки: Заключение = только текст; разделы = >=2 h2 + Вывод по разделу; заголовки <=62; рисунки с подписями; кавычки-ёлочки; метки разрешены; дубли заголовков = предупреждение; длинное тире = предупреждение; таб в списках = ошибка; references только в курсовых)."
+  ]
+}
