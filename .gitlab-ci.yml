@@ -17,7 +17,7 @@ restore:
   stage: restore
   image: mcr.microsoft.com/dotnet/sdk:8.0
   script:
-    - dotnet restore AppStore.sln -p:EnableWindowsTargeting=true
+    - dotnet restore Project.sln -p:EnableWindowsTargeting=true
   cache:
     key: ${CI_COMMIT_REF_SLUG}
     paths:
@@ -29,7 +29,7 @@ build:
   image: mcr.microsoft.com/dotnet/sdk:8.0
   needs: [restore]
   script:
-    - dotnet build AppStore.sln --no-restore -c Release -p:EnableWindowsTargeting=true
+    - dotnet build Project.sln --no-restore -c Release -p:EnableWindowsTargeting=true
   artifacts:
     paths:
       - "**/bin/Release/net8.0-windows/"
