@@ -141,6 +141,11 @@
 ## Weekly Review Checklist (Friday)
 
 - [ ] All tasks for week moved to Done / blocked with reason
+- [ ] `dotnet test` — all pass
+- [ ] Documentation updated
+- [ ] Conventional commits
+- [ ] No hardcoded config
+- [ ] Next week's tasks clear
 - [ ] `dotnet build -c Release` — zero warnings
 - [ ] `bsstu-report --check` passes; docx+pdf generated; no formatting errors
 - [x] `bsstu-report`: критерии сборки добавлены (`BstuReportBuilder/app/checks.py`):

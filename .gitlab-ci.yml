@@ -35,6 +35,7 @@ build:
     paths:
       - "**/bin/Release/net8.0-windows/"
       - "AppStore.Core/bin/Release/net8.0/"
+      - "**/obj/"
     expire_in: 1 week
   cache:
     key: ${CI_COMMIT_REF_SLUG}
