@@ -2,7 +2,7 @@ using System;
 using System.Windows;
 using System.Windows.Media;
 using Microsoft.Extensions.DependencyInjection;
-using Project.Data;
+using AppStore.Core.Data;
 using Project.Services;
 using Project.ViewModels;
 

@@ -5,9 +5,9 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Project.Data;
+using AppStore.Core.Data;
+using AppStore.Core.Configuration;
 using Project.Services;
-using Project.Configuration;
 using Xunit;
 using FluentAssertions;
 

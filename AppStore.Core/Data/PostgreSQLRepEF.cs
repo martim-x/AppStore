@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Project.Configuration;
+using AppStore.Core.Configuration;
 
-namespace Project.Data
+namespace AppStore.Core.Data
 {
     public class PostgreDbContext : DbContext
     {

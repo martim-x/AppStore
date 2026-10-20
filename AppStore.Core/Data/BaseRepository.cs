@@ -4,7 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 using BCrypt.Net;
 
-namespace Project.Data
+namespace AppStore.Core.Data
 {
     /// <summary>
     /// Абстрактный базовый репозиторий.

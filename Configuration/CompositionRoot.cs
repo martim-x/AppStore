@@ -1,7 +1,8 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
 using Project.Configuration;
-using Project.Data;
+using AppStore.Core.Configuration;
+using AppStore.Core.Data;
 using Project.Services;
 using Project.ViewModels;
 

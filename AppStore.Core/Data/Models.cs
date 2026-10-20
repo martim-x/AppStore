@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Project.Data
+namespace AppStore.Core.Data
 {
     /// <summary>
     /// Модель приложения в каталоге.

@@ -1,6 +1,6 @@
 using System;
 using BCrypt.Net;
-using Project.Data;
+using AppStore.Core.Data;
 
 namespace Project.Services
 {

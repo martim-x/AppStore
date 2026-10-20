@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
 
-namespace Project.Data
+namespace AppStore.Core.Data
 {
     public class JsonRep : BaseRepository
     {

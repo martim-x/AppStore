@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace Project.Configuration
+namespace AppStore.Core.Configuration
 {
     /// <summary>
     /// Централизованный класс настроек приложения.

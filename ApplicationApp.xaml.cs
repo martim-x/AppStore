@@ -4,7 +4,7 @@ using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using Microsoft.Extensions.DependencyInjection;
 using Project.Configuration;
-using Project.Data;
+using AppStore.Core.Data;
 using Project.Services;
 using Project.ViewModels;
 using Project.Views;

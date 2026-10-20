@@ -31,14 +31,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AppStore.Core\AppStore.Core.csproj">
-      <PrivateAssets>all</PrivateAssets>
-    </ProjectReference>
+    <ProjectReference Include="..\AppStore.Core\AppStore.Core.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(BuildingProject)' != 'true'">
     <Reference Include="AppStore.Core">
-      <HintPath>..\AppStore.Core\bin\Release\net8.0\AppStore.Core.dll</HintPath>
+      <HintPath>..\AppStore.Core\bin\$(Configuration)\net8.0\AppStore.Core.dll</HintPath>
     </Reference>
   </ItemGroup>
 

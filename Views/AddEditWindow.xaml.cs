@@ -1,7 +1,7 @@
 using System;
 using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
-using Project.Data;
+using AppStore.Core.Data;
 using Project.ViewModels;
 
 namespace Project.Views

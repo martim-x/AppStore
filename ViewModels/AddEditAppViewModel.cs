@@ -2,7 +2,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using Project.Commands;
-using Project.Data;
+using AppStore.Core.Data;
 
 namespace Project.ViewModels
 {

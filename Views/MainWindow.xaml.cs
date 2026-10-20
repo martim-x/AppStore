@@ -6,7 +6,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using Microsoft.Extensions.DependencyInjection;
 using Project.Commands;
-using Project.Data;
+using AppStore.Core.Data;
 using Project.ViewModels;
 
 namespace Project.Views

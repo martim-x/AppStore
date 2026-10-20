@@ -29,8 +29,8 @@ build:
   image: mcr.microsoft.com/dotnet/sdk:8.0
   needs: [restore]
   script:
-    - dotnet build AppStore.Core/AppStore.Core.csproj --no-restore -c Release
-    - dotnet build Project.sln --no-restore -c Release -p:EnableWindowsTargeting=true
+    - dotnet build AppStore.Core/AppStore.Core.csproj -c Release
+    - dotnet build Project.sln -c Release -p:EnableWindowsTargeting=true
   artifacts:
     paths:
       - "**/bin/Release/net8.0-windows/"
