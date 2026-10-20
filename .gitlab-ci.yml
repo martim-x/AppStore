@@ -22,7 +22,7 @@ restore:
     key: ${CI_COMMIT_REF_SLUG}
     paths:
       - ".nuget/packages"
-      - "**/obj/project.assets.json"
+      - "**/obj/"
 
 build:
   stage: build
@@ -38,7 +38,7 @@ build:
     key: ${CI_COMMIT_REF_SLUG}
     paths:
       - ".nuget/packages"
-      - "**/obj/project.assets.json"
+      - "**/obj/"
 
 test:unit:
   stage: test
