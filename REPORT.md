@@ -30,16 +30,17 @@
 - [x] EF Core Migrations + EnableRetryOnFailure
 - [x] BCrypt Password Hashing + SHA-256 fallback **with auto-rehash on login**
 - [x] Unit Tests: 43/43 passing
-- [x] Integration Tests: 9/10 passing (1 flaky - tracked)
+- [x] Integration Tests: 10/10 passing
 - [x] GitLab CI/CD Pipeline (`.gitlab-ci.yml`) - Fixed platform issues
 - [x] Documentation (ARCHITECTURE.md, FR_NFR.md, DATABASE.md, etc.)
 - [x] UML Diagrams (Use Case, Class, Sequence)
 - [x] Docker Compose (postgres:16-alpine)
 - [x] XML Documentation on all public APIs
 
-### ⚠️ Known Issues (Tracked - Resolved)
-1. **Integration Test Flakiness**: Fixed - RestoreDefaults_ResetsDatabase now uses deterministic baseline after RestoreDefaults() call, passes reliably
-2. **Nullable Warnings**: Fixed - CS8625 in TestUndoRedoAction resolved by using nullable Action? parameters; WPF view nullable patterns addressed with explicit validation
+## ⚠️ Known Issues (Resolved)
+
+1. **Integration Test Flakiness**: Resolved - `RestoreDefaults_ResetsDatabase` uses deterministic baseline after `RestoreDefaults()` call, passes reliably in CI
+2. **Nullable Warnings**: Resolved - `CS8625` in `TestUndoRedoAction` fixed with nullable `Action?` parameters; WPF view patterns addressed with explicit constructor validation
 
 ## Test Coverage
 || Category | Tests | Status ||
