@@ -15,18 +15,33 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="**\*.cs" Exclude="tests\**\*;obj\**\*;bin\**\*" />
-    <PackageReference Include="BCrypt.Net-Next" Version="4.2.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.10" />
+    <Compile Include="Views\**\*.cs" />
+    <Compile Include="ViewModels\**\*.cs" />
+    <Compile Include="Converters\**\*.cs" />
+    <Compile Include="Commands\**\*.cs" />
+    <Compile Include="Configuration\CompositionRoot.cs" />
+    <Compile Include="Services\ThemeService.cs" />
+    <Compile Include="Services\LocalizationService.cs" />
+    <Compile Include="ApplicationApp.xaml.cs" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.10">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.10" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.10" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AppStore.Core\AppStore.Core.csproj">
+      <PrivateAssets>all</PrivateAssets>
+    </ProjectReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="AppStore.Core">
+      <HintPath>..\AppStore.Core\bin\Release\net8.0\AppStore.Core.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
   <ItemGroup>
     <Resource Include="Resources\Icons\app.ico" />
     <Resource Include="Resources\Cursors\arrow.cur" />

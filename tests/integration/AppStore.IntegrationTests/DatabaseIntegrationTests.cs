@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Project.Data;
 using Project.Services;
 using Project.Configuration;
-using Testcontainers.PostgreSQL;
+using Testcontainers.PostgreSql;
 using Xunit;
 using FluentAssertions;
 
@@ -40,11 +41,20 @@ namespace AppStore.IntegrationTests
             Environment.SetEnvironmentVariable("DB_ADMIN_PASS", "postgres");
 
             // Force Settings to reload
-            var loadMethod = typeof(Settings).GetMethod("LoadFromEnvironment", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var loadMethod = typeof(Settings).GetMethod("LoadFromEnvironment", BindingFlags.NonPublic | BindingFlags.Instance);
             loadMethod?.Invoke(Settings.Instance, null);
 
-            // Use the actual CompositionRoot to build DI container
-            _services = CompositionRoot.Build();
+            // Build DI container for core services only
+            var services = new ServiceCollection();
+            services.AddSingleton(_ => Settings.Instance);
+            services.AddSingleton<IPasswordHasher, BCryptHasher>();
+            services.AddSingleton<SHA256Hasher>();
+            services.AddScoped<IRepository, PostgreSQLRepEF>();
+            services.AddScoped<PostgreSQLRepEF>();
+            services.AddSingleton<IUndoRedoService, UndoRedoService>();
+            services.AddScoped<IAuthService, AuthService>();
+
+            _services = services.BuildServiceProvider();
 
             var connectionString = Settings.Instance.ConnectionString;
 
@@ -56,7 +66,7 @@ namespace AppStore.IntegrationTests
             _repository = _services.GetRequiredService<PostgreSQLRepEF>();
 
             // Replace the internal DbContext
-            var repoField = typeof(PostgreSQLRepEF).GetField("_db", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var repoField = typeof(PostgreSQLRepEF).GetField("_db", BindingFlags.NonPublic | BindingFlags.Instance);
             repoField?.SetValue(_repository, _dbContext);
 
             _authService = _services.GetRequiredService<IAuthService>();
