@@ -45,7 +45,7 @@ test:unit:
   image: mcr.microsoft.com/dotnet/sdk:8.0
   needs: [build]
   script:
-    - dotnet test tests/unit/AppStore.UnitTests/AppStore.UnitTests.csproj --no-build -c Release --logger "junit;LogFilePath=$CI_PROJECT_DIR/test-results/unit-tests.xml"
+    - dotnet test tests/unit/AppStore.UnitTests/AppStore.UnitTests.csproj -c Release --logger "junit;LogFilePath=$CI_PROJECT_DIR/test-results/unit-tests.xml"
   artifacts:
     reports:
       junit: "$CI_PROJECT_DIR/test-results/unit-tests.xml"
@@ -64,7 +64,7 @@ test:integration:
     DB_ADMIN: "postgres"
     DB_ADMIN_PASS: "postgres"
   script:
-    - dotnet test tests/integration/AppStore.IntegrationTests/AppStore.IntegrationTests.csproj --no-build -c Release --logger "junit;LogFilePath=$CI_PROJECT_DIR/test-results/integration-tests.xml"
+    - dotnet test tests/integration/AppStore.IntegrationTests/AppStore.IntegrationTests.csproj -c Release --logger "junit;LogFilePath=$CI_PROJECT_DIR/test-results/integration-tests.xml"
   artifacts:
     reports:
       junit: "$CI_PROJECT_DIR/test-results/integration-tests.xml"
