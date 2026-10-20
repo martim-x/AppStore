@@ -71,9 +71,9 @@ namespace Project.Data
                                 : v.Split(",", StringSplitOptions.RemoveEmptyEntries).ToList()
                     )
                     .Metadata.SetValueComparer(new ValueComparer<List<string>>(
-                                            (c1, c2) => (c1 ?? new List<string>()).SequenceEqual(c2 ?? new List<string>()),
-                                            c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
-                                            c => c.ToList()));
+                        (c1, c2) => (c1 ?? new List<string>()).SequenceEqual(c2 ?? new List<string>()),
+                        c => (c ?? new List<string>()).Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                        c => (c ?? new List<string>()).ToList()));
 
                 e.Ignore(a => a.FinalPrice);
                 e.Ignore(a => a.ButtonLabel);

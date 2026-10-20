@@ -315,7 +315,7 @@ namespace AppStore.UnitTests.Services
             private readonly Action _undo;
             private readonly Action _redo;
 
-            public TestUndoRedoAction(Action undo = null, Action redo = null)
+            public TestUndoRedoAction(Action? undo = null, Action? redo = null)
             {
                 _undo = undo ?? (() => { });
                 _redo = redo ?? (() => { });

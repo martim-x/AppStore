@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Project.Data;
 using Project.Services;
 using Project.Configuration;
+using Testcontainers.PostgreSQL;
 using Xunit;
 using FluentAssertions;
 
@@ -18,25 +19,25 @@ namespace AppStore.IntegrationTests
         private PostgreSQLRepEF _repository;
         private IAuthService _authService;
         private PostgreDbContext _dbContext;
+        private PostgreSqlContainer _postgresContainer;
 
         public DatabaseIntegrationTests()
         {
-            // Set defaults ONLY if not already configured (CI provides its own values
-            // via environment variables: DB_HOST, DB_PORT_FROM, DB_NAME, DB_ADMIN, DB_ADMIN_PASS)
-            var defaults = new Dictionary<string, string>
-            {
-                ["DB_HOST"] = "localhost",
-                ["DB_PORT_FROM"] = "5433",
-                ["DB_NAME"] = "appstore",
-                ["DB_ADMIN"] = "postgres",
-                ["DB_ADMIN_PASS"] = "changeme"
-            };
+            // Start Testcontainers PostgreSQL
+            _postgresContainer = new PostgreSqlBuilder()
+                .WithImage("postgres:16-alpine")
+                .WithDatabase("appstore_test")
+                .WithUsername("postgres")
+                .WithPassword("postgres")
+                .WithPortBinding(5432, true)
+                .Build();
 
-            foreach (var kvp in defaults)
-            {
-                if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable(kvp.Key)))
-                    Environment.SetEnvironmentVariable(kvp.Key, kvp.Value);
-            }
+            // Set environment variables for Settings to use Testcontainers
+            Environment.SetEnvironmentVariable("DB_HOST", "localhost");
+            Environment.SetEnvironmentVariable("DB_PORT_FROM", _postgresContainer.GetMappedPublicPort(5432).ToString());
+            Environment.SetEnvironmentVariable("DB_NAME", "appstore_test");
+            Environment.SetEnvironmentVariable("DB_ADMIN", "postgres");
+            Environment.SetEnvironmentVariable("DB_ADMIN_PASS", "postgres");
 
             // Force Settings to reload
             var loadMethod = typeof(Settings).GetMethod("LoadFromEnvironment", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
@@ -61,11 +62,17 @@ namespace AppStore.IntegrationTests
             _authService = _services.GetRequiredService<IAuthService>();
         }
 
-        public Task InitializeAsync() => Task.CompletedTask;
+        public async Task InitializeAsync()
+        {
+            await _postgresContainer.StartAsync();
+            // Ensure database is created and migrations applied
+            await _dbContext.Database.EnsureCreatedAsync();
+        }
 
         public async Task DisposeAsync()
         {
             await _dbContext.DisposeAsync();
+            await _postgresContainer.DisposeAsync();
         }
 
         [Fact]

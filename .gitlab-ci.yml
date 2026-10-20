@@ -1,5 +1,6 @@
 # AppStore WPF - GitLab CI/CD Pipeline
 # Strategy: Linux runners for restore/build/test (with EnableWindowsTargeting), Windows runner for package
+# Integration tests use Testcontainers for PostgreSQL (cross-platform) instead of service container
 
 stages:
   - restore
@@ -11,10 +12,6 @@ variables:
   DOTNET_VERSION: "8.0"
   # NuGet cache must point into project directory
   NUGET_PACKAGES: "$CI_PROJECT_DIR/.nuget/packages"
-  # PostgreSQL for integration tests (Linux service container)
-  POSTGRES_DB: "appstore_test"
-  POSTGRES_USER: "postgres"
-  POSTGRES_PASSWORD: "postgres"
 
 restore:
   stage: restore
@@ -58,16 +55,10 @@ test:integration:
   stage: test
   image: mcr.microsoft.com/dotnet/sdk:8.0
   needs: [build]
-  services:
-    - name: postgres:16-alpine
-      alias: postgres
-      variables:
-        POSTGRES_DB: "appstore_test"
-        POSTGRES_USER: "postgres"
-        POSTGRES_PASSWORD: "postgres"
-  # Variable names must match Settings.cs (LoadFromEnvironment / SetProperty)
+  # Use Testcontainers for PostgreSQL (cross-platform) - no service container needed
   variables:
-    DB_HOST: "postgres"
+    # Testcontainers will start PostgreSQL automatically
+    DB_HOST: "localhost"
     DB_PORT_FROM: "5432"
     DB_NAME: "appstore_test"
     DB_ADMIN: "postgres"

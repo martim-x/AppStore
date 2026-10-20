@@ -54,12 +54,7 @@ namespace Project
 
         private void ShowLogin()
         {
-            var repo = _serviceProvider.GetRequiredService<IRepository>();
-            var auth = _serviceProvider.GetRequiredService<IAuthService>();
             var login = _serviceProvider.GetRequiredService<Views.LoginWindow>();
-
-            // Inject dependencies into LoginWindow
-            login.Initialize(auth);
 
             // Закрыли логин без входа — завершаем процесс
             if (login.ShowDialog() != true)

@@ -13,9 +13,9 @@ namespace Project.Views
         private readonly IServiceProvider _services;
         public bool LoggedOut { get; private set; }
 
-        public ProfilePopup(IServiceProvider services = null!)
+        public ProfilePopup(IServiceProvider services)
         {
-            _services = services;
+            _services = services ?? throw new ArgumentNullException(nameof(services));
             InitializeComponent();
         }
 
@@ -23,9 +23,6 @@ namespace Project.Views
         {
             var auth = _services.GetRequiredService<IAuthService>();
             var theme = _services.GetRequiredService<IThemeService>();
-
-            if (auth == null || theme == null)
-                return;
 
             Owner = owner;
             var user = auth.CurrentUser!;

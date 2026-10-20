@@ -16,11 +16,14 @@ namespace Project.Views
         private MainViewModel Vm => (MainViewModel)DataContext;
         private readonly IServiceProvider _services;
 
+        // Expose services for child controls (AppDetailView needs it for EditDeleteDialog)
+        internal IServiceProvider Services => _services;
+
         public ObservableCollection<string> EventLog { get; } = new();
 
-        public MainWindow(IServiceProvider services = null!)
+        public MainWindow(IServiceProvider services)
         {
-            _services = services;
+            _services = services ?? throw new ArgumentNullException(nameof(services));
             InitializeComponent();
 
             try

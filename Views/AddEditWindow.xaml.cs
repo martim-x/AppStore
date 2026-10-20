@@ -10,9 +10,9 @@ namespace Project.Views
     {
         private readonly IServiceProvider _services;
 
-        public AddEditWindow(IServiceProvider services = null!)
+        public AddEditWindow(IServiceProvider services)
         {
-            _services = services;
+            _services = services ?? throw new ArgumentNullException(nameof(services));
             InitializeComponent();
 
             var repository = _services.GetRequiredService<IRepository>();
