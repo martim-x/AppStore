@@ -8,7 +8,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Project.Data;
 using Project.Services;
 using Project.Configuration;
-using Testcontainers.PostgreSql;
 using Xunit;
 using FluentAssertions;
 
@@ -20,27 +19,13 @@ namespace AppStore.IntegrationTests
         private PostgreSQLRepEF _repository;
         private IAuthService _authService;
         private PostgreDbContext _dbContext;
-        private PostgreSqlContainer _postgresContainer;
 
         public DatabaseIntegrationTests()
         {
-            // Start Testcontainers PostgreSQL
-            _postgresContainer = new PostgreSqlBuilder()
-                .WithImage("postgres:16-alpine")
-                .WithDatabase("appstore_test")
-                .WithUsername("postgres")
-                .WithPassword("postgres")
-                .WithPortBinding(5432, true)
-                .Build();
+            // Environment variables are set by CI service container
+            // DB_HOST=postgres, DB_PORT_FROM=5432, DB_NAME=appstore_test, etc.
 
-            // Set environment variables for Settings to use Testcontainers
-            Environment.SetEnvironmentVariable("DB_HOST", "localhost");
-            Environment.SetEnvironmentVariable("DB_PORT_FROM", _postgresContainer.GetMappedPublicPort(5432).ToString());
-            Environment.SetEnvironmentVariable("DB_NAME", "appstore_test");
-            Environment.SetEnvironmentVariable("DB_ADMIN", "postgres");
-            Environment.SetEnvironmentVariable("DB_ADMIN_PASS", "postgres");
-
-            // Force Settings to reload
+            // Force Settings to reload from environment
             var loadMethod = typeof(Settings).GetMethod("LoadFromEnvironment", BindingFlags.NonPublic | BindingFlags.Instance);
             loadMethod?.Invoke(Settings.Instance, null);
 
@@ -74,7 +59,6 @@ namespace AppStore.IntegrationTests
 
         public async Task InitializeAsync()
         {
-            await _postgresContainer.StartAsync();
             // Ensure database is created and migrations applied
             await _dbContext.Database.EnsureCreatedAsync();
         }
@@ -82,7 +66,6 @@ namespace AppStore.IntegrationTests
         public async Task DisposeAsync()
         {
             await _dbContext.DisposeAsync();
-            await _postgresContainer.DisposeAsync();
         }
 
         [Fact]
@@ -218,7 +201,7 @@ namespace AppStore.IntegrationTests
             // Use an existing user from seed data
             var userId = Guid.Parse("414603a5-19f8-4920-8d61-1fb8384acfb6"); // user
             var repoWithUser = new PostgreSQLRepEF(userId);
-            var repoField = typeof(PostgreSQLRepEF).GetField("_db", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var repoField = typeof(PostgreSQLRepEF).GetField("_db", BindingFlags.NonPublic | BindingFlags.Instance);
             repoField?.SetValue(repoWithUser, _dbContext);
 
             var apps = repoWithUser.GetAllApps();
@@ -246,7 +229,7 @@ namespace AppStore.IntegrationTests
                 .Options;
             var dbContext = new PostgreDbContext(options);
             var freshRepo = new PostgreSQLRepEF(Guid.Empty);
-            var repoField = typeof(PostgreSQLRepEF).GetField("_db", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var repoField = typeof(PostgreSQLRepEF).GetField("_db", BindingFlags.NonPublic | BindingFlags.Instance);
             repoField?.SetValue(freshRepo, dbContext);
 
             // Normalize DB state first — other tests may leave extra rows behind,

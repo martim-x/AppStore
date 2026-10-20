@@ -57,10 +57,14 @@ test:integration:
   stage: test
   image: mcr.microsoft.com/dotnet/sdk:8.0
   needs: [build]
-  # Use Testcontainers for PostgreSQL (cross-platform) - no service container needed
+  services:
+    - name: postgres:16-alpine
+      alias: postgres
   variables:
-    # Testcontainers will start PostgreSQL automatically
-    DB_HOST: "localhost"
+    POSTGRES_DB: appstore_test
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres
+    DB_HOST: "postgres"
     DB_PORT_FROM: "5432"
     DB_NAME: "appstore_test"
     DB_ADMIN: "postgres"
