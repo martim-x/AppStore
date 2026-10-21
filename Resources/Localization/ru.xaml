@@ -106,6 +106,8 @@
   <sys:String x:Key="LabelOldPassword">Текущий пароль</sys:String>
   <sys:String x:Key="LabelNewPassword">Новый пароль</sys:String>
   <sys:String x:Key="ChangePassword">Сменить пароль</sys:String>
+  <sys:String x:Key="HealthCheckRefresh">Проверить</sys:String>
+  <sys:String x:Key="HealthCheckHint">Проверить доступность базы данных</sys:String>
   <sys:String x:Key="DarkModeLabel">Тёмная тема</sys:String>
   <sys:String x:Key="DarkModeHint">Переключить оформление</sys:String>
 </ResourceDictionary>

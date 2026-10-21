@@ -95,6 +95,12 @@ namespace AppStore.Core.Data
                 e.Property(u => u.Role).HasColumnName("role");
                 e.Property(u => u.AvatarColor).HasColumnName("avatar_color");
 
+                // Уникальность логина: без индекса AddUser может вставить
+                // дубли, а GetUserByLogin (FirstOrDefault) тогда выдаёт
+                // неоднозначный результат. ADO-вариант схемы объявляет
+                // login text not null unique — EF-модель обязана совпадать.
+                e.HasIndex(u => u.Login).IsUnique().HasDatabaseName("IX_users_login");
+
                 e.Ignore(u => u.AvatarLetter);
             });
 
@@ -144,9 +150,11 @@ namespace AppStore.Core.Data
 
             _db = new PostgreDbContext(options);
 
-            // Database is managed by migrations, not EnsureDatabaseCreated
-            // Ensure database is created (for first run if migrations not applied)
-            _db.Database.EnsureCreated();
+            // Схема управляется миграциями EF Core. EnsureCreated() создаёт
+            // таблицы напрямую по модели и НЕ ведёт журнал __EFMigrationsHistory,
+            // из-за чего следующие миграции не применимы. Migrate() применяет
+            // миграции и поддерживает журнал.
+            _db.Database.Migrate();
 
             // Seed data only if tables are empty
             if (!_db.Apps.Any())

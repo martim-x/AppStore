@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Media;
 using Microsoft.Extensions.DependencyInjection;
 using AppStore.Core.Data;
+using AppStore.Core.Services;
 using Project.Services;
 using Project.ViewModels;
 
@@ -23,6 +24,7 @@ namespace Project.Views
         {
             var auth = _services.GetRequiredService<IAuthService>();
             var theme = _services.GetRequiredService<IThemeService>();
+            var health = _services.GetService<IHealthCheckService>();
 
             Owner = owner;
             var user = auth.CurrentUser!;
@@ -43,7 +45,7 @@ namespace Project.Views
                 RoleBadge.Background = new SolidColorBrush(Color.FromRgb(0, 114, 247));
             }
 
-            var vm = new ProfileViewModel(auth, theme);
+            var vm = new ProfileViewModel(auth, theme, health);
             vm.GetOldPassword = () => OldPasswordBox.Password;
             vm.GetNewPassword = () => NewPasswordBox.Password;
             DataContext = vm;

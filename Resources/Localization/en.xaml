@@ -108,6 +108,8 @@
   <sys:String x:Key="LabelOldPassword">Current Password</sys:String>
   <sys:String x:Key="LabelNewPassword">New Password</sys:String>
   <sys:String x:Key="ChangePassword">Change Password</sys:String>
+  <sys:String x:Key="HealthCheckRefresh">Check</sys:String>
+  <sys:String x:Key="HealthCheckHint">Check database availability</sys:String>
   <sys:String x:Key="DarkModeLabel">Dark Mode</sys:String>
   <sys:String x:Key="DarkModeHint">Switch app appearance</sys:String>
 </ResourceDictionary>

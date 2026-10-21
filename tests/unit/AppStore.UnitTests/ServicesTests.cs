@@ -55,6 +55,26 @@ namespace AppStore.UnitTests.Services
         }
 
         [Fact]
+        public void Login_RehashFails_StillAuthenticatesAndRestoresHash()
+        {
+            // Сбой БД при обновлении хеша не должен мешать аутентификации:
+            // пароль верный — значит пользователь входит. Хеш при этом
+            // возвращается к прежнему, чтобы несохранённый BCrypt-хеш
+            // не остался в DbContext.
+            var sha256Hash = AuthService.HashPasswordStatic("password");
+            var user = new User { Id = Guid.NewGuid(), Login = "legacyuser", PasswordHash = sha256Hash, Role = UserRole.User };
+            _repoMock.Setup(r => r.GetUserByLogin("legacyuser")).Returns(user);
+            _passwordHasherMock.Setup(h => h.HashPassword("password")).Returns(HashPassword);
+            _repoMock.Setup(r => r.UpdateUser(It.IsAny<User>())).Throws(new InvalidOperationException("DB unavailable"));
+
+            var result = _authService.Login("legacyuser", "password");
+
+            result.Should().NotBeNull();
+            result!.Login.Should().Be("legacyuser");
+            user.PasswordHash.Should().Be(sha256Hash);
+        }
+
+        [Fact]
         public void Login_ValidCredentials_ReturnsUser()
         {
             var user = new User { Id = Guid.NewGuid(), Login = "testuser", PasswordHash = HashTestPass123, Role = UserRole.User };

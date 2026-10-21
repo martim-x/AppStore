@@ -42,5 +42,6 @@
     <None Update="Resources\Buffer\apps.json" CopyToOutputDirectory="PreserveNewest" />
     <None Update="Resources\Buffer\users.json" CopyToOutputDirectory="PreserveNewest" />
     <None Update=".env" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
