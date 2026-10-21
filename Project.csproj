@@ -31,13 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AppStore.Core\AppStore.Core.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="AppStore.Core">
-      <HintPath>..\AppStore.Core\bin\$(Configuration)\net8.0\AppStore.Core.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="AppStore.Core\AppStore.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>

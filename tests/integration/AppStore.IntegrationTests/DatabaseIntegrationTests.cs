@@ -22,6 +22,28 @@ namespace AppStore.IntegrationTests
 
         public DatabaseIntegrationTests()
         {
+            // Локальные значения по умолчанию. В CI они перекрываются
+            // переменными окружения от service container
+            // (DB_HOST=postgres, DB_PORT_FROM=5432, DB_NAME=appstore_test,
+            //  DB_ADMIN=postgres, DB_ADMIN_PASS=postgres) — тесты используют
+            // ровно те ключи, поэтому здесь проверяется «уже задано?».
+            // Файл .env из корня репозитория тестовому проекту недоступен:
+            // он ищется относительно bin-папки проекта, а не репозитория.
+            var defaults = new Dictionary<string, string>
+            {
+                ["DB_HOST"] = "localhost",
+                ["DB_PORT_FROM"] = "5433",
+                ["DB_NAME"] = "appstore",
+                ["DB_ADMIN"] = "postgres",
+                ["DB_ADMIN_PASS"] = "changeme"
+            };
+
+            foreach (var kvp in defaults)
+            {
+                if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable(kvp.Key)))
+                    Environment.SetEnvironmentVariable(kvp.Key, kvp.Value);
+            }
+
             // Environment variables are set by CI service container
             // DB_HOST=postgres, DB_PORT_FROM=5432, DB_NAME=appstore_test, etc.
 
