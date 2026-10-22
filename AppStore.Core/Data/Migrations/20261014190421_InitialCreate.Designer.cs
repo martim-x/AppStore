@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using Project.Data;
+using AppStore.Core.Data;
 
 #nullable disable
 
-namespace Project.Migrations
+namespace AppStore.Core.Data.Migrations
 {
     [DbContext(typeof(PostgreDbContext))]
     [Migration("20261014190421_InitialCreate")]
@@ -25,7 +25,7 @@ namespace Project.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Project.Data.App", b =>
+            modelBuilder.Entity("AppStore.Core.Data.App", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -123,7 +123,7 @@ namespace Project.Migrations
                     b.ToTable("apps", (string)null);
                 });
 
-            modelBuilder.Entity("Project.Data.User", b =>
+            modelBuilder.Entity("AppStore.Core.Data.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -166,7 +166,7 @@ namespace Project.Migrations
                     b.ToTable("users", (string)null);
                 });
 
-            modelBuilder.Entity("Project.Data.UsersApps", b =>
+            modelBuilder.Entity("AppStore.Core.Data.UsersApps", b =>
                 {
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid")
@@ -187,15 +187,15 @@ namespace Project.Migrations
                     b.ToTable("users_apps", (string)null);
                 });
 
-            modelBuilder.Entity("Project.Data.UsersApps", b =>
+            modelBuilder.Entity("AppStore.Core.Data.UsersApps", b =>
                 {
-                    b.HasOne("Project.Data.App", null)
+                    b.HasOne("AppStore.Core.Data.App", null)
                         .WithMany()
                         .HasForeignKey("AppId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Project.Data.User", null)
+                    b.HasOne("AppStore.Core.Data.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)

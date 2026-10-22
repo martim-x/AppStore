@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using Npgsql;
 
-namespace Project.Data
+namespace AppStore.Core.Data
 {
     public class PostgreSQLRepADO : BaseRepository
     {

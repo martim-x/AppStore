@@ -1,4 +1,4 @@
-using Project.Data;
+using AppStore.Core.Data;
 
 namespace Project.Services
 {

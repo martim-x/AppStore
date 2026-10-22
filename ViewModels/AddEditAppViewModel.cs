@@ -2,14 +2,14 @@ using System;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using Project.Commands;
-using Project.Data;
+using AppStore.Core.Data;
 
 namespace Project.ViewModels
 {
     public class AddEditAppViewModel : ViewModelBase
     {
         private readonly IRepository _repo;
-        private App _app;
+        private App _app = null!;
         private bool _isEditMode;
 
         public App App

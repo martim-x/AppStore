@@ -220,6 +220,77 @@
       </StackPanel>
       <!-- ── Separator ─────────────────────────────────────── -->
       <Border Height="1" Background="{DynamicResource SeparatorBrush}" />
+      <!-- ═══ Database Health Check ══════════════════════════ -->
+      <Grid Margin="18,12,18,12">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto" />
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <!-- Индикатор состояния БД -->
+        <Ellipse
+          Grid.Column="0"
+          Width="9"
+          Height="9"
+          VerticalAlignment="Center"
+          Margin="0,0,9,0"
+        >
+          <Ellipse.Style>
+            <Style TargetType="Ellipse">
+              <Setter Property="Fill" Value="#34C759" />
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding IsDatabaseHealthy}" Value="False">
+                  <Setter Property="Fill" Value="#FF3B30" />
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </Ellipse.Style>
+        </Ellipse>
+        <TextBlock
+          Grid.Column="1"
+          VerticalAlignment="Center"
+          Text="{Binding DatabaseStatus}"
+          TextTrimming="CharacterEllipsis"
+          FontSize="11"
+          Foreground="{DynamicResource SecondaryTextBrush}"
+        />
+        <Button
+          Grid.Column="2"
+          Margin="8,0,0,0"
+          Padding="10,4"
+          Background="Transparent"
+          BorderThickness="0"
+          Cursor="Hand"
+          Command="{Binding CheckDatabaseCommand}"
+          ToolTip="{DynamicResource HealthCheckHint}"
+        >
+          <Button.Template>
+            <ControlTemplate TargetType="Button">
+              <Border
+                x:Name="Bd"
+                Background="{TemplateBinding Background}"
+                Padding="{TemplateBinding Padding}"
+                CornerRadius="6"
+              >
+                <ContentPresenter />
+              </Border>
+              <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                  <Setter TargetName="Bd" Property="Background" Value="#1F0072F7" />
+                </Trigger>
+              </ControlTemplate.Triggers>
+            </ControlTemplate>
+          </Button.Template>
+          <TextBlock
+            Text="{DynamicResource HealthCheckRefresh}"
+            FontSize="11"
+            FontWeight="SemiBold"
+            Foreground="{DynamicResource AccentBlueBrush}"
+          />
+        </Button>
+      </Grid>
+      <!-- ── Separator ─────────────────────────────────────── -->
+      <Border Height="1" Background="{DynamicResource SeparatorBrush}" />
       <!-- ═══ Dark Mode Toggle Row ════════════════════════════ -->
       <Grid Margin="18,12,18,12">
         <Grid.ColumnDefinitions>

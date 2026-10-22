@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using Project.Data;
+using AppStore.Core.Data;
 using Xunit;
 using FluentAssertions;
 

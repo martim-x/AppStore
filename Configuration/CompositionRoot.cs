@@ -1,7 +1,9 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
 using Project.Configuration;
-using Project.Data;
+using AppStore.Core.Configuration;
+using AppStore.Core.Data;
+using AppStore.Core.Services;
 using Project.Services;
 using Project.ViewModels;
 
@@ -35,6 +37,10 @@ namespace Project.Configuration
             services.AddSingleton<ILocalizationService, LocalizationService>();
             services.AddSingleton<IUndoRedoService, UndoRedoService>();
             services.AddScoped<IAuthService, AuthService>();
+
+            // Health check БД: пинг по строке подключения, без EF-контекста
+            services.AddSingleton<IHealthCheckService>(sp =>
+                new DatabaseHealthCheckService(Settings.Instance.ConnectionString));
 
             // ── ViewModels ─────────────────────────────────────────────────────
             services.AddTransient<MainViewModel>();
