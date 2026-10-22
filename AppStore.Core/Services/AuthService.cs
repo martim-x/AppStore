@@ -49,25 +49,28 @@ namespace Project.Services
                 return null;
 
             // Rehash legacy SHA-256 password to BCrypt on first successful login.
-            // Апгрейд хеша — вспомогательная операция: её сбой (таймаут БД,
-            // конкурентное обновление) не должен мешать аутентификации.
-            // При ошибке откатываем хеш в памяти, иначе несохранённое
-            // изменение осталось бы в DbContext и ушло в следующий SaveChanges.
+            // Апгрейд хеша — вспомогательная операция: её сбой не должен
+            // мешать аутентификации. Пользователь возвращается в любом случае.
+            // Пользователь авторизован — назначаем сессию ДО попытки
+            // обновления хеша, чтобы сбой UpdateUser никогда не блокировал вход.
+            _currentUser = user;
+
             if (IsLegacySha256Hash(user.PasswordHash))
             {
                 var legacyHash = user.PasswordHash;
                 try
                 {
-                    user.PasswordHash = _passwordHasher.HashPassword(password);
+                    var newHash = _passwordHasher.HashPassword(password);
+                    user.PasswordHash = newHash;
                     _repo.UpdateUser(user);
                 }
                 catch (Exception)
                 {
+                    // При сбое UpdateUser откатываем хеш в памяти,
+                    // чтобы не оставить несохранённое изменение в DbContext.
                     user.PasswordHash = legacyHash;
                 }
             }
-
-            _currentUser = user;
 
             if (_repo is JsonRep jsonRep)
                 jsonRep.SetCurrentUser(user.Id);

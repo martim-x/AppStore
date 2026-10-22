@@ -1,6 +1,6 @@
 # AppStore WPF - GitLab CI/CD Pipeline
 # Strategy: Linux runners for restore/build/test (with EnableWindowsTargeting), Windows runner for package
-# Integration tests use Testcontainers for PostgreSQL (cross-platform) instead of service container
+# Integration tests use a postgres:16-alpine service container
 
 stages:
   - restore

@@ -9,7 +9,10 @@
 import json
 import os
 
-DOCS = r"C:\Users\timof\Documents\Visual Studio Code\AppStore\docs"
+# Корень репозитория определяется от расположения скрипта:
+# <repo>/scripts/report/build_report_json.py -> <repo>
+REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+DOCS = os.path.join(REPO, "docs")
 OUT = os.path.join(DOCS, "report.json")
 
 UC = "UML/use_case.png"
@@ -18,6 +21,32 @@ SEQ = "UML/sequence_diagram.png"
 ERD = "UML/erd.png"
 
 S = "screenshots/"
+
+
+def read_source(rel_path, start_marker=None, max_lines=45, max_width=88):
+    """Читает реальный фрагмент исходника для листинга приложения.
+    start_marker — строка, с которой начинается фрагмент (первое совпадение).
+    max_width — предел длины строки: более длинные строки обрезаются, иначе
+    при вёрстке они переносятся и выходят за левое поле.
+    Возвращает текст кода с сохранением отступов."""
+    path = os.path.join(REPO, rel_path.replace("/", os.sep))
+    if not os.path.exists(path):
+        raise FileNotFoundError(path)
+    with open(path, "r", encoding="utf-8-sig") as f:
+        lines = f.read().split("\n")
+    if start_marker:
+        idx = next((i for i, ln in enumerate(lines) if start_marker in ln), None)
+        if idx is None:
+            raise ValueError(f"маркер {start_marker!r} не найден в {rel_path}")
+        lines = lines[idx:]
+    # убираем пустые строки в хвосте и лишние пробелы
+    while lines and not lines[-1].strip():
+        lines.pop()
+    lines = lines[:max_lines]
+    if max_width:
+        lines = [ln if len(ln) <= max_width else ln[:max_width - 1] + "…"
+                 for ln in lines]
+    return "\n".join(lines)
 
 
 def fig(file, caption, label, width_cm=16.0, ref=None, tail=None):
@@ -61,7 +90,7 @@ blocks.append({"type": "p", "text":
     "Docker на базе образа postgres:16-alpine с закреплённой версией, проверкой "
     "состояния healthcheck и именованным томом appstore_pgdata. Доступ к базе "
     "данных реализован через Entity Framework Core 8 с включённой политикой "
-    "повторных попыток соединения (@лист:repoef). Дополнительно предусмотрены альтернативные "
+    "повторных попыток соединения (@лист:migrations). Дополнительно предусмотрены альтернативные "
     "реализации репозитория: прямой доступ через ADO.NET и хранение данных в "
     "JSON-файлах, что позволяет использовать одни и те же бизнес-правила в разных "
     "окружениях."})
@@ -74,7 +103,7 @@ blocks.append({"type": "p", "text":
 blocks.append({"type": "p", "text":
     "Цель курсового проекта – разработать программное средство «Магазин "
     "приложений», обеспечивающее ведение каталога приложений с разграничением "
-    "прав доступа и полным набором документации по стандарту СТП БГТУ 001-2019."})
+    "прав доступа и полным набором документации."})
 blocks.append({"type": "p", "text": "Для достижения цели решены следующие задачи:"})
 blocks.append({"type": "enum", "items": [
     "проанализировать предметную область и сформулировать функциональные и нефункциональные требования к приложению;",
@@ -84,10 +113,10 @@ blocks.append({"type": "enum", "items": [
     "реализовать каталог приложений с поиском, фильтрацией, сортировкой, установкой и отменой действий;",
     "реализовать разграничение прав доступа и профиль пользователя с возможностью смены пароля, языка и темы оформления;",
     "разработать автоматизированные тесты модульного и интеграционного уровня;",
-    "подготовить пояснительную записку и иллюстративный материал по стандарту СТП БГТУ 001-2019."]})
+    "подготовить пояснительную записку и иллюстративный материал."]})
 
 # ══════════════════════════════════════════════════════════ 1 ПРЕДМЕТНАЯ ОБЛАСТЬ
-blocks.append({"type": "h1", "text": "1 Анализ предметной области"})
+blocks.append({"type": "h1", "text": "Анализ предметной области"})
 blocks.append({"type": "h2", "text": "Описание системы"})
 blocks.append({"type": "p", "text":
     "Приложение AppStore представляет собой каталог программных средств. "
@@ -140,11 +169,11 @@ blocks.append({"type": "p", "text":
     "миграция устаревших хешей паролей при входе."})
 blocks.append({"type": "p", "text":
     "По итогам анализа сформулированы 22 функциональных требования "
-    "(FR-A01…FR-A09 для администратора и FR-C01…FR-C13 для клиента) и 24 "
-    "нефункциональных требования (NFR-01…NFR-24), охватывающих архитектуру, "
-    "безопасность, тестируемость, документированность, производительность и "
-    "надёжность. Полная матрица соответствия требований и их реализации "
-    "приведена в документе FR_NFR.md."})
+    "(9 для администратора и 13 для клиента) и 24 нефункциональных требования, "
+    "охватывающих архитектуру, безопасность, тестируемость, "
+    "документированность, производительность и надёжность. Полная матрица "
+    "соответствия требований и их реализации приведена в документе "
+    "FR_NFR.md."})
 blocks.append({"type": "p", "text":
     "Структура функциональных требований приведена в таблице (@табл:fr_structure). "
     "Требования сгруппированы по роли пользователя, что обеспечивает "
@@ -154,9 +183,9 @@ blocks.extend(tab(
     "Структура функциональных требований",
     ["Группа требований", "Количество", "Примеры", "Статус"],
     [
-        ["FR-A (администратор)", "9", "UC-15…UC-18: добавление, редактирование, удаление, восстановление каталога", "Реализовано"],
-        ["FR-C (клиент)", "13", "UC-03…UC-14: каталог, поиск, фильтры, сортировка, установка, профиль", "Реализовано"],
-        ["NFR (нефункциональные)", "24", "MVVM, BCrypt, EF Core 8, тесты ≥ 80 %, документация по СТП", "Реализовано"],
+        ["Требования администратора", "9", "UC-15…UC-18: добавление, редактирование, удаление, восстановление каталога", "Реализовано"],
+        ["Требования клиента", "13", "UC-03…UC-14: каталог, поиск, фильтры, сортировка, установка, профиль", "Реализовано"],
+        ["Нефункциональные требования", "24", "MVVM, BCrypt, EF Core 8, тесты ≥ 80 %, комплект документации", "Реализовано"],
     ],
     tail="Приведённые данные подтверждают выполнение требования о "
          "не менее чем двух группах функциональных требований и наличии "
@@ -174,31 +203,30 @@ blocks.append({"type": "p", "text":
     "демонстрационным прогоном приложения."})
 
 # ═══════════════════════════════════════════════════════ 2 ТРЕБОВАНИЯ К СИСТЕМЕ
-blocks.append({"type": "h1", "text": "2 Требования к системе"})
+blocks.append({"type": "h1", "text": "Требования к системе"})
 blocks.append({"type": "h2", "text": "Функциональные требования"})
 blocks.append({"type": "p", "text":
     "Функциональные требования разделяются на две группы в зависимости от роли "
-    "пользователя. Группа FR-A01…FR-A09 относится к администратору и охватывает "
-    "операции управления каталогом, группа FR-C01…FR-C13 – к клиенту и "
-    "охватывает потребительские сценарии работы с каталогом и профилем. "
-    "Каждое требование имеет уникальный идентификатор, что позволяет "
-    "прослеживаемость от формулировки до фрагмента кода и сценария проверки."})
+    "пользователя. Требования администратора охватывают операции управления "
+    "каталогом, требования клиента – потребительские сценарии работы с "
+    "каталогом и профилем. Каждое требование прослеживается до конкретного "
+    "фрагмента кода и сценария проверки."})
 blocks.append({"type": "p", "text":
     "Соответствие ключевых функциональных требований их реализации показано в "
     "таблице (@табл:fr_key). Для каждого требования указаны конкретные классы и "
     "команды, отвечающие за его реализацию."})
 blocks.extend(tab(
     "Ключевые функциональные требования и их реализация",
-    ["Идентификатор", "Требование", "Реализация"],
+    ["Требование", "Роль", "Реализация"],
     [
-        ["FR-A01", "Добавление новой записи каталога", "AddEditWindow, AddEditAppViewModel, проверка полей"],
-        ["FR-A03", "Удаление записи с подтверждением", "EditDeleteDialog, команда DeleteCommand"],
-        ["FR-A09", "Восстановление каталога по умолчанию", "RestoreDefaultsCommand, IRepository.RestoreDefaults"],
-        ["FR-C01", "Просмотр каталога с категориями", "MainViewModel, коллекции Apps и FeaturedApps"],
-        ["FR-C04", "Поиск по названию, разработчику, тегам", "BuildQuery, свойство SearchQuery"],
-        ["FR-C08", "Установка и удаление приложения", "DownloadCommand, запись в users_apps"],
-        ["FR-C10", "Отмена и повтор последнего действия", "UndoRedoService, IUndoRedoAction, UndoCommand/RedoCommand"],
-        ["FR-C12", "Переключение языка и темы оформления", "LocalizationService, ThemeService, команды в профиле"],
+        ["Добавление новой записи каталога", "Администратор", "AddEditWindow, AddEditAppViewModel, проверка полей"],
+        ["Удаление записи с подтверждением", "Администратор", "EditDeleteDialog, команда DeleteCommand"],
+        ["Восстановление каталога по умолчанию", "Администратор", "RestoreDefaultsCommand, IRepository.RestoreDefaults"],
+        ["Просмотр каталога с категориями", "Клиент", "MainViewModel, коллекции Apps и FeaturedApps"],
+        ["Поиск по названию, разработчику, тегам", "Клиент", "BuildQuery, свойство SearchQuery"],
+        ["Установка и удаление приложения", "Клиент", "DownloadCommand, запись в users_apps"],
+        ["Отмена и повтор последнего действия", "Клиент", "UndoRedoService, IUndoRedoAction, UndoCommand/RedoCommand"],
+        ["Переключение языка и темы оформления", "Клиент", "LocalizationService, ThemeService, команды в профиле"],
     ],
     tail="Таблица показывает, что каждое требование администратора и клиента "
          "сопоставлено с конкретным элементом реализации, что обеспечивает "
@@ -208,14 +236,12 @@ blocks.extend(tab(
 blocks.append({"type": "h2", "text": "Нефункциональные требования"})
 blocks.append({"type": "p", "text":
     "Нефункциональные требования задают ограничения качества решения. Требования "
-    "архитектуры (NFR-01, NFR-03) закрепляют обязательное разделение слоёв и "
-    "применение не менее двух паттернов проектирования. Требования безопасности "
-    "(NFR-09, NFR-10) предписывают использование BCrypt для хранения паролей и "
-    "разграничение доступа по ролям. Требования к тестируемости (NFR-11, NFR-12) "
-    "устанавливают порог покрытия бизнес-логики 80 % и требование автоматической "
-    "проверки. Требования документированности (NFR-16, NFR-17) закрепляют "
-    "обязательный комплект документации и оформление по стандарту СТП БГТУ "
-    "001-2019."})
+    "архитектуры закрепляют обязательное разделение слоёв и применение не менее "
+    "двух паттернов проектирования. Требования безопасности предписывают "
+    "использование BCrypt для хранения паролей и разграничение доступа по ролям. "
+    "Требования к тестируемости устанавливают порог покрытия бизнес-логики 80 % "
+    "и требование автоматической проверки. Требования документированности "
+    "закрепляют обязательный комплект документации."})
 blocks.append({"type": "p", "text":
     "Фактическое выполнение нефункциональных требований сведено в таблице "
     "(@табл:nfr_done). Проверка выполнена по исходному коду, журналам сборки и "
@@ -224,12 +250,12 @@ blocks.extend(tab(
     "Нефункциональные требования: выполнение",
     ["Группа", "Требование", "Факт"],
     [
-        ["Архитектура", "NFR-01: разделение слоёв Presentation / ViewModels / Services / Data", "Выполнено"],
-        ["Архитектура", "NFR-03: не менее двух паттернов проектирования", "Применено 7 паттернов"],
-        ["Безопасность", "NFR-09: хеширование паролей BCrypt", "BCrypt, коэффициент 12"],
-        ["Надёжность", "NFR-23: повторные попытки соединения с БД", "EnableRetryOnFailure, 3 попытки"],
-        ["Тестируемость", "NFR-11: покрытие бизнес-логики не менее 80 %", "53 автоматических теста"],
-        ["Документированность", "NFR-17: оформление по СТП БГТУ 001-2019", "Выполнено"],
+        ["Архитектура", "Разделение слоёв Presentation / ViewModels / Services / Data", "Выполнено"],
+        ["Архитектура", "Не менее двух паттернов проектирования", "Применено 7 паттернов"],
+        ["Безопасность", "Хеширование паролей BCrypt", "BCrypt, коэффициент 12"],
+        ["Надёжность", "Повторные попытки соединения с БД", "EnableRetryOnFailure, 3 попытки"],
+        ["Тестируемость", "Покрытие бизнес-логики не менее 80 %", "54 автоматических теста"],
+        ["Документированность", "Комплект документации и оформление по требованиям кафедры", "Выполнено"],
     ],
     tail="Все нефункциональные требования выполнены в полном объёме, что "
          "подтверждается результатами сборки и прогона тестов",
@@ -244,7 +270,7 @@ blocks.append({"type": "p", "text":
     "демонстрационным прогоном приложения."})
 
 # ═════════════════════════════════════════════════ 3 АРХИТЕКТУРА И ПРОЕКТИРОВАНИЕ
-blocks.append({"type": "h1", "text": "3 Архитектура и проектирование"})
+blocks.append({"type": "h1", "text": "Архитектура и проектирование"})
 blocks.append({"type": "h2", "text": "Архитектурный паттерн MVVM"})
 blocks.append({"type": "p", "text":
     "Приложение построено по паттерну Model-View-ViewModel с разделением на "
@@ -255,7 +281,7 @@ blocks.append({"type": "p", "text":
     "классами AuthService, ThemeService, LocalizationService и UndoRedoService. "
     "Слой доступа к данным содержит интерфейс IRepository (@лист:repo) и три его реализации."})
 blocks.append({"type": "p", "text":
-    "Композиция объектов вынесена в отдельный класс CompositionRoot (@лист:composition), "
+    "Композиция объектов вынесена в отдельный класс CompositionRoot (@лист:di), "
     "использующий контейнер внедрения зависимостей Microsoft.Extensions.DependencyInjection. "
     "Зависимости с временем жизни Singleton регистрируются для настроек, "
     "хешировщика, сервисов темы, локализации и отмены действий, зависимости с "
@@ -312,9 +338,9 @@ blocks.append({"type": "p", "text":
     "диаграмма последовательности и схема базы данных. Исходные файлы диаграмм "
     "хранятся в каталоге docs/UML в формате .drawio, что позволяет редактировать "
     "их в среде проектирования draw.io, и экспортированы в растровый формат PNG "
-    "для вставки в настоящую пояснительную записку. Исходный файл диаграммы "
-    "вариантов использования приведён в приложении (@лист:uml_use_case), "
-    "файл диаграммы классов – в приложении (@лист:uml_class_listing)."})
+    "для вставки в настоящую пояснительную записку. Исходные файлы диаграмм "
+    "приведены в приложении: диаграмма вариантов использования (@рис:uc_fig), "
+    "диаграмма классов (@рис:uml_class) и схема базы данных (@рис:db_erd)."})
 blocks.append({"type": "p", "text":
     "Взаимодействие объектов при запуске приложения и входе пользователя "
     "показано на диаграмме последовательности (@рис:uml_seq). Диаграмма "
@@ -336,7 +362,7 @@ blocks.append({"type": "p", "text":
     "записку."})
 
 # ═════════════════════════════════════════════════════ 4 ПРОЕКТИРОВАНИЕ БД
-blocks.append({"type": "h1", "text": "4 Проектирование базы данных"})
+blocks.append({"type": "h1", "text": "Проектирование базы данных"})
 blocks.append({"type": "h2", "text": "ER-схема"})
 blocks.append({"type": "p", "text":
     "База данных состоит из трёх таблиц: users, apps и users_apps. Таблица "
@@ -392,7 +418,7 @@ blocks.append({"type": "p", "text":
     "(@лист:docker)."})
 
 # ═══════════════════════════════════════════════════════════ 5 РЕАЛИЗАЦИЯ
-blocks.append({"type": "h1", "text": "5 Реализация"})
+blocks.append({"type": "h1", "text": "Реализация"})
 blocks.append({"type": "h2", "text": "Централизованная конфигурация"})
 blocks.append({"type": "p", "text":
     "Централизованная конфигурация реализована в классе Configuration/Settings.cs "
@@ -433,10 +459,12 @@ blocks.append({"type": "p", "text":
     "Интерфейс реализован в виде главного окна каталога, окна входа, окна "
     "просмотра карточки приложения, окна добавления и редактирования записи с "
     "проверкой полей, всплывающей панели профиля и диалогов подтверждения "
-    "удаления. Код сопровождения представления ограничен инициализацией "
-    "контекста данных и обработчиками событий, вся логика вынесена в модели "
-    "представления."})
+    "удаления. В панели профиля выводится индикатор состояния базы данных с "
+    "временем отклика и кнопкой принудительной проверки (@лист:health). Код "
+    "сопровождения представления ограничен инициализацией контекста данных и "
+    "обработчиками событий, вся логика вынесена в модели представления."})
 blocks.append({"type": "p", "text":
+    "Пароли хешируются алгоритмом BCrypt с коэффициентом 12 (@лист:bcrypt). "
     "Отмена и повтор действий реализованы службой UndoRedoService (@лист:undo), "
     "использующей стек действий с ограничением глубины и очисткой при выходе из "
     "системы. Каждая операция установки или удаления формирует объект, "
@@ -576,13 +604,12 @@ blocks.append({"type": "p", "text":
     "ролям клиента и администратора. Пользователю доступны профиль со сменой "
     "пароля, переключение языка интерфейса и выбор темы оформления."})
 blocks.append({"type": "p", "text":
-    "Разработаны и успешно выполняются 53 автоматических теста двух уровней: "
-    "43 модульных и 10 интеграционных с развёртыванием реальной СУБД. "
+    "Разработаны и успешно выполняются 54 автоматических теста двух уровней: "
+    "44 модульных и 10 интеграционных с развёртыванием реальной СУБД. "
     "Подготовлена полная документация: описание архитектуры, функциональные и "
     "нефункциональные требования с матрицей соответствия, описание базы данных, "
     "четыре UML-диаграммы в редактируемом формате draw.io, календарный план и "
-    "настоящая пояснительная записка, оформленная по стандарту СТП БГТУ "
-    "001-2019."})
+    "настоящая пояснительная записка."})
 blocks.append({"type": "p", "text":
     "Практическая значимость работы состоит в демонстрации полного цикла "
     "разработки программного средства: от анализа предметной области и "
@@ -604,102 +631,44 @@ model = {
     },
     "blocks": blocks,
     "listings": [
-        {"title": "Configuration/Settings.cs", "label": "settings",
-         "code": "public sealed class Settings {\n"
-                 "    private static readonly Lazy<Settings> _instance = new(() => new Settings());\n"
-                 "    public static Settings Instance => _instance.Value;\n"
-                 "    public string DbHost { get; private set; } = \"localhost\";\n"
-                 "    public int DbPort { get; private set; } = 5433;\n"
-                 "    public string ConnectionString =>\n"
-                 "        $\"Host={DbHost};Port={DbPort};Database={DbName};\"\n"
-                 "        + $\"Username={DbUser};Password={DbPassword}\";\n"
-                 "    private void Load() { LoadFromEnvFile(); LoadFromEnvironment(); }\n"
-                 "}"},
-        {"title": "Services/BCryptHasher.cs и Services/AuthService.cs", "label": "auth",
-         "code": "public string HashPassword(string password) =>\n"
-                 "    BCrypt.Net.BCrypt.HashPassword(password, _workFactor);   // work factor 12\n"
-                 "\n"
-                 "// Автоматическая миграция устаревшего SHA-256 хеша при входе\n"
-                 "if (IsLegacySha256Hash(user.PasswordHash))\n"
-                 "{\n"
-                 "    user.PasswordHash = _passwordHasher.HashPassword(password);\n"
-                 "    _repo.UpdateUser(user);\n"
-                 "}"},
-        {"title": "Data/IRepository.cs", "label": "repo",
-         "code": "public interface IRepository\n"
-                 "{\n"
-                 "    List<App> GetAllApps();\n"
-                 "    App? GetAppById(Guid id);\n"
-                 "    void AddApp(App app);\n"
-                 "    void UpdateApp(App app);\n"
-                 "    void DeleteApp(Guid id);\n"
-                 "    void DownloadApp(Guid id);\n"
-                 "    void UninstallApp(Guid id);\n"
-                 "    void RestoreDefaults();\n"
-                 "    List<User> GetAllUsers();\n"
-                 "    User? GetUserByLogin(string login);\n"
-                 "    void UpdateUser(User user);\n"
-                 "    void SetCurrentUser(Guid id);\n"
-                 "}"},
-        {"title": "Data/PostgreSQLRepEF.cs (создание контекста и повторные попытки)", "label": "repoef",
-         "code": "options.UseNpgsql(Settings.Instance.ConnectionString, npgsql =>\n"
-                 "{\n"
-                 "    npgsql.EnableRetryOnFailure(\n"
-                 "        maxRetryCount: 3,\n"
-                 "        maxRetryDelay: TimeSpan.FromSeconds(5),\n"
-                 "        errorCodesToAdd: null);\n"
-                 "});"},
-        {"title": "Configuration/CompositionRoot.cs (контейнер внедрения зависимостей)", "label": "composition",
-         "code": "services.AddSingleton(_ => Settings.Instance);\n"
-                 "services.AddSingleton<IPasswordHasher, BCryptHasher>();\n"
-                 "services.AddSingleton<SHA256Hasher>();\n"
-                 "services.AddScoped<IRepository, PostgreSQLRepEF>();\n"
-                 "services.AddScoped<IAuthService, AuthService>();\n"
-                 "services.AddSingleton<IThemeService, ThemeService>();\n"
-                 "services.AddSingleton<ILocalizationService, LocalizationService>();\n"
-                 "services.AddSingleton<IUndoRedoService, UndoRedoService>();\n"
-                 "services.AddTransient<MainViewModel>();"},
-        {"title": "ViewModels/MainViewModel.cs (отмена и повтор действий)", "label": "undo",
-         "code": "UndoCommand = new RelayCommand(() =>\n"
-                 "{\n"
-                 "    if (_undoRedo.Undo()) { RefreshList(); }\n"
-                 "});\n"
-                 "RedoCommand = new RelayCommand(() =>\n"
-                 "{\n"
-                 "    if (_undoRedo.Redo()) { RefreshList(); }\n"
-                 "});"},
-        {"title": "docker-compose.yml (PostgreSQL 16 с закреплённой версией)", "label": "docker",
-         "code": "services:\n"
-                 "  postgres:\n"
-                 "    image: \"postgres:16-alpine\"\n"
-                 "    container_name: \"appstore-postgres-16\"\n"
-                 "    ports:\n"
-                 "      - \"${DB_PORT_FROM:-5433}:${DB_PORT_TO:-5432}\"\n"
-                 "    volumes:\n"
-                 "      - ${DB_VOLUME:-appstore_pgdata}:/var/lib/postgresql/data\n"
-                 "    healthcheck:\n"
-                 "      test: [\"CMD-SHELL\", \"pg_isready -U ${DB_ADMIN:-postgres} -d ${DB_NAME:-appstore}\"]"},
-        {"title": ".gitlab-ci.yml (четыре стадии конвейера)", "label": "cicd",
-         "code": "stages: [restore, build, test, package]\n"
-                 "restore:  dotnet restore Project.sln -p:EnableWindowsTargeting=true\n"
-                 "build:    dotnet build Project.sln --no-restore -c Release -p:EnableWindowsTargeting=true\n"
-                 "test:unit: dotnet test tests/unit/AppStore.UnitTests/AppStore.UnitTests.csproj \\\n"
-                 "            --no-build -c Release --logger \"junit;LogFilePath=...\"\n"
-                 "test:integration: services: [postgres:16-alpine]\n"
-                 "package:  dotnet publish Project.csproj -c Release -r win-x64 --self-contained true \\\n"
-                 "            -p:PublishSingleFile=true -p:EnableWindowsTargeting=true"},
-        {"title": "docs/UML/use_case.drawio (диаграмма вариантов использования)", "label": "uml_use_case",
-         "code": "Акторы: Администратор, Клиент.\n"
-                 "Группы вариантов: Аутентификация (UC-01…UC-02), Каталог (UC-03…UC-09),\n"
-                 "Профиль (UC-10…UC-14), Только администратор (UC-15…UC-18).\n"
-                 "Формат: mxGraphModel (редактируется в draw.io), экспорт в PNG."},
-        {"title": "docs/UML/class_diagram.drawio (диаграмма классов)", "label": "uml_class_listing",
-         "code": "Интерфейсы: IApp, IUser, IRepository, IPasswordHasher, IUndoRedoAction.\n"
-                 "Реализации: App, User, UsersApps, PostgreSQLRepEF, PostgreSQLRepADO,\n"
-                 "JsonRep, BCryptHasher, SHA256Hasher, RelayCommand, UndoRedoService,\n"
-                 "ThemeService, LocalizationService.\n"
-                 "Модели представления: ViewModelBase, MainViewModel, AddEditAppViewModel,\n"
-                 "ProfileViewModel. Службы: AuthService."},
+        {"title": "AppStore.Core/Configuration/Settings.cs – конфигурация приложения",
+         "label": "settings",
+         "code": read_source("AppStore.Core/Configuration/Settings.cs",
+                             "public sealed class Settings", 42)},
+        {"title": "AppStore.Core/Services/BCryptHasher.cs – хеширование паролей",
+         "label": "bcrypt",
+         "code": read_source("AppStore.Core/Services/BCryptHasher.cs",
+                             "public string HashPassword", 30)},
+        {"title": "AppStore.Core/Services/AuthService.cs – аутентификация и авто-перехеш",
+         "label": "auth",
+         "code": read_source("AppStore.Core/Services/AuthService.cs",
+                             "public User? Login", 40)},
+        {"title": "AppStore.Core/Data/IRepository.cs – контракт доступа к данным",
+         "label": "repo",
+         "code": read_source("AppStore.Core/Data/IRepository.cs",
+                             "public interface IRepository", 42)},
+        {"title": "AppStore.Core/Data/PostgreSQLRepEF.cs – применение миграций и уникальный индекс",
+         "label": "migrations",
+         "code": read_source("AppStore.Core/Data/PostgreSQLRepEF.cs",
+                             "modelBuilder.Entity<User>", 22)},
+        {"title": "Configuration/CompositionRoot.cs – конфигурация внедрения зависимостей",
+         "label": "di",
+         "code": read_source("Configuration/CompositionRoot.cs",
+                             "public static IServiceProvider Build", 45)},
+        {"title": "ViewModels/ProfileViewModel.cs – проверка состояния базы данных",
+         "label": "health",
+         "code": read_source("ViewModels/ProfileViewModel.cs",
+                             "private async Task CheckDatabaseAsync", 26)},
+        {"title": "AppStore.Core/Services/UndoRedoService.cs – отмена и повтор действий",
+         "label": "undo",
+         "code": read_source("AppStore.Core/Services/UndoRedoService.cs",
+                             "public class UndoRedoService", 40)},
+        {"title": ".gitlab-ci.yml – конвейер непрерывной интеграции",
+         "label": "cicd",
+         "code": read_source(".gitlab-ci.yml", "stages:", 30)},
+        {"title": "docker-compose.yml – развёртывание СУБД",
+         "label": "docker",
+         "code": read_source("docker-compose.yml", "services:", 26)},
     ],
     "references": [
         "1. Марушко Т. Ф. – Лист задания на курсовой проект (ИСиТ 3к 2гр). – БГТУ, 2026.",
@@ -710,7 +679,7 @@ model = {
         "6. PostgreSQL 16 – Docker Hub. – URL: https://hub.docker.com/_/postgres (дата обращения: 21.10.2026).",
         "7. BCrypt.Net-Next 4.2.0 – NuGet. – URL: https://www.nuget.org/packages/BCrypt.Net-Next (дата обращения: 21.10.2026).",
         "8. draw.io – диаграммы UML в редактируемом формате. – URL: https://www.diagrams.net/ (дата обращения: 21.10.2026).",
-        "9. BstuReportBuilder – сборщик отчётов по СТП БГТУ 001-2019. – URL: https://github.com/martim-x/BstuReportBuilder (дата обращения: 21.10.2026).",
+        "9. BstuReportBuilder – сборщик отчётов БГТУ. – URL: https://github.com/martim-x/BstuReportBuilder (дата обращения: 21.10.2026).",
     ],
 }
 

@@ -44,7 +44,7 @@
 - [ ] EF Core Migrations (replace `EnsureDatabaseCreated`)
 - [ ] BCrypt password hashing (replace SHA-256)
 - [ ] Connection resilience (`EnableRetryOnFailure`)
-- [ ] Integration test infrastructure (Testcontainers)
+- [ ] Integration test infrastructure (postgres:16-alpine service container in CI)
 
 ### Sprint 3: Database & UI Design (Week 3–4) — *06.10 – 20.10*
 - [ ] Finalize ER diagram, document in `DATABASE.md`
@@ -75,7 +75,7 @@
 - [ ] Logout → Login screen
 
 ### Sprint 5: Testing (Week 7–8) — *14.11 – 28.11*
-- [ ] Unit tests: Repository (JSON, EF, ADO) — in-memory / Testcontainers
+- [ ] Unit tests: Repository (JSON, EF, ADO) — in-memory / postgres service container
 - [ ] Unit tests: Services (Auth, Theme, Locale, UndoRedo)
 - [ ] Unit tests: ViewModels (Main, AddEdit, Profile)
 - [ ] Unit tests: Commands, Converters, Models
@@ -109,7 +109,7 @@
 | Stage | Gate Criteria |
 |-------|---------------|
 | **Sprint 1** | `dotnet build` succeeds; `Settings.Instance` used everywhere; docs complete |
-| **Sprint 2** | DI container wired; EF migrations work; BCrypt hashing; Testcontainers spin up |
+| **Sprint 2** | DI container wired; EF migrations work; BCrypt hashing; postgres service container configured |
 | **Sprint 3** | All UI mockups implemented; FR_NFR checklist 100% covered |
 | **Sprint 4** | All FR-A / FR-C features working; manual test passes |
 | **Sprint 5** | `dotnet test` → all green; coverage report ≥80% |
@@ -124,7 +124,7 @@
 |------|-------------|--------|------------|
 | EF Core migration conflicts with existing schema | Medium | High | Test migration on copy of seeded DB first |
 | BCrypt breaks existing seeded passwords | High | Medium | Write migration script to re-hash; keep SHA-256 fallback |
-| Testcontainers slow on CI | Medium | Low | Use shared PostgreSQL service in GitLab CI instead |
+| Service container in CI (postgres:16-alpine) is faster and avoids docker-in-docker | Low | Use service container with healthcheck; already in .gitlab-ci.yml |
 | bsstu-report template mismatch | Low | High | Validate with `--check` early; use existing lab reports as reference |
 | WPF designer issues in VS Code | Medium | Low | Use Visual Studio 2022 for XAML editing |
 | Docker not available on defense machine | Low | High | Package standalone exe + document DB setup separately |
