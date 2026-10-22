@@ -29,7 +29,7 @@
 - [x] DI Container (Microsoft.Extensions.DI)
 - [x] EF Core Migrations + EnableRetryOnFailure
 - [x] BCrypt Password Hashing + SHA-256 fallback **with auto-rehash on login**
-- [x] Unit Tests: 43/43 passing
+- [x] Unit Tests: 44/44 passing
 - [x] Integration Tests: 10/10 passing
 - [x] GitLab CI/CD Pipeline (`.gitlab-ci.yml`) - Fixed platform issues
 - [x] Documentation (ARCHITECTURE.md, FR_NFR.md, DATABASE.md, etc.)
@@ -45,7 +45,7 @@
 ## Test Coverage
 || Category | Tests | Status ||
 ||----------|-------|--------|
-|| Unit Tests | 43 | ✅ All passing ||
+|| Unit Tests | 44 | ✅ All passing ||
 || Integration Tests | 10 | ✅ 10/10 passing ||
 
 ## Security

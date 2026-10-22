@@ -10,19 +10,18 @@ namespace AppStore.Core.Data.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateIndex(
-                name: "IX_users_login",
-                table: "users",
-                column: "login",
-                unique: true);
+            // Идемпотентно: база, созданная EnsureCreated() из текущей модели,
+            // уже содержит индекс IX_users_login — обычный CreateIndex() упал бы
+            // с "already exists". IF NOT EXISTS делает миграцию безопасной
+            // и для EnsureCreated-баз, и для baseline-баз (см. PostgreSQLRepEF).
+            migrationBuilder.Sql(
+                "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_users_login\" ON \"users\" (\"login\");");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropIndex(
-                name: "IX_users_login",
-                table: "users");
+            migrationBuilder.Sql("DROP INDEX IF EXISTS \"IX_users_login\";");
         }
     }
 }

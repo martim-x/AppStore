@@ -217,6 +217,28 @@ namespace AppStore.Core.Data
                 if (historyRows > 0)
                     return;
 
+                // На baseline-БД (ADO/EnsureCreated-схема) индекса логина может не
+                // быть, и таблица может содержать дубликаты логинов. CREATE UNIQUE
+                // INDEX миграции упадёт с сырой ошибкой Npgsql — выдаём понятную
+                // ошибку с примерами до применения миграции.
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText =
+                        "SELECT login FROM \"users\" WHERE login IS NOT NULL " +
+                        "GROUP BY login HAVING COUNT(*) > 1 LIMIT 5";
+                    using var reader = cmd.ExecuteReader();
+                    var duplicates = new System.Collections.Generic.List<string>();
+                    while (reader.Read())
+                        duplicates.Add(reader.GetString(0));
+
+                    if (duplicates.Count > 0)
+                        throw new InvalidOperationException(
+                            "Не удаётся применить миграцию AddUniqueIndexOnUserLogin: " +
+                            "в таблице users есть дубликаты логинов (" +
+                            string.Join(", ", duplicates) + "). " +
+                            "Исправьте дубликаты и перезапустите приложение.");
+                }
+
                 var initial = _db.Database.GetMigrations().First();
                 using (var cmd = conn.CreateCommand())
                 {
