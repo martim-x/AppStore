@@ -98,7 +98,7 @@ namespace AppStore.Core.Data
                 // Уникальность логина: без индекса AddUser может вставить
                 // дубли, а GetUserByLogin (FirstOrDefault) тогда выдаёт
                 // неоднозначный результат. ADO-вариант схемы объявляет
-                // login text not null unique — EF-модель обязана совпадать.
+                // login text not null unique – EF-модель обязана совпадать.
                 e.HasIndex(u => u.Login).IsUnique().HasDatabaseName("IX_users_login");
 
                 e.Ignore(u => u.AvatarLetter);
@@ -155,7 +155,7 @@ namespace AppStore.Core.Data
             // Для БД, созданной вне миграций (EnsureCreated()/ADO-репозиторий),
             // выполняется baseline: InitialCreate регистрируется как применённая,
             // а последующие миграции (например, уникальный индекс логина) честно
-            // применяются. Ошибки миграций не глотаются — сбой виден вызывающему
+            // применяются. Ошибки миграций не глотаются – сбой виден вызывающему
             // коду и не оставляет БД «молча» без новых миграций.
             BaselineMigrationsIfNeeded();
             _db.Database.Migrate();
@@ -176,7 +176,7 @@ namespace AppStore.Core.Data
         /// <summary>
         /// Baseline существующей БД: если схема создана вне миграций
         /// (EnsureCreated()/ADO-репозиторий), таблицы есть, а журнал
-        /// __EFMigrationsHistory пуст — регистрируем InitialCreate как
+        /// __EFMigrationsHistory пуст – регистрируем InitialCreate как
         /// применённую, чтобы Migrate() применил только недостающие миграции.
         /// </summary>
         private void BaselineMigrationsIfNeeded()
@@ -219,7 +219,7 @@ namespace AppStore.Core.Data
 
                 // На baseline-БД (ADO/EnsureCreated-схема) индекса логина может не
                 // быть, и таблица может содержать дубликаты логинов. CREATE UNIQUE
-                // INDEX миграции упадёт с сырой ошибкой Npgsql — выдаём понятную
+                // INDEX миграции упадёт с сырой ошибкой Npgsql – выдаём понятную
                 // ошибку с примерами до применения миграции.
                 using (var cmd = conn.CreateCommand())
                 {

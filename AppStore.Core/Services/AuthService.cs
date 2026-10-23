@@ -18,7 +18,7 @@ namespace Project.Services
         /// <summary>Текущий авторизованный пользователь.</summary>
         public User? CurrentUser => _currentUser;
 
-        /// <summary>Флаг: текущий пользователь — администратор.</summary>
+        /// <summary>Флаг: текущий пользователь – администратор.</summary>
         public bool IsAdmin => _currentUser?.Role == UserRole.Admin;
 
         /// <summary>
@@ -36,11 +36,11 @@ namespace Project.Services
 
         /// <summary>
         /// Аутентификация пользователя по логину и паролю.
-        /// При успешном входе с legacy SHA-256 паролем — перехеширует в BCrypt.
+        /// При успешном входе с legacy SHA-256 паролем – перехеширует в BCrypt.
         /// </summary>
         /// <param name="login">Логин пользователя.</param>
         /// <param name="password">Пароль в открытом виде.</param>
-        /// <returns>Пользователь при успехе, null — при неудаче.</returns>
+        /// <returns>Пользователь при успехе, null – при неудаче.</returns>
         public User? Login(string login, string password)
         {
             var user = _repo.GetUserByLogin(login);
@@ -49,9 +49,9 @@ namespace Project.Services
                 return null;
 
             // Rehash legacy SHA-256 password to BCrypt on first successful login.
-            // Апгрейд хеша — вспомогательная операция: её сбой не должен
+            // Апгрейд хеша – вспомогательная операция: её сбой не должен
             // мешать аутентификации. Пользователь возвращается в любом случае.
-            // Пользователь авторизован — назначаем сессию ДО попытки
+            // Пользователь авторизован – назначаем сессию ДО попытки
             // обновления хеша, чтобы сбой UpdateUser никогда не блокировал вход.
             _currentUser = user;
 
