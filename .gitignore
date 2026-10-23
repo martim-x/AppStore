@@ -33,3 +33,6 @@ coverage/
 
 # NuGet
 packages/
+
+# LibreOffice lock files
+~$*
