@@ -23,27 +23,27 @@ if len(_positional) > 1:
 
 # ── стили ────────────────────────────────────────────────────────────────
 ST_ACTOR = ("shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;"
-            "html=1;align=center;outlineConnect=0;fillColor=#ffe6cc;strokeColor=#d79b00;")
-ST_UC = ("shape=ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;"
+            "html=1;align=center;outlineConnect=0;fillColor=none;strokeColor=#000000;")
+ST_UC = ("shape=ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;"
          "fontSize=14;")
 ST_FRAME = ("rounded=0;whiteSpace=wrap;html=1;fillColor=none;dashed=1;dashPattern=8 8;"
-            "strokeColor=#666666;verticalAlign=top;align=left;spacingLeft=8;"
+            "strokeColor=#000000;verticalAlign=top;align=left;spacingLeft=8;"
             "spacingTop=2;fontSize=12;fontStyle=1;")
 ST_CLASS = ("shape=swimlane;html=1;startSize=30;horizontal=1;whiteSpace=wrap;"
-            "fillColor=#d5e8d4;strokeColor=#82b366;fontSize=14;align=left;")
+            "fillColor=none;strokeColor=#000000;fontSize=14;align=left;")
 ST_IFACE = ("shape=swimlane;html=1;startSize=30;horizontal=1;whiteSpace=wrap;"
-            "fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;align=left;")
+            "fillColor=none;strokeColor=#000000;fontSize=14;align=left;")
 ST_TABLE = ("shape=swimlane;html=1;startSize=30;horizontal=1;whiteSpace=wrap;"
-            "fillColor=#f8cecc;strokeColor=#b85450;fontSize=14;align=left;")
+            "fillColor=none;strokeColor=#000000;fontSize=14;align=left;")
 ST_ASSOC = "endArrow=none;html=1;rounded=0;"
-ST_DEP = "endArrow=open;dashed=1;html=1;strokeColor=#6c8ebf;"
+ST_DEP = "endArrow=open;dashed=1;html=1;strokeColor=#000000;"
 ST_MSG = "endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;"
 ST_MSG_D = "endArrow=open;html=1;verticalAlign=bottom;dashed=1;strokeColor=#666666;"
-ST_ER = "endArrow=ERmany;startArrow=ERone;html=1;endFill=0;startFill=0;strokeColor=#b85450;"
-ST_LIFE = ("shape=umlLifeline;html=1;whiteSpace=wrap;fillColor=#dae8fc;"
-           "strokeColor=#6c8ebf;fontSize=14;")
-ST_NOTE = ("shape=note;whiteSpace=wrap;html=1;size=16;fillColor=#fff2cc;"
-           "strokeColor=#d6b656;fontSize=13;align=left;")
+ST_ER = "endArrow=ERmany;startArrow=ERone;html=1;endFill=0;startFill=0;strokeColor=#000000;"
+ST_LIFE = ("shape=umlLifeline;html=1;whiteSpace=wrap;fillColor=none;"
+           "strokeColor=#000000;fontSize=14;")
+ST_NOTE = ("shape=note;whiteSpace=wrap;html=1;size=16;fillColor=none;"
+           "strokeColor=#000000;fontSize=13;align=left;")
 
 
 class Dia:
@@ -150,48 +150,58 @@ def export_png(path, scale=2, border=15):
 # 1. USE CASE
 # ══════════════════════════════════════════════════════════════════════════
 def build_use_case():
-    d = Dia("UseCase", 900, 720)
+    d = Dia("UseCase", 1000, 980)
 
-    auth = d.vertex("Аутентификация", ST_FRAME, 110, 20, 330, 110)
-    uc_login = d.vertex("UC-01: Вход", ST_UC, 130, 55, 140, 42)
-    uc_logout = d.vertex("UC-02: Выход", ST_UC, 290, 55, 140, 42)
+    client = d.vertex("Клиент", ST_ACTOR, 40, 460, 40, 70)
+    admin = d.vertex("Администратор", ST_ACTOR, 940, 120, 40, 70)
 
-    shared = d.vertex("Каталог (общий)", ST_FRAME, 110, 150, 500, 250)
-    uc_view = d.vertex("UC-03: Просмотр каталога", ST_UC, 125, 190, 150, 40)
-    uc_search = d.vertex("UC-04: Поиск", ST_UC, 290, 190, 140, 40)
-    uc_filter = d.vertex("UC-05: Фильтрация", ST_UC, 445, 190, 140, 40)
-    uc_sort = d.vertex("UC-06: Сортировка", ST_UC, 125, 250, 140, 40)
-    uc_detail = d.vertex("UC-07: Карточка", ST_UC, 290, 250, 140, 40)
-    uc_install = d.vertex("UC-08: Установка", ST_UC, 445, 250, 140, 40)
-    uc_undo = d.vertex("UC-09: Отмена / повтор", ST_UC, 125, 310, 165, 40)
-    uc_seemore = d.vertex("UC-10: Все приложения", ST_UC, 310, 310, 150, 40)
+    client_ucs = [
+        "Войти в аккаунт",
+        "Выйти из аккаунта",
+        "Зарегистрироваться",
+        "Просмотреть каталог",
+        "Найти приложение",
+        "Отфильтровать приложения",
+        "Отсортировать приложения",
+        "Просмотреть карточку приложения",
+        "Установить приложение",
+        "Удалить приложение",
+        "Отменить действие",
+        "Повторить действие",
+        "Просмотреть все приложения",
+        "Просмотреть профиль",
+        "Изменить профиль",
+        "Сменить пароль",
+        "Сменить язык",
+        "Сменить тему",
+    ]
+    admin_ucs = [
+        "Добавить приложение",
+        "Редактировать приложение",
+        "Удалить приложение",
+        "Восстановить настройки по умолчанию",
+    ]
 
-    prof = d.vertex("Профиль (общий)", ST_FRAME, 110, 420, 500, 190)
-    uc_pview = d.vertex("UC-11: Просмотр профиля", ST_UC, 125, 460, 160, 40)
-    uc_pedit = d.vertex("UC-12: Изменение профиля", ST_UC, 300, 460, 165, 40)
-    uc_pwd = d.vertex("UC-13: Смена пароля", ST_UC, 480, 460, 120, 40)
-    uc_lang = d.vertex("UC-14: Язык RU/EN", ST_UC, 125, 520, 150, 40)
-    uc_theme = d.vertex("UC-15: Тема Light/Dark", ST_UC, 300, 520, 170, 40)
+    # Lay out in two columns, 9 per column
+    half = (len(client_ucs) + 1) // 2
+    col1 = client_ucs[:half]
+    col2 = client_ucs[half:]
+    client_ids = []
+    for i, name in enumerate(col1):
+        cid = d.vertex(name, ST_UC, 160, 60 + i * 52, 190, 40)
+        client_ids.append(cid)
+        d.edge(client, cid)
+    for i, name in enumerate(col2):
+        cid = d.vertex(name, ST_UC, 380, 60 + i * 52, 190, 40)
+        client_ids.append(cid)
+        d.edge(client, cid)
 
-    adm = d.vertex("Только администратор", ST_FRAME, 630, 20, 260, 240)
-    uc_add = d.vertex("UC-16: Добавление", ST_UC, 645, 60, 220, 40)
-    uc_edit = d.vertex("UC-17: Редактирование", ST_UC, 645, 115, 220, 40)
-    uc_del = d.vertex("UC-18: Удаление", ST_UC, 645, 170, 220, 40)
-    uc_restore = d.vertex("UC-19: Восстановление", ST_UC, 645, 225, 220, 40)
+    admin_ids = []
+    for i, name in enumerate(admin_ucs):
+        cid = d.vertex(name, ST_UC, 680, 60 + i * 52, 220, 40)
+        admin_ids.append(cid)
+        d.edge(admin, cid)
 
-    admin = d.vertex("Администратор", ST_ACTOR, 20, 150, 40, 70)
-    client = d.vertex("Клиент", ST_ACTOR, 20, 480, 40, 70)
-
-    for u in (uc_login, uc_logout, uc_view, uc_search, uc_filter, uc_sort, uc_detail,
-              uc_install, uc_undo, uc_seemore, uc_pview, uc_pedit, uc_pwd, uc_lang, uc_theme):
-        d.edge(admin, u)
-        d.edge(client, u)
-    for u in (uc_add, uc_edit, uc_del, uc_restore):
-        d.edge(admin, u)
-
-    d.edge(uc_install, uc_undo, ST_DEP, "вкл.")
-    d.edge(uc_pedit, uc_pwd, ST_DEP, "вкл.")
-    d.edge(uc_restore, uc_del, ST_DEP, "расш.")
     return d
 
 
@@ -323,7 +333,7 @@ def build_sequence():
         # линия жизни — ребро без источника/цели, с явной геометрией-линией
         d.cells.append(
             f'        <mxCell id="life{len(d.cells)}" style="endArrow=none;html=1;'
-            f'strokeColor=#6c8ebf;dashed=0;" edge="1" parent="1">\n'
+            f'strokeColor=#000000;dashed=0;" edge="1" parent="1">\n'
             f'          <mxGeometry relative="1" as="geometry">\n'
             f'            <mxPoint x="{x}" y="118" as="sourcePoint" />\n'
             f'            <mxPoint x="{x}" y="700" as="targetPoint" />\n'
