@@ -65,97 +65,97 @@
         <mxCell id="v20" value="LocalizationService&#10;«Singleton»&#10;+ string Language" style="shape=swimlane;html=1;startSize=30;horizontal=1;whiteSpace=wrap;fillColor=none;strokeColor=#000000;fontSize=14;align=left;" vertex="1" parent="1">
           <mxGeometry x="820" y="830" width="230" height="85" as="geometry" />
         </mxCell>
-        <mxCell id="e21" value="«implements»" style="endArrow=open;dashed=1;html=1;strokeColor=#000000;" edge="1" parent="1" source="v1" target="v2">
+        <mxCell id="e21" value="«implements»" style="endArrow=open;dashed=1;html=1;strokeColor=#000000;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="v1" target="v2">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="0" y="0" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="e22" value="«implements»" style="endArrow=open;dashed=1;html=1;strokeColor=#000000;" edge="1" parent="1" source="v3" target="v4">
+        <mxCell id="e22" value="«implements»" style="endArrow=open;dashed=1;html=1;strokeColor=#000000;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="v3" target="v4">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="0" y="0" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="e23" value="«implements»" style="endArrow=open;dashed=1;html=1;strokeColor=#000000;" edge="1" parent="1" source="v8" target="v12">
+        <mxCell id="e23" value="«implements»" style="endArrow=open;dashed=1;html=1;strokeColor=#000000;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="v8" target="v12">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="0" y="0" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="e24" value="«implements»" style="endArrow=open;dashed=1;html=1;strokeColor=#000000;" edge="1" parent="1" source="v8" target="v13">
+        <mxCell id="e24" value="«implements»" style="endArrow=open;dashed=1;html=1;strokeColor=#000000;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="v8" target="v13">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="0" y="0" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="e25" value="«implements»" style="endArrow=open;dashed=1;html=1;strokeColor=#000000;" edge="1" parent="1" source="v8" target="v14">
+        <mxCell id="e25" value="«implements»" style="endArrow=open;dashed=1;html=1;strokeColor=#000000;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="v8" target="v14">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="0" y="0" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="e26" value="использует" style="endArrow=open;dashed=1;html=1;strokeColor=#000000;" edge="1" parent="1" source="v9" target="v8">
+        <mxCell id="e26" value="использует" style="endArrow=open;dashed=1;html=1;strokeColor=#000000;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="v9" target="v8">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="0" y="0" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="e27" style="endArrow=open;dashed=1;html=1;strokeColor=#000000;" edge="1" parent="1" source="v9" target="v10">
+        <mxCell id="e27" style="endArrow=open;dashed=1;html=1;strokeColor=#000000;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="v9" target="v10">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="0" y="0" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="e28" value="«implements»" style="endArrow=open;dashed=1;html=1;strokeColor=#000000;" edge="1" parent="1" source="v10" target="v15">
+        <mxCell id="e28" value="«implements»" style="endArrow=open;dashed=1;html=1;strokeColor=#000000;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="v10" target="v15">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="0" y="0" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="e29" value="«implements»" style="endArrow=open;dashed=1;html=1;strokeColor=#000000;" edge="1" parent="1" source="v10" target="v16">
+        <mxCell id="e29" value="«implements»" style="endArrow=open;dashed=1;html=1;strokeColor=#000000;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="v10" target="v16">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="0" y="0" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="e30" style="endArrow=open;dashed=1;html=1;strokeColor=#000000;" edge="1" parent="1" source="v11" target="v8">
+        <mxCell id="e30" style="endArrow=open;dashed=1;html=1;strokeColor=#000000;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="v11" target="v8">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="0" y="0" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="e31" style="endArrow=open;dashed=1;html=1;strokeColor=#000000;" edge="1" parent="1" source="v11" target="v9">
+        <mxCell id="e31" style="endArrow=open;dashed=1;html=1;strokeColor=#000000;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="v11" target="v9">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="0" y="0" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="e32" style="endArrow=open;dashed=1;html=1;strokeColor=#000000;" edge="1" parent="1" source="v11" target="v6">
+        <mxCell id="e32" style="endArrow=open;dashed=1;html=1;strokeColor=#000000;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="v11" target="v6">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="0" y="0" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="e33" style="endArrow=open;dashed=1;html=1;strokeColor=#000000;" edge="1" parent="1" source="v6" target="v7">
+        <mxCell id="e33" style="endArrow=open;dashed=1;html=1;strokeColor=#000000;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="v6" target="v7">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="0" y="0" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="e34" value="«наследует»" style="endArrow=open;dashed=1;html=1;strokeColor=#000000;" edge="1" parent="1" source="v11" target="v18">
+        <mxCell id="e34" value="«наследует»" style="endArrow=open;dashed=1;html=1;strokeColor=#000000;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="v11" target="v18">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="0" y="0" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="e35" style="endArrow=open;dashed=1;html=1;strokeColor=#000000;" edge="1" parent="1" source="v17" target="v18">
+        <mxCell id="e35" style="endArrow=open;dashed=1;html=1;strokeColor=#000000;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="v17" target="v18">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="0" y="0" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="e36" style="endArrow=open;dashed=1;html=1;strokeColor=#000000;" edge="1" parent="1" source="v4" target="v5">
+        <mxCell id="e36" style="endArrow=open;dashed=1;html=1;strokeColor=#000000;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="v4" target="v5">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="0" y="0" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="e37" style="endArrow=open;dashed=1;html=1;strokeColor=#000000;" edge="1" parent="1" source="v2" target="v5">
+        <mxCell id="e37" style="endArrow=open;dashed=1;html=1;strokeColor=#000000;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="v2" target="v5">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="0" y="0" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="e38" style="endArrow=open;dashed=1;html=1;strokeColor=#000000;" edge="1" parent="1" source="v11" target="v19">
+        <mxCell id="e38" style="endArrow=open;dashed=1;html=1;strokeColor=#000000;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="v11" target="v19">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="0" y="0" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="e39" style="endArrow=open;dashed=1;html=1;strokeColor=#000000;" edge="1" parent="1" source="v11" target="v20">
+        <mxCell id="e39" style="endArrow=open;dashed=1;html=1;strokeColor=#000000;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="v11" target="v20">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="0" y="0" as="offset" />
           </mxGeometry>

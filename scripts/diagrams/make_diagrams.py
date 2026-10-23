@@ -35,11 +35,11 @@ ST_IFACE = ("shape=swimlane;html=1;startSize=30;horizontal=1;whiteSpace=wrap;"
             "fillColor=none;strokeColor=#000000;fontSize=14;align=left;")
 ST_TABLE = ("shape=swimlane;html=1;startSize=30;horizontal=1;whiteSpace=wrap;"
             "fillColor=none;strokeColor=#000000;fontSize=14;align=left;")
-ST_ASSOC = "endArrow=none;html=1;rounded=0;"
-ST_DEP = "endArrow=open;dashed=1;html=1;strokeColor=#000000;"
-ST_MSG = "endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;"
-ST_MSG_D = "endArrow=open;html=1;verticalAlign=bottom;dashed=1;strokeColor=#666666;"
-ST_ER = "endArrow=ERmany;startArrow=ERone;html=1;endFill=0;startFill=0;strokeColor=#000000;"
+ST_ASSOC = "endArrow=none;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;"
+ST_DEP = "endArrow=open;dashed=1;html=1;strokeColor=#000000;rounded=0;edgeStyle=orthogonalEdgeStyle;"
+ST_MSG = "endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;"
+ST_MSG_D = "endArrow=open;html=1;verticalAlign=bottom;dashed=1;strokeColor=#000000;rounded=0;edgeStyle=orthogonalEdgeStyle;"
+ST_ER = "endArrow=ERmany;startArrow=ERone;html=1;endFill=0;startFill=0;strokeColor=#000000;rounded=0;edgeStyle=orthogonalEdgeStyle;"
 ST_LIFE = ("shape=umlLifeline;html=1;whiteSpace=wrap;fillColor=none;"
            "strokeColor=#000000;fontSize=14;")
 ST_NOTE = ("shape=note;whiteSpace=wrap;html=1;size=16;fillColor=none;"
@@ -333,7 +333,7 @@ def build_sequence():
         # линия жизни — ребро без источника/цели, с явной геометрией-линией
         d.cells.append(
             f'        <mxCell id="life{len(d.cells)}" style="endArrow=none;html=1;'
-            f'strokeColor=#000000;dashed=0;" edge="1" parent="1">\n'
+            f'strokeColor=#000000;dashed=0;rounded=0;" edge="1" parent="1">\n'
             f'          <mxGeometry relative="1" as="geometry">\n'
             f'            <mxPoint x="{x}" y="118" as="sourcePoint" />\n'
             f'            <mxPoint x="{x}" y="700" as="targetPoint" />\n'

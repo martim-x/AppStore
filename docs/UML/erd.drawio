@@ -23,12 +23,12 @@
         <mxCell id="body5" value="PK (user_id, app_id) uuid&#10;FK user_id uuid&#10;FK app_id uuid&#10;  installed_at date" style="text;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingTop=2;fontSize=14;whiteSpace=wrap;" vertex="1" parent="v3">
           <mxGeometry x="0" y="26" width="240" height="134" as="geometry" />
         </mxCell>
-        <mxCell id="e4" value="имеет" style="endArrow=ERmany;startArrow=ERone;html=1;endFill=0;startFill=0;strokeColor=#000000;" edge="1" parent="1" source="v1" target="v3">
+        <mxCell id="e4" value="имеет" style="endArrow=ERmany;startArrow=ERone;html=1;endFill=0;startFill=0;strokeColor=#000000;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="v1" target="v3">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="0" y="0" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="e5" value="установлено" style="endArrow=ERmany;startArrow=ERone;html=1;endFill=0;startFill=0;strokeColor=#000000;" edge="1" parent="1" source="v2" target="v3">
+        <mxCell id="e5" value="установлено" style="endArrow=ERmany;startArrow=ERone;html=1;endFill=0;startFill=0;strokeColor=#000000;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="v2" target="v3">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="0" y="0" as="offset" />
           </mxGeometry>

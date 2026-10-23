@@ -11,7 +11,7 @@
         <mxCell id="v2" value="Пользователь" style="shape=umlLifeline;html=1;whiteSpace=wrap;fillColor=none;strokeColor=#000000;fontSize=14;" vertex="1" parent="1">
           <mxGeometry x="20" y="80" width="140" height="38" as="geometry" />
         </mxCell>
-        <mxCell id="life2" style="endArrow=none;html=1;strokeColor=#000000;dashed=0;" edge="1" parent="1">
+        <mxCell id="life2" style="endArrow=none;html=1;strokeColor=#000000;dashed=0;rounded=0;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="90" y="118" as="sourcePoint" />
             <mxPoint x="90" y="700" as="targetPoint" />
@@ -20,7 +20,7 @@
         <mxCell id="v3" value="ApplicationApp" style="shape=umlLifeline;html=1;whiteSpace=wrap;fillColor=none;strokeColor=#000000;fontSize=14;" vertex="1" parent="1">
           <mxGeometry x="180" y="80" width="140" height="38" as="geometry" />
         </mxCell>
-        <mxCell id="life4" style="endArrow=none;html=1;strokeColor=#000000;dashed=0;" edge="1" parent="1">
+        <mxCell id="life4" style="endArrow=none;html=1;strokeColor=#000000;dashed=0;rounded=0;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="250" y="118" as="sourcePoint" />
             <mxPoint x="250" y="700" as="targetPoint" />
@@ -29,7 +29,7 @@
         <mxCell id="v4" value="LoginWindow" style="shape=umlLifeline;html=1;whiteSpace=wrap;fillColor=none;strokeColor=#000000;fontSize=14;" vertex="1" parent="1">
           <mxGeometry x="350" y="80" width="140" height="38" as="geometry" />
         </mxCell>
-        <mxCell id="life6" style="endArrow=none;html=1;strokeColor=#000000;dashed=0;" edge="1" parent="1">
+        <mxCell id="life6" style="endArrow=none;html=1;strokeColor=#000000;dashed=0;rounded=0;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="420" y="118" as="sourcePoint" />
             <mxPoint x="420" y="700" as="targetPoint" />
@@ -38,7 +38,7 @@
         <mxCell id="v5" value="AuthService" style="shape=umlLifeline;html=1;whiteSpace=wrap;fillColor=none;strokeColor=#000000;fontSize=14;" vertex="1" parent="1">
           <mxGeometry x="520" y="80" width="140" height="38" as="geometry" />
         </mxCell>
-        <mxCell id="life8" style="endArrow=none;html=1;strokeColor=#000000;dashed=0;" edge="1" parent="1">
+        <mxCell id="life8" style="endArrow=none;html=1;strokeColor=#000000;dashed=0;rounded=0;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="590" y="118" as="sourcePoint" />
             <mxPoint x="590" y="700" as="targetPoint" />
@@ -47,7 +47,7 @@
         <mxCell id="v6" value="IRepository" style="shape=umlLifeline;html=1;whiteSpace=wrap;fillColor=none;strokeColor=#000000;fontSize=14;" vertex="1" parent="1">
           <mxGeometry x="690" y="80" width="140" height="38" as="geometry" />
         </mxCell>
-        <mxCell id="life10" style="endArrow=none;html=1;strokeColor=#000000;dashed=0;" edge="1" parent="1">
+        <mxCell id="life10" style="endArrow=none;html=1;strokeColor=#000000;dashed=0;rounded=0;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="760" y="118" as="sourcePoint" />
             <mxPoint x="760" y="700" as="targetPoint" />
@@ -56,19 +56,19 @@
         <mxCell id="v7" value="MainWindow / MainVM" style="shape=umlLifeline;html=1;whiteSpace=wrap;fillColor=none;strokeColor=#000000;fontSize=14;" vertex="1" parent="1">
           <mxGeometry x="850" y="80" width="140" height="38" as="geometry" />
         </mxCell>
-        <mxCell id="life12" style="endArrow=none;html=1;strokeColor=#000000;dashed=0;" edge="1" parent="1">
+        <mxCell id="life12" style="endArrow=none;html=1;strokeColor=#000000;dashed=0;rounded=0;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="920" y="118" as="sourcePoint" />
             <mxPoint x="920" y="700" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="msg13" value="Запуск приложения" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;" edge="1" parent="1">
+        <mxCell id="msg13" value="Запуск приложения" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="90" y="170" as="sourcePoint" />
             <mxPoint x="250" y="170" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="msg14" value="CompositionRoot.Build()" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;" edge="1" parent="1">
+        <mxCell id="msg14" value="CompositionRoot.Build()" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="250" y="205" as="sourcePoint" />
             <mxPoint x="295" y="230" as="targetPoint" />
@@ -77,37 +77,37 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="msg15" value="new AuthService(repo)" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;" edge="1" parent="1">
+        <mxCell id="msg15" value="new AuthService(repo)" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="250" y="240" as="sourcePoint" />
             <mxPoint x="590" y="240" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="msg16" value="new LoginWindow(auth)" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;" edge="1" parent="1">
+        <mxCell id="msg16" value="new LoginWindow(auth)" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="250" y="275" as="sourcePoint" />
             <mxPoint x="420" y="275" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="msg17" value="ShowDialog()" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;" edge="1" parent="1">
+        <mxCell id="msg17" value="ShowDialog()" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="250" y="310" as="sourcePoint" />
             <mxPoint x="420" y="310" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="msg18" value="Логин и пароль" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;" edge="1" parent="1">
+        <mxCell id="msg18" value="Логин и пароль" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="90" y="350" as="sourcePoint" />
             <mxPoint x="420" y="350" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="msg19" value="Login(login, password)" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;" edge="1" parent="1">
+        <mxCell id="msg19" value="Login(login, password)" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="420" y="385" as="sourcePoint" />
             <mxPoint x="590" y="385" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="msg20" value="BCrypt.Verify(hash, password)" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;" edge="1" parent="1">
+        <mxCell id="msg20" value="BCrypt.Verify(hash, password)" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="590" y="420" as="sourcePoint" />
             <mxPoint x="635" y="445" as="targetPoint" />
@@ -116,49 +116,49 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="msg21" value="GetUserByLogin(login)" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;" edge="1" parent="1">
+        <mxCell id="msg21" value="GetUserByLogin(login)" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="590" y="455" as="sourcePoint" />
             <mxPoint x="760" y="455" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="msg22" value="User / null" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;" edge="1" parent="1">
+        <mxCell id="msg22" value="User / null" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="760" y="490" as="sourcePoint" />
             <mxPoint x="590" y="490" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="msg23" value="SetCurrentUser(user.Id)" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;" edge="1" parent="1">
+        <mxCell id="msg23" value="SetCurrentUser(user.Id)" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="590" y="525" as="sourcePoint" />
             <mxPoint x="760" y="525" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="msg24" value="User / null" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;" edge="1" parent="1">
+        <mxCell id="msg24" value="User / null" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="590" y="560" as="sourcePoint" />
             <mxPoint x="420" y="560" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="msg25" value="DialogResult = true" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;" edge="1" parent="1">
+        <mxCell id="msg25" value="DialogResult = true" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="420" y="595" as="sourcePoint" />
             <mxPoint x="250" y="595" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="msg26" value="OpenCatalog()" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;" edge="1" parent="1">
+        <mxCell id="msg26" value="OpenCatalog()" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="250" y="630" as="sourcePoint" />
             <mxPoint x="920" y="630" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="msg27" value="GetAllApps()" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;" edge="1" parent="1">
+        <mxCell id="msg27" value="GetAllApps()" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="920" y="665" as="sourcePoint" />
             <mxPoint x="760" y="665" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="msg28" value="List&lt;App&gt;" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;" edge="1" parent="1">
+        <mxCell id="msg28" value="List&lt;App&gt;" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="760" y="705" as="sourcePoint" />
             <mxPoint x="920" y="705" as="targetPoint" />
