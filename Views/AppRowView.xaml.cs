@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using Project.Data;
+using AppStore.Core.Data;
 
 namespace Project.Views
 {

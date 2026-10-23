@@ -1,0 +1,96 @@
+# AppStore WPF - GitLab CI/CD Pipeline
+# Strategy: Linux runners for restore/build/test (with EnableWindowsTargeting), Windows runner for package
+# Integration tests use a postgres:16-alpine service container
+
+stages:
+  - restore
+  - build
+  - test
+  - package
+
+variables:
+  DOTNET_VERSION: "8.0"
+  # NuGet cache must point into project directory
+  NUGET_PACKAGES: "$CI_PROJECT_DIR/.nuget/packages"
+
+restore:
+  stage: restore
+  image: mcr.microsoft.com/dotnet/sdk:8.0
+  script:
+    - dotnet restore Project.sln -p:EnableWindowsTargeting=true
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - ".nuget/packages"
+      - "**/obj/"
+
+build:
+  stage: build
+  image: mcr.microsoft.com/dotnet/sdk:8.0
+  needs: [restore]
+  script:
+    - dotnet build AppStore.Core/AppStore.Core.csproj -c Release
+    - dotnet build Project.sln -c Release -p:EnableWindowsTargeting=true
+  artifacts:
+    paths:
+      - "**/bin/Release/net8.0-windows/"
+      - "AppStore.Core/bin/Release/net8.0/"
+      - "**/obj/"
+    expire_in: 1 week
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - ".nuget/packages"
+      - "**/obj/"
+
+test:unit:
+  stage: test
+  image: mcr.microsoft.com/dotnet/sdk:8.0
+  needs: [build]
+  script:
+    - dotnet test tests/unit/AppStore.UnitTests/AppStore.UnitTests.csproj -c Release -p:EnableWindowsTargeting=true --logger "junit;LogFilePath=$CI_PROJECT_DIR/test-results/unit-tests.xml"
+  artifacts:
+    reports:
+      junit: "$CI_PROJECT_DIR/test-results/unit-tests.xml"
+    expire_in: 1 week
+
+test:integration:
+  stage: test
+  image: mcr.microsoft.com/dotnet/sdk:8.0
+  needs: [build]
+  services:
+    - name: postgres:16-alpine
+      alias: postgres
+  variables:
+    POSTGRES_DB: appstore_test
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres
+    DB_HOST: "postgres"
+    DB_PORT_FROM: "5432"
+    DB_NAME: "appstore_test"
+    DB_ADMIN: "postgres"
+    DB_ADMIN_PASS: "postgres"
+  script:
+    - dotnet test tests/integration/AppStore.IntegrationTests/AppStore.IntegrationTests.csproj -c Release -p:EnableWindowsTargeting=true --logger "junit;LogFilePath=$CI_PROJECT_DIR/test-results/integration-tests.xml"
+  artifacts:
+    reports:
+      junit: "$CI_PROJECT_DIR/test-results/integration-tests.xml"
+    expire_in: 1 week
+
+package:
+  stage: package
+  # Windows runner required for WPF single-file publish
+  tags:
+    - windows
+  # Use Windows Server Core image for Docker Windows runners; ignored on shell runners
+  image: mcr.microsoft.com/dotnet/sdk:8.0-windowsservercore-ltsc2022
+  needs: [test:unit, test:integration]
+  script:
+    - dotnet publish Project.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:EnableWindowsTargeting=true -o ./publish
+  artifacts:
+    paths:
+      - "./publish/"
+    expire_in: 1 month
+  only:
+    - main
+    - tags

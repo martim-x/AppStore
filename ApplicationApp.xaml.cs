@@ -4,7 +4,7 @@ using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using Microsoft.Extensions.DependencyInjection;
 using Project.Configuration;
-using Project.Data;
+using AppStore.Core.Data;
 using Project.Services;
 using Project.ViewModels;
 using Project.Views;
@@ -13,7 +13,7 @@ namespace Project
 {
     public partial class ApplicationApp : Application
     {
-        private IServiceProvider _serviceProvider;
+        private IServiceProvider _serviceProvider = null!;
 
         [STAThread]
         public static void Main()
@@ -54,12 +54,7 @@ namespace Project
 
         private void ShowLogin()
         {
-            var repo = _serviceProvider.GetRequiredService<IRepository>();
-            var auth = _serviceProvider.GetRequiredService<IAuthService>();
             var login = _serviceProvider.GetRequiredService<Views.LoginWindow>();
-
-            // Inject dependencies into LoginWindow
-            login.Initialize(auth);
 
             // Закрыли логин без входа — завершаем процесс
             if (login.ShowDialog() != true)

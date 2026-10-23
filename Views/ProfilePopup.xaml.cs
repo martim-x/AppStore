@@ -2,7 +2,8 @@ using System;
 using System.Windows;
 using System.Windows.Media;
 using Microsoft.Extensions.DependencyInjection;
-using Project.Data;
+using AppStore.Core.Data;
+using AppStore.Core.Services;
 using Project.Services;
 using Project.ViewModels;
 
@@ -13,19 +14,17 @@ namespace Project.Views
         private readonly IServiceProvider _services;
         public bool LoggedOut { get; private set; }
 
-        public ProfilePopup(IServiceProvider services = null)
+        public ProfilePopup(IServiceProvider services)
         {
-            _services = services;
+            _services = services ?? throw new ArgumentNullException(nameof(services));
             InitializeComponent();
         }
 
         public void Initialize(Window owner)
         {
-            var auth = _services?.GetRequiredService<IAuthService>();
-            var theme = _services?.GetRequiredService<IThemeService>();
-
-            if (auth == null || theme == null)
-                return;
+            var auth = _services.GetRequiredService<IAuthService>();
+            var theme = _services.GetRequiredService<IThemeService>();
+            var health = _services.GetService<IHealthCheckService>();
 
             Owner = owner;
             var user = auth.CurrentUser!;
@@ -46,7 +45,7 @@ namespace Project.Views
                 RoleBadge.Background = new SolidColorBrush(Color.FromRgb(0, 114, 247));
             }
 
-            var vm = new ProfileViewModel(auth, theme);
+            var vm = new ProfileViewModel(auth, theme, health);
             vm.GetOldPassword = () => OldPasswordBox.Password;
             vm.GetNewPassword = () => NewPasswordBox.Password;
             DataContext = vm;

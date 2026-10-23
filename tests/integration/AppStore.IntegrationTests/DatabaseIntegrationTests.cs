@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Project.Data;
+using AppStore.Core.Data;
+using AppStore.Core.Configuration;
 using Project.Services;
-using Project.Configuration;
 using Xunit;
 using FluentAssertions;
 
@@ -21,8 +22,14 @@ namespace AppStore.IntegrationTests
 
         public DatabaseIntegrationTests()
         {
-            // Override Settings before creating repository
-            var envVars = new Dictionary<string, string>
+            // Локальные значения по умолчанию. В CI они перекрываются
+            // переменными окружения от service container
+            // (DB_HOST=postgres, DB_PORT_FROM=5432, DB_NAME=appstore_test,
+            //  DB_ADMIN=postgres, DB_ADMIN_PASS=postgres) — тесты используют
+            // ровно те ключи, поэтому здесь проверяется «уже задано?».
+            // Файл .env из корня репозитория тестовому проекту недоступен:
+            // он ищется относительно bin-папки проекта, а не репозитория.
+            var defaults = new Dictionary<string, string>
             {
                 ["DB_HOST"] = "localhost",
                 ["DB_PORT_FROM"] = "5433",
@@ -31,17 +38,30 @@ namespace AppStore.IntegrationTests
                 ["DB_ADMIN_PASS"] = "changeme"
             };
 
-            foreach (var kvp in envVars)
+            foreach (var kvp in defaults)
             {
-                Environment.SetEnvironmentVariable(kvp.Key, kvp.Value);
+                if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable(kvp.Key)))
+                    Environment.SetEnvironmentVariable(kvp.Key, kvp.Value);
             }
 
-            // Force Settings to reload
-            var loadMethod = typeof(Settings).GetMethod("LoadFromEnvironment", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            // Environment variables are set by CI service container
+            // DB_HOST=postgres, DB_PORT_FROM=5432, DB_NAME=appstore_test, etc.
+
+            // Force Settings to reload from environment
+            var loadMethod = typeof(Settings).GetMethod("LoadFromEnvironment", BindingFlags.NonPublic | BindingFlags.Instance);
             loadMethod?.Invoke(Settings.Instance, null);
 
-            // Use the actual CompositionRoot to build DI container
-            _services = CompositionRoot.Build();
+            // Build DI container for core services only
+            var services = new ServiceCollection();
+            services.AddSingleton(_ => Settings.Instance);
+            services.AddSingleton<IPasswordHasher, BCryptHasher>();
+            services.AddSingleton<SHA256Hasher>();
+            services.AddScoped<IRepository, PostgreSQLRepEF>();
+            services.AddScoped<PostgreSQLRepEF>();
+            services.AddSingleton<IUndoRedoService, UndoRedoService>();
+            services.AddScoped<IAuthService, AuthService>();
+
+            _services = services.BuildServiceProvider();
 
             var connectionString = Settings.Instance.ConnectionString;
 
@@ -53,13 +73,17 @@ namespace AppStore.IntegrationTests
             _repository = _services.GetRequiredService<PostgreSQLRepEF>();
 
             // Replace the internal DbContext
-            var repoField = typeof(PostgreSQLRepEF).GetField("_db", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var repoField = typeof(PostgreSQLRepEF).GetField("_db", BindingFlags.NonPublic | BindingFlags.Instance);
             repoField?.SetValue(_repository, _dbContext);
 
             _authService = _services.GetRequiredService<IAuthService>();
         }
 
-        public Task InitializeAsync() => Task.CompletedTask;
+        public async Task InitializeAsync()
+        {
+            // Ensure database is created and migrations applied
+            await _dbContext.Database.EnsureCreatedAsync();
+        }
 
         public async Task DisposeAsync()
         {
@@ -199,7 +223,7 @@ namespace AppStore.IntegrationTests
             // Use an existing user from seed data
             var userId = Guid.Parse("414603a5-19f8-4920-8d61-1fb8384acfb6"); // user
             var repoWithUser = new PostgreSQLRepEF(userId);
-            var repoField = typeof(PostgreSQLRepEF).GetField("_db", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var repoField = typeof(PostgreSQLRepEF).GetField("_db", BindingFlags.NonPublic | BindingFlags.Instance);
             repoField?.SetValue(repoWithUser, _dbContext);
 
             var apps = repoWithUser.GetAllApps();
@@ -218,60 +242,64 @@ namespace AppStore.IntegrationTests
         }
 
         [Fact]
-                public void RestoreDefaults_ResetsDatabase()
-                {
-                    // Create a fresh repository for this test to avoid interference from other tests
-                    var connectionString = Settings.Instance.ConnectionString;
-                    var options = new DbContextOptionsBuilder<PostgreDbContext>()
-                        .UseNpgsql(connectionString)
-                        .Options;
-                    var dbContext = new PostgreDbContext(options);
-                    var freshRepo = new PostgreSQLRepEF(Guid.Empty);
-                    var repoField = typeof(PostgreSQLRepEF).GetField("_db", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                    repoField?.SetValue(freshRepo, dbContext);
+        public void RestoreDefaults_ResetsDatabase()
+        {
+            // Create a fresh repository for this test to avoid interference from other tests
+            var connectionString = Settings.Instance.ConnectionString;
+            var options = new DbContextOptionsBuilder<PostgreDbContext>()
+                .UseNpgsql(connectionString)
+                .Options;
+            var dbContext = new PostgreDbContext(options);
+            var freshRepo = new PostgreSQLRepEF(Guid.Empty);
+            var repoField = typeof(PostgreSQLRepEF).GetField("_db", BindingFlags.NonPublic | BindingFlags.Instance);
+            repoField?.SetValue(freshRepo, dbContext);
 
-                    // Capture current state as baseline (dynamic, since other tests may have modified DB)
-                    var baselineUserCount = freshRepo.GetAllUsers().Count;
-                    var baselineAppCount = freshRepo.GetAllApps().Count;
+            // Normalize DB state first — other tests may leave extra rows behind,
+            // so capture the baseline AFTER a restore, not before.
+            freshRepo.RestoreDefaults();
 
-                    // Add test data
-                    freshRepo.AddApp(new App
-                    {
-                        ShortName = "Test",
-                        FullName = "Test",
-                        Description = "Test",
-                        Developer = "Test",
-                        Category = "Test",
-                        Rating = 4.0,
-                        RatingCount = 10,
-                        Price = 10,
-                        Version = "1.0",
-                        SizeMB = 10,
-                        Country = "US",
-                        AgeRating = "4+",
-                        Color = "#FF0000",
-                        IsFeatured = false,
-                        IsInStock = true,
-                        DiscountPercent = null,
-                        ReleaseDate = DateTime.Now,
-                        Tags = new List<string> { "test" }
-                    });
-                    freshRepo.AddUser(new User { Login = "testuser", PasswordHash = "hash", Role = UserRole.User });
+            // Deterministic baseline = seed data (2 users, 12 apps)
+            var baselineUserCount = freshRepo.GetAllUsers().Count;
+            var baselineAppCount = freshRepo.GetAllApps().Count;
 
-                    // Verify data was added
-                    freshRepo.GetAllApps().Count.Should().Be(baselineAppCount + 1);
-                    freshRepo.GetAllUsers().Count.Should().Be(baselineUserCount + 1);
+            // Add test data
+            freshRepo.AddApp(new App
+            {
+                ShortName = "Test",
+                FullName = "Test",
+                Description = "Test",
+                Developer = "Test",
+                Category = "Test",
+                Rating = 4.0,
+                RatingCount = 10,
+                Price = 10,
+                Version = "1.0",
+                SizeMB = 10,
+                Country = "US",
+                AgeRating = "4+",
+                Color = "#FF0000",
+                IsFeatured = false,
+                IsInStock = true,
+                DiscountPercent = null,
+                ReleaseDate = DateTime.Now,
+                Tags = new List<string> { "test" }
+            });
+            freshRepo.AddUser(new User { Login = "testuser", PasswordHash = "hash", Role = UserRole.User });
 
-                    // Restore defaults
-                    freshRepo.RestoreDefaults();
+            // Verify data was added
+            freshRepo.GetAllApps().Count.Should().Be(baselineAppCount + 1);
+            freshRepo.GetAllUsers().Count.Should().Be(baselineUserCount + 1);
 
-                    // Verify restored to original baseline state
-                    freshRepo.GetAllUsers().Count.Should().Be(baselineUserCount);
-                    freshRepo.GetAllApps().Count.Should().Be(baselineAppCount);
-                    freshRepo.GetAllUsers().Should().Contain(u => u.Login == "admin");
-                    freshRepo.GetAllUsers().Should().Contain(u => u.Login == "user");
+            // Restore defaults
+            freshRepo.RestoreDefaults();
 
-                    dbContext.Dispose();
-                }
+            // Verify restored to seed state
+            freshRepo.GetAllUsers().Count.Should().Be(baselineUserCount);
+            freshRepo.GetAllApps().Count.Should().Be(baselineAppCount);
+            freshRepo.GetAllUsers().Should().Contain(u => u.Login == "admin");
+            freshRepo.GetAllUsers().Should().Contain(u => u.Login == "user");
+
+            dbContext.Dispose();
+        }
     }
 }

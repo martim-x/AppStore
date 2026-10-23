@@ -6,7 +6,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using Microsoft.Extensions.DependencyInjection;
 using Project.Commands;
-using Project.Data;
+using AppStore.Core.Data;
 using Project.ViewModels;
 
 namespace Project.Views
@@ -16,11 +16,14 @@ namespace Project.Views
         private MainViewModel Vm => (MainViewModel)DataContext;
         private readonly IServiceProvider _services;
 
+        // Expose services for child controls (AppDetailView needs it for EditDeleteDialog)
+        internal IServiceProvider Services => _services;
+
         public ObservableCollection<string> EventLog { get; } = new();
 
-        public MainWindow(IServiceProvider services = null)
+        public MainWindow(IServiceProvider services)
         {
-            _services = services;
+            _services = services ?? throw new ArgumentNullException(nameof(services));
             InitializeComponent();
 
             try
@@ -125,12 +128,12 @@ namespace Project.Views
         }
 
         private void OnAddAppClick(object sender, RoutedEventArgs e)
-                {
-                    var dlg = _services?.GetService<AddEditWindow>() ?? new AddEditWindow(_services);
+        {
+            var dlg = _services.GetService<AddEditWindow>() ?? new AddEditWindow(_services);
 
-                    if (dlg.ShowDialog() == true)
-                        Vm.RefreshCommand.Execute(null);
-                }
+            if (dlg.ShowDialog() == true)
+                Vm.RefreshCommand.Execute(null);
+        }
 
         private void OnResetFilters(object sender, RoutedEventArgs e)
         {
@@ -160,17 +163,17 @@ namespace Project.Views
         }
 
         private void OnProfileClick(object sender, RoutedEventArgs e)
-                {
-                    var popup = _services?.GetService<ProfilePopup>() ?? new ProfilePopup(_services);
-                    popup.Initialize(this);
-                    popup.Show();
+        {
+            var popup = _services.GetService<ProfilePopup>() ?? new ProfilePopup(_services);
+            popup.Initialize(this);
+            popup.Show();
 
-                    popup.Closed += (_, __) =>
-                    {
-                        if (popup.LoggedOut)
-                            Vm.LogoutCommand.Execute(null);
-                    };
-                }
+            popup.Closed += (_, __) =>
+            {
+                if (popup.LoggedOut)
+                    Vm.LogoutCommand.Execute(null);
+            };
+        }
 
         private void OnGridAppClick(object sender, MouseButtonEventArgs e)
         {

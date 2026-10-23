@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Project.Configuration;
+using AppStore.Core.Configuration;
 
-namespace Project.Data
+namespace AppStore.Core.Data
 {
     public class PostgreDbContext : DbContext
     {
@@ -71,9 +71,9 @@ namespace Project.Data
                                 : v.Split(",", StringSplitOptions.RemoveEmptyEntries).ToList()
                     )
                     .Metadata.SetValueComparer(new ValueComparer<List<string>>(
-                        (c1, c2) => c1.SequenceEqual(c2),
-                        c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
-                        c => c.ToList()));
+                        (c1, c2) => (c1 ?? new List<string>()).SequenceEqual(c2 ?? new List<string>()),
+                        c => (c ?? new List<string>()).Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                        c => (c ?? new List<string>()).ToList()));
 
                 e.Ignore(a => a.FinalPrice);
                 e.Ignore(a => a.ButtonLabel);
@@ -94,6 +94,12 @@ namespace Project.Data
                 e.Property(u => u.Email).HasColumnName("email");
                 e.Property(u => u.Role).HasColumnName("role");
                 e.Property(u => u.AvatarColor).HasColumnName("avatar_color");
+
+                // Уникальность логина: без индекса AddUser может вставить
+                // дубли, а GetUserByLogin (FirstOrDefault) тогда выдаёт
+                // неоднозначный результат. ADO-вариант схемы объявляет
+                // login text not null unique — EF-модель обязана совпадать.
+                e.HasIndex(u => u.Login).IsUnique().HasDatabaseName("IX_users_login");
 
                 e.Ignore(u => u.AvatarLetter);
             });
@@ -144,9 +150,15 @@ namespace Project.Data
 
             _db = new PostgreDbContext(options);
 
-            // Database is managed by migrations, not EnsureDatabaseCreated
-            // Ensure database is created (for first run if migrations not applied)
-            _db.Database.EnsureCreated();
+            // Схема управляется миграциями EF Core. Migrate() применяет миграции
+            // и ведёт журнал __EFMigrationsHistory.
+            // Для БД, созданной вне миграций (EnsureCreated()/ADO-репозиторий),
+            // выполняется baseline: InitialCreate регистрируется как применённая,
+            // а последующие миграции (например, уникальный индекс логина) честно
+            // применяются. Ошибки миграций не глотаются — сбой виден вызывающему
+            // коду и не оставляет БД «молча» без новых миграций.
+            BaselineMigrationsIfNeeded();
+            _db.Database.Migrate();
 
             // Seed data only if tables are empty
             if (!_db.Apps.Any())
@@ -159,6 +171,94 @@ namespace Project.Data
         public void SetCurrentUser(Guid? userId)
         {
             _userId = userId ?? Guid.Empty;
+        }
+
+        /// <summary>
+        /// Baseline существующей БД: если схема создана вне миграций
+        /// (EnsureCreated()/ADO-репозиторий), таблицы есть, а журнал
+        /// __EFMigrationsHistory пуст — регистрируем InitialCreate как
+        /// применённую, чтобы Migrate() применил только недостающие миграции.
+        /// </summary>
+        private void BaselineMigrationsIfNeeded()
+        {
+            _db.Database.OpenConnection();
+            try
+            {
+                var conn = _db.Database.GetDbConnection();
+
+                bool schemaExists;
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText =
+                        "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'apps')";
+                    schemaExists = Convert.ToBoolean(cmd.ExecuteScalar());
+                }
+
+                if (!schemaExists)
+                    return;
+
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText =
+                        "CREATE TABLE IF NOT EXISTS \"__EFMigrationsHistory\" (" +
+                        "\"MigrationId\" character varying(150) NOT NULL, " +
+                        "\"ProductVersion\" character varying(32) NOT NULL, " +
+                        "CONSTRAINT \"PK___EFMigrationsHistory\" PRIMARY KEY (\"MigrationId\"))";
+                    cmd.ExecuteNonQuery();
+                }
+
+                long historyRows;
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = "SELECT COUNT(*) FROM \"__EFMigrationsHistory\"";
+                    historyRows = Convert.ToInt64(cmd.ExecuteScalar());
+                }
+
+                if (historyRows > 0)
+                    return;
+
+                // На baseline-БД (ADO/EnsureCreated-схема) индекса логина может не
+                // быть, и таблица может содержать дубликаты логинов. CREATE UNIQUE
+                // INDEX миграции упадёт с сырой ошибкой Npgsql — выдаём понятную
+                // ошибку с примерами до применения миграции.
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText =
+                        "SELECT login FROM \"users\" WHERE login IS NOT NULL " +
+                        "GROUP BY login HAVING COUNT(*) > 1 LIMIT 5";
+                    using var reader = cmd.ExecuteReader();
+                    var duplicates = new System.Collections.Generic.List<string>();
+                    while (reader.Read())
+                        duplicates.Add(reader.GetString(0));
+
+                    if (duplicates.Count > 0)
+                        throw new InvalidOperationException(
+                            "Не удаётся применить миграцию AddUniqueIndexOnUserLogin: " +
+                            "в таблице users есть дубликаты логинов (" +
+                            string.Join(", ", duplicates) + "). " +
+                            "Исправьте дубликаты и перезапустите приложение.");
+                }
+
+                var initial = _db.Database.GetMigrations().First();
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText =
+                        "INSERT INTO \"__EFMigrationsHistory\" (\"MigrationId\", \"ProductVersion\") VALUES (@id, @version)";
+                    var id = cmd.CreateParameter();
+                    id.ParameterName = "id";
+                    id.Value = initial;
+                    cmd.Parameters.Add(id);
+                    var version = cmd.CreateParameter();
+                    version.ParameterName = "version";
+                    version.Value = "8.0.0";
+                    cmd.Parameters.Add(version);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            finally
+            {
+                _db.Database.CloseConnection();
+            }
         }
 
         public override List<App> GetAllApps()
