@@ -129,7 +129,7 @@
 | Task | ID | Status | Notes |
 |------|----|--------|-------|
 | Create `tests/unit/AppStore.UnitTests` (xUnit, Moq) | T-5.1.1 | ⬜ Todo | Reference main project |
-| Create `tests/integration/AppStore.IntegrationTests` (xUnit, Testcontainers) | T-5.1.2 | ⬜ Todo | PostgreSQL container |
+| Create `tests/integration/AppStore.IntegrationTests` (xUnit, PostgreSQL 16 service container) | T-5.1.2 | ⬜ Todo | PostgreSQL container |
 | Add `coverlet.collector` + `ReportGenerator` for coverage | T-5.1.3 | ⬜ Todo | |
 | Configure CI pipeline (GitLab CI) to run tests on push | T-5.1.4 | ⬜ Todo | |
 

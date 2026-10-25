@@ -29,7 +29,7 @@
 | **ORM** | Entity Framework Core 8 + Npgsql |
 | **Альтернативы БД** | ADO.NET (Npgsql), JSON (файловое хранилище) |
 | **DI/Конфигурация** | Ручная (планируется Microsoft.Extensions.DI) |
-| **Тестирование** | xUnit, Moq, Testcontainers |
+| **Тестирование** | xUnit, Moq, PostgreSQL 16 service container |
 | **Сборка** | MSBuild / `dotnet build` |
 | **Документация** | bsstu-report (ГОСТ/СТП БГТУ 001-2019) |
 
@@ -143,7 +143,7 @@ AppStore-Coursework/
 ├── docs/                         # Документация (ARCHITECTURE, FR_NFR, DATABASE, etc.)
 ├── tests/
 │   ├── unit/                     # xUnit юнит-тесты
-│   └── integration/              # Интеграционные тесты (Testcontainers)
+│   └── integration/              # Интеграционные тесты (PostgreSQL 16 service container)
 ├── BACKLOG.md                    # План работ и задачи
 ├── PROJECT_PLAN.md               # Календарный план (по заданию)
 └── README.md                     # Этот файл

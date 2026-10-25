@@ -80,7 +80,7 @@
 | NFR-14 | Config | No hardcoded values | All via Settings.cs / .env | Must |
 | NFR-15 | Config | No `latest` Docker tags | Pinned `postgres:16-alpine` | Must |
 | NFR-16 | Testing | Unit tests ≥80% business logic | xUnit, Moq, coverlet | Must |
-| NFR-17 | Testing | Integration tests (DB, auth, CRUD) | Testcontainers PostgreSQL | Must |
+| NFR-17 | Testing | Integration tests (DB, auth, CRUD) | PostgreSQL 16 service container | Must |
 | NFR-18 | Documentation | Coursework report per СТП БГТУ 001-2019 | bsstu-report builder, docx+pdf | Must |
 | NFR-19 | Documentation | User manual included | Appendix in report | Must |
 | NFR-20 | Code Quality | Zero compiler warnings | `dotnet build -c Release` | Must |

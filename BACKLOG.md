@@ -56,7 +56,7 @@
 - [ ] **TASK-034**: Unit tests - ViewModels (MainViewModel, AddEditAppViewModel, ProfileViewModel)
 - [ ] **TASK-035**: Unit tests - Commands (RelayCommand, Undo/Redo actions)
 - [ ] **TASK-036**: Unit tests - Converters
-- [ ] **TASK-037**: Integration tests - Database operations (Testcontainers PostgreSQL)
+- [ ] **TASK-037**: Integration tests - Database operations (PostgreSQL 16 service container)
 - [ ] **TASK-038**: Integration tests - Full authentication flow
 - [ ] **TASK-039**: Integration tests - App CRUD operations
 - [ ] **TASK-040**: Integration tests - Install/Uninstall with Undo/Redo
