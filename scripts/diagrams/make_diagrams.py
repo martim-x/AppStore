@@ -208,105 +208,142 @@ def build_use_case():
 # ══════════════════════════════════════════════════════════════════════════
 # 2. CLASS DIAGRAM
 # ══════════════════════════════════════════════════════════════════════════
+ST_ROW = ("text;html=1;align=left;verticalAlign=middle;spacingLeft=6;"
+          "fontSize=13;strokeColor=none;fillColor=none;whiteSpace=nowrap;")
+ST_INH = ("endArrow=block;endFill=0;html=1;strokeColor=#000000;rounded=0;"
+          "edgeStyle=orthogonalEdgeStyle;")
+
+
 def build_class():
-    d = Dia("ClassDiagram", 1060, 1000)
+    d = Dia("ClassDiagram", 1090, 820)
 
-    iapp = d.vertex(
-        "«interface» IApp\n"
-        "+ Guid Id\n+ string ShortName\n+ string FullName\n+ string Description\n"
-        "+ string Developer\n+ string Category\n+ double Rating\n+ double Price\n"
-        "+ string Version\n+ DateTime ReleaseDate\n+ List&lt;string&gt; Tags\n"
-        "+ bool IsFeatured\n+ bool IsDownloaded",
-        ST_IFACE, 20, 20, 230, 295)
+    def esc(t):
+        # html=1 в draw.io съедает <App> как тег; двойное экранирование сохраняет угловые скобки
+        return t.replace("<", "&lt;").replace(">", "&gt;")
 
-    app = d.vertex(
-        "App\n"
-        "+ Guid Id\n+ string ShortName\n+ string FullName\n+ string Description\n"
-        "+ string Developer\n+ string Category\n+ double Rating\n+ double Price\n"
-        "+ string Version\n+ DateTime ReleaseDate\n+ List&lt;string&gt; Tags\n"
-        "+ bool IsFeatured\n+ bool IsDownloaded",
-        ST_CLASS, 280, 20, 230, 295)
+    def box(title, rows, x, y, w=250, style=ST_CLASS):
+        h = 30 + 19 * max(1, len(rows))
+        head = d.vertex(esc(title), style, x, y, w, h)
+        for i, row in enumerate(rows):
+            d.vertex(esc(row), ST_ROW, 0, 30 + 19 * i, w, 19, parent=head)
+        return head
 
-    iuser = d.vertex(
-        "«interface» IUser\n"
-        "+ Guid Id\n+ string Login\n+ string PasswordHash\n+ string? FirstName\n"
-        "+ string? LastName\n+ string? Email\n+ UserRole Role\n+ string AvatarColor",
-        ST_IFACE, 20, 340, 230, 215)
+    def link(a, b, ex, ey, nx, ny, style=ST_DEP):
+        st = (style + f"exitX={ex};exitY={ey};exitDx=0;exitDy=0;"
+                      f"entryX={nx};entryY={ny};entryDx=0;entryDy=0;")
+        return d.edge(a, b, st)
 
-    user = d.vertex(
-        "User\n"
-        "+ Guid Id\n+ string Login\n+ string PasswordHash\n+ string? FirstName\n"
-        "+ string? LastName\n+ string? Email\n+ UserRole Role\n+ string AvatarColor",
-        ST_CLASS, 280, 340, 230, 215)
+    # ── колонка 1: представление и модели представления ──────────────────
+    x1 = 20
+    main_win = box("MainWindow", ["«View»", "+ DataContext : MainViewModel"], x1, 20)
+    main_vm = box("MainViewModel : ViewModelBase", [
+        "- IRepository _repo",
+        "- IAuthService _auth",
+        "- IUndoRedoService _undo",
+        "+ ObservableCollection<App> Apps",
+        "+ string SearchQuery",
+        "+ ICommand UndoCommand",
+    ], x1, 110)
+    vm_base = box("ViewModelBase", ["«abstract»", "+ INotifyPropertyChanged"], x1, 310)
+    profile_vm = box("ProfileViewModel : ViewModelBase", [
+        "- IAuthService _auth",
+        "+ string FirstName",
+        "+ string Email",
+        "+ ICommand SaveCommand",
+    ], x1, 400)
 
-    uapp = d.vertex(
-        "UsersApps\n"
-        "+ Guid UserId\n+ Guid AppId\n+ DateTime InstalledAt",
-        ST_CLASS, 280, 590, 230, 155)
+    # ── колонка 2: сервисы ───────────────────────────────────────────────
+    x2 = 300
+    auth = box("AuthService", [
+        "- IRepository _repo",
+        "- IPasswordHasher _hasher",
+        "- User? _currentUser",
+        "+ User? Login(login, password)",
+        "+ void Logout()",
+        "+ bool IsAdmin",
+    ], x2, 20)
+    hasher = box("«interface» IPasswordHasher", [
+        "+ string HashPassword(string pwd)",
+        "+ bool VerifyPassword(pwd, hash)",
+    ], x2, 200, style=ST_IFACE)
+    bcrypt = box("BCryptHasher", ["«work factor 12»"], x2, 310)
+    undo = box("UndoRedoService", [
+        "- Stack<IUndoRedoAction> _stack",
+        "+ void Undo()",
+        "+ void Redo()",
+    ], x2, 400)
+    theme = box("ThemeService", ["«Singleton»", "+ bool IsDarkMode"], x2, 530)
+    loc = box("LocalizationService", ["«Singleton»", "+ string Language"], x2, 620)
 
-    undo = d.vertex("UndoRedoService\n«Stack, лимит 10»\n+ void Undo()\n+ void Redo()",
-                    ST_CLASS, 20, 590, 230, 135)
-    action = d.vertex("«interface» IUndoRedoAction\n+ void Undo()\n+ void Redo()",
-                      ST_IFACE, 20, 760, 230, 115)
-
-    irepo = d.vertex(
-        "«interface» IRepository\n"
-        "+ List&lt;App&gt; GetAllApps()\n+ App? GetAppById(Guid id)\n"
-        "+ void AddApp(App app)\n+ void UpdateApp(App app)\n+ void DeleteApp(Guid id)\n"
-        "+ void DownloadApp(Guid id)\n+ void UninstallApp(Guid id)\n"
-        "+ void RestoreDefaults()\n+ User? GetUserByLogin(string login)\n"
+    # ── колонка 3: доступ к данным ───────────────────────────────────────
+    x3 = 580
+    repo = box("«interface» IRepository", [
+        "+ List<App> GetAllApps()",
+        "+ App? GetAppById(Guid id)",
+        "+ void AddApp(App app)",
+        "+ void UpdateApp(App app)",
+        "+ void DeleteApp(Guid id)",
+        "+ User? GetUserByLogin(string login)",
         "+ void UpdateUser(User user)",
-        ST_IFACE, 540, 20, 250, 250)
+    ], x3, 20, style=ST_IFACE)
+    ef = box("PostgreSQLRepEF", ["«EF Core 8 + Npgsql»"], x3, 240)
+    ado = box("PostgreSQLRepADO", ["«Npgsql ADO.NET»"], x3, 310)
+    js = box("JsonRep", ["«Resources/Buffer/*.json»"], x3, 380)
 
-    auth = d.vertex(
-        "AuthService\n"
-        "- IRepository _repo\n- IPasswordHasher _hasher\n- User? _currentUser\n"
-        "+ User? Login(string login, string password)\n"
-        "+ void Logout()\n+ bool IsAdmin",
-        ST_CLASS, 540, 310, 250, 195)
+    # ── колонка 4: модели предметной области ─────────────────────────────
+    x4 = 850
+    iapp = box("«interface» IApp", [
+        "+ Guid Id",
+        "+ string ShortName",
+        "+ string FullName",
+        "+ double Rating",
+        "+ double Price",
+    ], x4, 20, style=ST_IFACE)
+    app = box("App : IApp", [
+        "+ Guid Id",
+        "+ string ShortName",
+        "+ string FullName",
+        "+ double Rating",
+        "+ double Price",
+        "+ bool IsFeatured",
+    ], x4, 180)
+    iuser = box("«interface» IUser", [
+        "+ Guid Id",
+        "+ string Login",
+        "+ string PasswordHash",
+        "+ UserRole Role",
+        "+ string AvatarColor",
+    ], x4, 340, style=ST_IFACE)
+    user = box("User : IUser", [
+        "+ Guid Id",
+        "+ string Login",
+        "+ string PasswordHash",
+        "+ UserRole Role",
+        "+ string AvatarColor",
+        "+ string? Email",
+    ], x4, 500)
+    uapp = box("UsersApps", ["+ Guid UserId", "+ Guid AppId", "+ DateTime InstalledAt"], x4, 700)
 
-    hasher = d.vertex("«interface» IPasswordHasher\n+ string HashPassword(string pwd)\n"
-                      "+ bool VerifyPassword(string pwd, string hash)",
-                      ST_IFACE, 540, 550, 250, 115)
+    # ── связи: короткие, между соседними блоками ─────────────────────────
+    link(main_win, main_vm, 0.5, 1, 0.5, 0)
+    link(main_vm, vm_base, 0.5, 1, 0.5, 0, ST_INH)
+    link(profile_vm, vm_base, 0.5, 0, 0.5, 1, ST_INH)
 
-    mainvm = d.vertex(
-        "MainViewModel : ViewModelBase\n"
-        "- ObservableCollection&lt;App&gt; _apps\n- IRepository _repo\n"
-        "- IAuthService _auth\n- IUndoRedoService _undoRedo\n"
-        "+ ObservableCollection&lt;App&gt; Apps\n+ App? SelectedApp\n"
-        "+ string SearchQuery\n+ bool IsAdmin\n+ bool IsDetailOpen\n"
-        "+ ICommand SelectCategoryCommand\n+ ICommand UndoCommand",
-        ST_CLASS, 540, 710, 250, 300)
+    link(main_vm, auth, 1, 0.35, 0, 0.75)
+    link(main_vm, undo, 1, 0.75, 0, 0.35)
+    link(profile_vm, undo, 1, 0.25, 0, 0.75)
 
-    pgef = d.vertex("PostgreSQLRepEF\n«EF Core 8 + Npgsql»", ST_CLASS, 820, 20, 230, 85)
-    pgado = d.vertex("PostgreSQLRepADO\n«Npgsql ADO.NET»", ST_CLASS, 820, 120, 230, 85)
-    jsonrep = d.vertex("JsonRep\n«Resources/Buffer/*.json»", ST_CLASS, 820, 220, 230, 85)
-    bcrypt = d.vertex("BCryptHasher\n«work factor 12»", ST_CLASS, 820, 330, 230, 85)
-    sha = d.vertex("SHA256Hasher\n«legacy fallback»", ST_CLASS, 820, 430, 230, 85)
-    relay = d.vertex("RelayCommand : ICommand\n+ void Execute()", ST_CLASS, 820, 530, 230, 85)
-    vmbase = d.vertex("ViewModelBase\n«INotifyPropertyChanged»", ST_CLASS, 820, 630, 230, 85)
-    theme = d.vertex("ThemeService\n«Singleton»\n+ bool IsDarkMode", ST_CLASS, 820, 730, 230, 85)
-    loc = d.vertex("LocalizationService\n«Singleton»\n+ string Language", ST_CLASS, 820, 830, 230, 85)
+    link(auth, hasher, 0.5, 1, 0.5, 0)
+    link(hasher, bcrypt, 0.5, 1, 0.5, 0, ST_INH)
+    link(auth, repo, 1, 0.25, 0, 0.06)
 
-    d.edge(iapp, app, ST_DEP, "«implements»")
-    d.edge(iuser, user, ST_DEP, "«implements»")
-    d.edge(irepo, pgef, ST_DEP, "«implements»")
-    d.edge(irepo, pgado, ST_DEP, "«implements»")
-    d.edge(irepo, jsonrep, ST_DEP, "«implements»")
-    d.edge(auth, irepo, ST_DEP, "использует")
-    d.edge(auth, hasher, ST_DEP)
-    d.edge(hasher, bcrypt, ST_DEP, "«implements»")
-    d.edge(hasher, sha, ST_DEP, "«implements»")
-    d.edge(mainvm, irepo, ST_DEP)
-    d.edge(mainvm, auth, ST_DEP)
-    d.edge(mainvm, undo, ST_DEP)
-    d.edge(undo, action, ST_DEP)
-    d.edge(mainvm, vmbase, ST_DEP, "«наследует»")
-    d.edge(relay, vmbase, ST_DEP)
-    d.edge(user, uapp, ST_DEP)
-    d.edge(app, uapp, ST_DEP)
-    d.edge(mainvm, theme, ST_DEP)
-    d.edge(mainvm, loc, ST_DEP)
+    link(repo, ef, 0.5, 1, 0.5, 0, ST_INH)
+    link(ef, ado, 0.5, 1, 0.5, 0)
+    link(ado, js, 0.5, 1, 0.5, 0)
+
+    link(iapp, app, 0.5, 1, 0.5, 0, ST_INH)
+    link(iuser, user, 0.5, 1, 0.5, 0, ST_INH)
+    link(user, uapp, 0.5, 1, 0.5, 0, "endArrow=none;html=1;strokeColor=#000000;rounded=0;edgeStyle=orthogonalEdgeStyle;")
     return d
 
 
@@ -314,53 +351,47 @@ def build_class():
 # 3. SEQUENCE DIAGRAM (SD-01: запуск и вход)
 # ══════════════════════════════════════════════════════════════════════════
 def build_sequence():
-    d = Dia("SequenceDiagram", 1000, 800)
-
-    d.vertex("SD-01: Запуск приложения и вход пользователя", ST_NOTE,
-             20, 15, 420, 40)
+    d = Dia("SequenceDiagram", 820, 780)
 
     lifelines = [
-        ("Пользователь", 90),
-        ("ApplicationApp", 250),
-        ("LoginWindow", 420),
-        ("AuthService", 590),
-        ("IRepository", 760),
-        ("MainWindow / MainVM", 920),
+        ("Пользователь", 80),
+        ("Application", 230),
+        ("LoginWindow", 400),
+        ("AuthService", 570),
+        ("IRepository", 720),
     ]
-    heads = {}
     for name, x in lifelines:
-        heads[name] = d.vertex(name, ST_LIFE, x - 70, 80, 140, 38)
-        # линия жизни — ребро без источника/цели, с явной геометрией-линией
+        d.vertex(name, ST_LIFE, x - 65, 40, 130, 36)
         d.cells.append(
             f'        <mxCell id="life{len(d.cells)}" style="endArrow=none;html=1;'
-            f'strokeColor=#000000;dashed=0;rounded=0;" edge="1" parent="1">\n'
+            f'strokeColor=#000000;dashed=1;rounded=0;" edge="1" parent="1">\n'
             f'          <mxGeometry relative="1" as="geometry">\n'
-            f'            <mxPoint x="{x}" y="118" as="sourcePoint" />\n'
-            f'            <mxPoint x="{x}" y="700" as="targetPoint" />\n'
+            f'            <mxPoint x="{x}" y="76" as="sourcePoint" />\n'
+            f'            <mxPoint x="{x}" y="750" as="targetPoint" />\n'
             f'          </mxGeometry>\n'
             f'        </mxCell>')
 
-    def m(src_name, dst_name, label, y):
-        sx = [x for n, x in lifelines if n == src_name][0]
-        dx = [x for n, x in lifelines if n == dst_name][0]
-        # mxCell value — XML-атрибут: экранируем, иначе List<App> ломает файл
+    def m(src, dst, label, y, dashed=False):
+        sx = [x for n, x in lifelines if n == src][0]
+        dx = [x for n, x in lifelines if n == dst][0]
         val = html.escape(label, quote=True)
-        if src_name == dst_name:
-            # самосообщение: короткая петля справа от lifeline
+        style = ST_MSG_D if dashed else ST_MSG
+        if sx == dx:
             d.cells.append(
-                f'        <mxCell id="msg{len(d.cells)}" value="{val}" style="{ST_MSG}" '
+                f'        <mxCell id="msg{len(d.cells)}" value="{val}" style="{style}" '
                 f'edge="1" parent="1">\n'
                 f'          <mxGeometry relative="1" as="geometry">\n'
                 f'            <mxPoint x="{sx}" y="{y}" as="sourcePoint" />\n'
-                f'            <mxPoint x="{sx + 45}" y="{y + 25}" as="targetPoint" />\n'
+                f'            <mxPoint x="{sx}" y="{y + 26}" as="targetPoint" />\n'
                 f'            <Array as="points">\n'
                 f'              <mxPoint x="{sx + 45}" y="{y}" />\n'
+                f'              <mxPoint x="{sx + 45}" y="{y + 26}" />\n'
                 f'            </Array>\n'
                 f'          </mxGeometry>\n'
                 f'        </mxCell>')
             return
         d.cells.append(
-            f'        <mxCell id="msg{len(d.cells)}" value="{val}" style="{ST_MSG}" '
+            f'        <mxCell id="msg{len(d.cells)}" value="{val}" style="{style}" '
             f'edge="1" parent="1">\n'
             f'          <mxGeometry relative="1" as="geometry">\n'
             f'            <mxPoint x="{sx}" y="{y}" as="sourcePoint" />\n'
@@ -368,25 +399,18 @@ def build_sequence():
             f'          </mxGeometry>\n'
             f'        </mxCell>')
 
-    m("Пользователь", "ApplicationApp", "Запуск приложения", 170)
-    m("ApplicationApp", "ApplicationApp", "CompositionRoot.Build()", 205)
-    m("ApplicationApp", "AuthService", "new AuthService(repo)", 240)
-    m("ApplicationApp", "LoginWindow", "new LoginWindow(auth)", 275)
-    m("ApplicationApp", "LoginWindow", "ShowDialog()", 310)
-    m("Пользователь", "LoginWindow", "Логин и пароль", 350)
-    m("LoginWindow", "AuthService", "Login(login, password)", 385)
-    m("AuthService", "AuthService", "BCrypt.Verify(hash, password)", 420)
-    m("AuthService", "IRepository", "GetUserByLogin(login)", 455)
-    m("IRepository", "AuthService", "User / null", 490)
-    m("AuthService", "IRepository", "SetCurrentUser(user.Id)", 525)
-    m("AuthService", "LoginWindow", "User / null", 560)
-    m("LoginWindow", "ApplicationApp", "DialogResult = true", 595)
-    m("ApplicationApp", "MainWindow / MainVM", "OpenCatalog()", 630)
-    m("MainWindow / MainVM", "IRepository", "GetAllApps()", 665)
-    m("IRepository", "MainWindow / MainVM", "List<App>", 705)
-
-    d.vertex("alt Вход выполнен: открывается каталог", ST_NOTE, 20, 745, 300, 28)
-    d.vertex("else Отмена: Shutdown()", ST_NOTE, 20, 785, 220, 28)
+    m("Пользователь", "Application", "запуск приложения", 120)
+    m("Application", "Application", "CompositionRoot.Build()", 165)
+    m("Application", "AuthService", "создание AuthService", 220)
+    m("Application", "LoginWindow", "ShowDialog()", 270)
+    m("Пользователь", "LoginWindow", "логин и пароль", 320)
+    m("LoginWindow", "AuthService", "Login(login, password)", 370)
+    m("AuthService", "IRepository", "GetUserByLogin(login)", 420)
+    m("IRepository", "AuthService", "User / null", 470, dashed=True)
+    m("AuthService", "LoginWindow", "User / null", 520, dashed=True)
+    m("LoginWindow", "Application", "DialogResult = true", 570, dashed=True)
+    m("Application", "IRepository", "GetAllApps()", 620)
+    m("IRepository", "Application", "List&lt;App&gt;", 670, dashed=True)
     return d
 
 
@@ -425,11 +449,10 @@ def build_erd():
     return d
 
 
+# use_case.drawio и erd.drawio ведутся вручную в draw.io — генератор их не перезаписывает.
 BUILDERS = [
-    ("use_case.drawio", build_use_case),
     ("class_diagram.drawio", build_class),
     ("sequence_diagram.drawio", build_sequence),
-    ("erd.drawio", build_erd),
 ]
 
 if __name__ == "__main__":

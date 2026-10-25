@@ -283,7 +283,7 @@
       "label": "uml_class",
       "file": "UML/class_diagram.png",
       "caption": "Диаграмма классов приложения",
-      "width_cm": 14.5
+      "width_cm": 16.0
     },
     {
       "type": "p",
@@ -302,7 +302,7 @@
       "label": "uml_seq",
       "file": "UML/sequence_diagram.png",
       "caption": "Диаграмма последовательности: запуск приложения и вход пользователя",
-      "width_cm": 14.0
+      "width_cm": 13.0
     },
     {
       "type": "p",
