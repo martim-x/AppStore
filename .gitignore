@@ -36,3 +36,7 @@ packages/
 
 # LibreOffice lock files
 ~$*
+
+# резервные копии draw.io
+*.bkp
+.\$*.drawio.bkp
