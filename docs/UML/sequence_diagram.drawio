@@ -1,177 +1,176 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<mxfile host="app.diagrams.net" agent="hermes" version="24.7.17" type="device">
+<mxfile host="Electron" agent="hermes">
   <diagram id="SequenceDiagram" name="SequenceDiagram">
-    <mxGraphModel dx="820" dy="780" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="820" pageHeight="780" math="0" shadow="0">
+    <mxGraphModel dx="977" dy="593" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="820" pageHeight="1000" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="v1" value="Пользователь" style="shape=umlLifeline;html=1;whiteSpace=wrap;fillColor=none;strokeColor=#000000;fontSize=14;fontFamily=Times New Roman;" vertex="1" parent="1">
-          <mxGeometry x="15" y="40" width="130" height="36" as="geometry" />
+        <mxCell id="v1" parent="1" style="shape=umlLifeline;html=1;whiteSpace=wrap;fillColor=none;strokeColor=#000000;fontSize=14;fontFamily=Times New Roman;" value="Пользователь" vertex="1">
+          <mxGeometry height="36" width="130" x="15" y="40" as="geometry" />
         </mxCell>
-        <mxCell id="life1" style="endArrow=none;html=1;strokeColor=#000000;dashed=1;rounded=0;fontFamily=Times New Roman;fontSize=13;" edge="1" parent="1">
+        <mxCell id="life1" edge="1" parent="1" style="endArrow=none;html=1;strokeColor=#000000;dashed=1;rounded=0;fontFamily=Times New Roman;fontSize=13;">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="80" y="76" as="sourcePoint" />
-            <mxPoint x="80" y="750" as="targetPoint" />
+            <mxPoint x="80" y="960" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="v2" value="Application" style="shape=umlLifeline;html=1;whiteSpace=wrap;fillColor=none;strokeColor=#000000;fontSize=14;fontFamily=Times New Roman;" vertex="1" parent="1">
-          <mxGeometry x="165" y="40" width="130" height="36" as="geometry" />
+        <mxCell id="v2" parent="1" style="shape=umlLifeline;html=1;whiteSpace=wrap;fillColor=none;strokeColor=#000000;fontSize=14;fontFamily=Times New Roman;" value="Приложение" vertex="1">
+          <mxGeometry height="36" width="130" x="165" y="40" as="geometry" />
         </mxCell>
-        <mxCell id="life3" style="endArrow=none;html=1;strokeColor=#000000;dashed=1;rounded=0;fontFamily=Times New Roman;fontSize=13;" edge="1" parent="1">
+        <mxCell id="life3" edge="1" parent="1" style="endArrow=none;html=1;strokeColor=#000000;dashed=1;rounded=0;fontFamily=Times New Roman;fontSize=13;">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="230" y="76" as="sourcePoint" />
-            <mxPoint x="230" y="750" as="targetPoint" />
+            <mxPoint x="230" y="960" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="v3" value="LoginWindow" style="shape=umlLifeline;html=1;whiteSpace=wrap;fillColor=none;strokeColor=#000000;fontSize=14;fontFamily=Times New Roman;" vertex="1" parent="1">
-          <mxGeometry x="335" y="40" width="130" height="36" as="geometry" />
+        <mxCell id="v3" parent="1" style="shape=umlLifeline;html=1;whiteSpace=wrap;fillColor=none;strokeColor=#000000;fontSize=14;fontFamily=Times New Roman;" value="Окно входа" vertex="1">
+          <mxGeometry height="36" width="130" x="335" y="40" as="geometry" />
         </mxCell>
-        <mxCell id="life5" style="endArrow=none;html=1;strokeColor=#000000;dashed=1;rounded=0;fontFamily=Times New Roman;fontSize=13;" edge="1" parent="1">
+        <mxCell id="life5" edge="1" parent="1" style="endArrow=none;html=1;strokeColor=#000000;dashed=1;rounded=0;fontFamily=Times New Roman;fontSize=13;">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="400" y="76" as="sourcePoint" />
-            <mxPoint x="400" y="750" as="targetPoint" />
+            <mxPoint x="400" y="960" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="v4" value="AuthService" style="shape=umlLifeline;html=1;whiteSpace=wrap;fillColor=none;strokeColor=#000000;fontSize=14;fontFamily=Times New Roman;" vertex="1" parent="1">
-          <mxGeometry x="505" y="40" width="130" height="36" as="geometry" />
+        <mxCell id="v4" parent="1" style="shape=umlLifeline;html=1;whiteSpace=wrap;fillColor=none;strokeColor=#000000;fontSize=14;fontFamily=Times New Roman;" value="Служба аутентификации" vertex="1">
+          <mxGeometry height="36" width="130" x="505" y="40" as="geometry" />
         </mxCell>
-        <mxCell id="life7" style="endArrow=none;html=1;strokeColor=#000000;dashed=1;rounded=0;fontFamily=Times New Roman;fontSize=13;" edge="1" parent="1">
+        <mxCell id="life7" edge="1" parent="1" style="endArrow=none;html=1;strokeColor=#000000;dashed=1;rounded=0;fontFamily=Times New Roman;fontSize=13;">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="570" y="76" as="sourcePoint" />
-            <mxPoint x="570" y="750" as="targetPoint" />
+            <mxPoint x="570" y="960" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="v5" value="IRepository" style="shape=umlLifeline;html=1;whiteSpace=wrap;fillColor=none;strokeColor=#000000;fontSize=14;fontFamily=Times New Roman;" vertex="1" parent="1">
-          <mxGeometry x="655" y="40" width="130" height="36" as="geometry" />
+        <mxCell id="v5" parent="1" style="shape=umlLifeline;html=1;whiteSpace=wrap;fillColor=none;strokeColor=#000000;fontSize=14;fontFamily=Times New Roman;" value="Хранилище данных" vertex="1">
+          <mxGeometry height="36" width="130" x="655" y="40" as="geometry" />
         </mxCell>
-        <mxCell id="life9" style="endArrow=none;html=1;strokeColor=#000000;dashed=1;rounded=0;fontFamily=Times New Roman;fontSize=13;" edge="1" parent="1">
+        <mxCell id="life9" edge="1" parent="1" style="endArrow=none;html=1;strokeColor=#000000;dashed=1;rounded=0;fontFamily=Times New Roman;fontSize=13;">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="720" y="76" as="sourcePoint" />
-            <mxPoint x="720" y="750" as="targetPoint" />
+            <mxPoint x="720" y="960" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="msg10" value="запуск приложения" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Times New Roman;" edge="1" parent="1">
+        <mxCell id="msg10" edge="1" parent="1" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Times New Roman;" value="запуск приложения">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="80" y="120" as="sourcePoint" />
             <mxPoint x="230" y="120" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="msg11" value="CompositionRoot.Build()" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Times New Roman;" edge="1" parent="1">
+        <mxCell id="msg11" edge="1" parent="1" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Times New Roman;" value="создание контейнера зависимостей">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="230" y="165" as="sourcePoint" />
-            <mxPoint x="230" y="191" as="targetPoint" />
             <Array as="points">
               <mxPoint x="275" y="165" />
               <mxPoint x="275" y="191" />
             </Array>
+            <mxPoint x="230" y="165" as="sourcePoint" />
+            <mxPoint x="230" y="191" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="msg12" value="создание AuthService" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Times New Roman;" edge="1" parent="1">
+        <mxCell id="msg12" edge="1" parent="1" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Times New Roman;" value="создание службы аутентификации">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="230" y="220" as="sourcePoint" />
             <mxPoint x="570" y="220" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="msg13" value="ShowDialog()" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Times New Roman;" edge="1" parent="1">
+        <mxCell id="msg13" edge="1" parent="1" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Times New Roman;" value="открыть окно входа">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="230" y="270" as="sourcePoint" />
             <mxPoint x="400" y="270" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="msg14" value="логин и пароль" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Times New Roman;" edge="1" parent="1">
+        <mxCell id="msg14" edge="1" parent="1" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Times New Roman;" value="ввод логина и пароля">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="80" y="320" as="sourcePoint" />
             <mxPoint x="400" y="320" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="msg15" value="Login(login, password)" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Times New Roman;" edge="1" parent="1">
+        <mxCell id="msg15" edge="1" parent="1" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Times New Roman;" value="проверка учётных данных">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="400" y="370" as="sourcePoint" />
             <mxPoint x="570" y="370" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="msg16" value="GetUserByLogin(login)" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Times New Roman;" edge="1" parent="1">
+        <mxCell id="msg16" edge="1" parent="1" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Times New Roman;" value="запрос пользователя по логину">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="570" y="420" as="sourcePoint" />
             <mxPoint x="720" y="420" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="msg17" value="User / null" style="endArrow=open;html=1;verticalAlign=bottom;dashed=1;strokeColor=#000000;rounded=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Times New Roman;fontSize=13;" edge="1" parent="1">
+        <mxCell id="msg17" edge="1" parent="1" style="endArrow=open;html=1;verticalAlign=bottom;dashed=1;strokeColor=#000000;rounded=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Times New Roman;fontSize=13;" value="результат поиска пользователя">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="720" y="470" as="sourcePoint" />
             <mxPoint x="570" y="470" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="msg18" value="User / null" style="endArrow=open;html=1;verticalAlign=bottom;dashed=1;strokeColor=#000000;rounded=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Times New Roman;fontSize=13;" edge="1" parent="1">
+        <mxCell id="msg18" edge="1" parent="1" style="endArrow=open;html=1;verticalAlign=bottom;dashed=1;strokeColor=#000000;rounded=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Times New Roman;fontSize=13;" value="результат поиска пользователя">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="570" y="520" as="sourcePoint" />
             <mxPoint x="400" y="520" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="msg19" value="DialogResult = true" style="endArrow=open;html=1;verticalAlign=bottom;dashed=1;strokeColor=#000000;rounded=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Times New Roman;fontSize=13;" edge="1" parent="1">
+        <mxCell id="msg19" edge="1" parent="1" style="endArrow=open;html=1;verticalAlign=bottom;dashed=1;strokeColor=#000000;rounded=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Times New Roman;fontSize=13;" value="успешный вход">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="400" y="570" as="sourcePoint" />
             <mxPoint x="230" y="570" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="msg20" value="GetAllApps()" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Times New Roman;" edge="1" parent="1">
+        <mxCell id="msg20" edge="1" parent="1" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Times New Roman;" value="запрос списка приложений">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="230" y="620" as="sourcePoint" />
             <mxPoint x="720" y="620" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="msg21" value="List&amp;lt;App&amp;gt;" style="endArrow=open;html=1;verticalAlign=bottom;dashed=1;strokeColor=#000000;rounded=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Times New Roman;fontSize=13;" edge="1" parent="1">
+        <mxCell id="msg21" edge="1" parent="1" style="endArrow=open;html=1;verticalAlign=bottom;dashed=1;strokeColor=#000000;rounded=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Times New Roman;fontSize=13;" value="список приложений">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="720" y="670" as="sourcePoint" />
             <mxPoint x="230" y="670" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="msg22" value="нажать «Загрузить»" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Times New Roman;" edge="1" parent="1">
+        <mxCell id="msg22" edge="1" parent="1" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Times New Roman;" value="нажатие «Загрузить»">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="80" y="710" as="sourcePoint"/>
-            <mxPoint x="230" y="710" as="targetPoint"/>
+            <mxPoint x="80" y="710" as="sourcePoint" />
+            <mxPoint x="230" y="710" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="msg23" value="AddInstalled(userId, appId)" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Times New Roman;" edge="1" parent="1">
+        <mxCell id="msg23" edge="1" parent="1" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Times New Roman;" value="запись установки приложения">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="230" y="740" as="sourcePoint"/>
-            <mxPoint x="720" y="740" as="targetPoint"/>
+            <mxPoint x="230" y="740" as="sourcePoint" />
+            <mxPoint x="720" y="740" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="msg24" value="installed" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Times New Roman;dashed=1;strokeColor=#000000;" edge="1" parent="1">
+        <mxCell id="msg24" edge="1" parent="1" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Times New Roman;dashed=1;strokeColor=#000000;" value="установка сохранена">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="720" y="770" as="sourcePoint"/>
-            <mxPoint x="230" y="770" as="targetPoint"/>
+            <mxPoint x="720" y="770" as="sourcePoint" />
+            <mxPoint x="230" y="770" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="msg25" value="отменить действие" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Times New Roman;" edge="1" parent="1">
+        <mxCell id="msg25" edge="1" parent="1" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Times New Roman;" value="отмена действия">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="80" y="800" as="sourcePoint"/>
-            <mxPoint x="230" y="800" as="targetPoint"/>
+            <mxPoint x="80" y="800" as="sourcePoint" />
+            <mxPoint x="230" y="800" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="msg26" value="RemoveInstalled(userId, appId)" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Times New Roman;" edge="1" parent="1">
+        <mxCell id="msg26" edge="1" parent="1" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Times New Roman;" value="удаление установки приложения">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="230" y="830" as="sourcePoint"/>
-            <mxPoint x="720" y="830" as="targetPoint"/>
+            <mxPoint x="230" y="830" as="sourcePoint" />
+            <mxPoint x="720" y="830" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="msg27" value="приложения обновлены" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Times New Roman;dashed=1;strokeColor=#000000;" edge="1" parent="1">
+        <mxCell id="msg27" edge="1" parent="1" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Times New Roman;dashed=1;strokeColor=#000000;" value="список обновлён">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="720" y="860" as="sourcePoint"/>
-            <mxPoint x="230" y="860" as="targetPoint"/>
+            <mxPoint x="720" y="860" as="sourcePoint" />
+            <mxPoint x="230" y="860" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="msg28" value="Logout()" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Times New Roman;" edge="1" parent="1">
+        <mxCell id="msg28" edge="1" parent="1" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Times New Roman;" value="выход из аккаунта">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="230" y="890" as="sourcePoint"/>
-            <mxPoint x="570" y="890" as="targetPoint"/>
+            <mxPoint x="230" y="890" as="sourcePoint" />
+            <mxPoint x="570" y="890" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="msg29" value="окно входа" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Times New Roman;dashed=1;strokeColor=#000000;" edge="1" parent="1">
+        <mxCell id="msg29" edge="1" parent="1" style="endArrow=open;html=1;verticalAlign=bottom;strokeWidth=1;labelBackgroundColor=none;fontSize=13;rounded=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Times New Roman;dashed=1;strokeColor=#000000;" value="окно входа">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="230" y="920" as="sourcePoint"/>
-            <mxPoint x="80" y="920" as="targetPoint"/>
+            <mxPoint x="230" y="920" as="sourcePoint" />
+            <mxPoint x="80" y="920" as="targetPoint" />
           </mxGeometry>
         </mxCell>
       </root>

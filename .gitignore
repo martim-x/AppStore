@@ -40,3 +40,5 @@ packages/
 # резервные копии draw.io
 *.bkp
 .\$*.drawio.bkp
+__pycache__/
+*.pyc

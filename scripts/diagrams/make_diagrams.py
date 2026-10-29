@@ -30,9 +30,9 @@ ST_FRAME = ("rounded=0;whiteSpace=wrap;html=1;fillColor=none;dashed=1;dashPatter
             "strokeColor=#000000;verticalAlign=top;align=left;spacingLeft=8;"
             "spacingTop=2;fontSize=12;fontStyle=1;")
 ST_CLASS = ("shape=swimlane;html=1;startSize=30;horizontal=1;whiteSpace=wrap;"
-            "fillColor=none;strokeColor=#000000;fontSize=14;align=left;")
+            "fillColor=none;strokeColor=#000000;fontSize=17;fontFamily=Times New Roman;align=left;")
 ST_IFACE = ("shape=swimlane;html=1;startSize=30;horizontal=1;whiteSpace=wrap;"
-            "fillColor=none;strokeColor=#000000;fontSize=14;align=left;")
+            "fillColor=none;strokeColor=#000000;fontSize=17;fontFamily=Times New Roman;align=left;")
 ST_TABLE = ("shape=swimlane;html=1;startSize=30;horizontal=1;whiteSpace=wrap;"
             "fillColor=none;strokeColor=#000000;fontSize=14;align=left;")
 ST_ASSOC = "endArrow=none;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;"
@@ -209,141 +209,150 @@ def build_use_case():
 # 2. CLASS DIAGRAM
 # ══════════════════════════════════════════════════════════════════════════
 ST_ROW = ("text;html=1;align=left;verticalAlign=middle;spacingLeft=6;"
-          "fontSize=13;strokeColor=none;fillColor=none;whiteSpace=nowrap;")
+          "fontSize=16;fontFamily=Times New Roman;strokeColor=none;fillColor=none;"
+          "whiteSpace=nowrap;")
 ST_INH = ("endArrow=block;endFill=0;html=1;strokeColor=#000000;rounded=0;"
           "edgeStyle=orthogonalEdgeStyle;")
 
 
 def build_class():
-    d = Dia("ClassDiagram", 1090, 820)
+    """Диаграмма классов по фактическому составу кода (MVVM + сервисы + данные)."""
+    ROW = 22          # высота строки-атрибута
+    HEAD = 44         # заголовок: две строки для длинных имён
+    GAP = 18          # вертикальный зазор между блоками
+    d = Dia("ClassDiagram", 1160, 1000)
 
     def esc(t):
         # html=1 в draw.io съедает <App> как тег; двойное экранирование сохраняет угловые скобки
         return t.replace("<", "&lt;").replace(">", "&gt;")
 
-    def box(title, rows, x, y, w=250, style=ST_CLASS):
-        h = 30 + 19 * max(1, len(rows))
+    def box(title, rows, x, y, w=210, style=ST_CLASS):
+        h = HEAD + ROW * max(1, len(rows))
         head = d.vertex(esc(title), style, x, y, w, h)
         for i, row in enumerate(rows):
-            d.vertex(esc(row), ST_ROW, 0, 30 + 19 * i, w, 19, parent=head)
+            d.vertex(esc(row), ST_ROW, 0, HEAD + ROW * i, w, ROW, parent=head)
         return head
+
+    def column(x, items):
+        """items: [(имя, заголовок, строки, стиль?)] — y считается по факту высоты."""
+        ids = {}
+        y = 20
+        for item in items:
+            name, title, rows = item[0], item[1], item[2]
+            style = item[3] if len(item) > 3 else ST_CLASS
+            ids[name] = box(title, rows, x, y, style=style)
+            y += HEAD + ROW * max(1, len(rows)) + GAP
+        return ids
 
     def link(a, b, ex, ey, nx, ny, style=ST_DEP):
         st = (style + f"exitX={ex};exitY={ey};exitDx=0;exitDy=0;"
                       f"entryX={nx};entryY={ny};entryDx=0;entryDy=0;")
         return d.edge(a, b, st)
 
-    # ── колонка 1: представление и модели представления ──────────────────
-    x1 = 20
-    main_win = box("MainWindow", ["«View»", "+ DataContext : MainViewModel"], x1, 20)
-    main_vm = box("MainViewModel : ViewModelBase", [
-        "- IRepository _repo",
-        "- IAuthService _auth",
-        "- IUndoRedoService _undo",
-        "+ ObservableCollection<App> Apps",
-        "+ string SearchQuery",
-        "+ ICommand UndoCommand",
-    ], x1, 110)
-    vm_base = box("ViewModelBase", ["«abstract»", "+ INotifyPropertyChanged"], x1, 310)
-    profile_vm = box("ProfileViewModel : ViewModelBase", [
-        "- IAuthService _auth",
-        "+ string FirstName",
-        "+ string Email",
-        "+ ICommand SaveCommand",
-    ], x1, 400)
+    # ── колонка 1: представление и команды ───────────────────────────────
+    c1 = column(20, [
+        ("main_win", "MainWindow", ["«View»", "+ MainViewModel"]),
+        ("login_win", "LoginWindow", ["«View»", "+ ShowDialog() : bool"]),
+        ("edit_win", "AddEditWindow", ["«View»", "+ AddEditAppViewModel"]),
+        ("popup", "ProfilePopup", ["«View»", "+ ProfileViewModel"]),
+        ("relay", "RelayCommand", ["«ICommand»", "- Action _execute", "+ void Execute(obj)"]),
+        ("arelay", "AsyncRelayCommand", ["«ICommand»", "- Func<Task> _execute", "+ bool IsRunning"]),
+    ])
 
-    # ── колонка 2: сервисы ───────────────────────────────────────────────
-    x2 = 300
-    auth = box("AuthService", [
-        "- IRepository _repo",
-        "- IPasswordHasher _hasher",
-        "- User? _currentUser",
-        "+ User? Login(login, password)",
-        "+ void Logout()",
-        "+ bool IsAdmin",
-    ], x2, 20)
-    hasher = box("«interface» IPasswordHasher", [
-        "+ string HashPassword(string pwd)",
-        "+ bool VerifyPassword(pwd, hash)",
-    ], x2, 200, style=ST_IFACE)
-    bcrypt = box("BCryptHasher", ["«work factor 12»"], x2, 310)
-    undo = box("UndoRedoService", [
-        "- Stack<IUndoRedoAction> _stack",
-        "+ void Undo()",
-        "+ void Redo()",
-    ], x2, 400)
-    theme = box("ThemeService", ["«Singleton»", "+ bool IsDarkMode"], x2, 530)
-    loc = box("LocalizationService", ["«Singleton»", "+ string Language"], x2, 620)
+    # ── колонка 2: модели представления ──────────────────────────────────
+    c2 = column(248, [
+        ("vm_base", "ViewModelBase", ["«abstract»", "# OnPropertyChanged(name)",
+                                      "# bool SetField<T>()"]),
+        ("main_vm", "MainViewModel : ViewModelBase", [
+            "- IRepository _repo",
+            "- IAuthService _auth",
+            "- IUndoRedoService _undo",
+            "+ ObservableCollection Apps",
+            "+ void Reload()",
+        ]),
+        ("profile_vm", "ProfileViewModel : ViewModelBase", [
+            "- IAuthService _auth",
+            "- IThemeService _theme",
+            "+ ICommand SaveProfileCmd",
+            "- Task CheckDatabase()",
+        ]),
+        ("edit_vm", "AddEditAppViewModel : ViewModelBase", [
+            "- IRepository _repo",
+            "+ App Draft",
+            "+ ICommand SaveCommand",
+        ]),
+    ])
 
-    # ── колонка 3: доступ к данным ───────────────────────────────────────
-    x3 = 580
-    repo = box("«interface» IRepository", [
-        "+ List<App> GetAllApps()",
-        "+ App? GetAppById(Guid id)",
-        "+ void AddApp(App app)",
-        "+ void UpdateApp(App app)",
-        "+ void DeleteApp(Guid id)",
-        "+ User? GetUserByLogin(string login)",
-        "+ void UpdateUser(User user)",
-    ], x3, 20, style=ST_IFACE)
-    ef = box("PostgreSQLRepEF", ["«EF Core 8 + Npgsql»"], x3, 240)
-    ado = box("PostgreSQLRepADO", ["«Npgsql ADO.NET»"], x3, 310)
-    js = box("JsonRep", ["«Resources/Buffer/*.json»"], x3, 380)
+    # ── колонка 3: аутентификация и отмена действий ──────────────────────
+    c3 = column(476, [
+        ("i_auth", "«interface» IAuthService", [
+            "+ User? Login(login, pwd)",
+            "+ void Logout()",
+            "+ void UpdateProfile(...)",
+            "+ void ChangePassword(...)",
+        ], ST_IFACE),
+        ("auth", "AuthService", ["«IAuthService»", "- IRepository _repo",
+                                 "- IPasswordHasher _hasher",
+                                 "- User? _currentUser"]),
+        ("i_hash", "«interface» IPasswordHasher", ["+ string HashPassword(pwd)",
+                                                  "+ bool VerifyPassword(...)"], ST_IFACE),
+        ("bcrypt", "BCryptHasher", ["«IPasswordHasher»"]),
+        ("sha", "SHA256Hasher", ["«устаревшие хеши»"]),
+        ("i_undo", "«interface» IUndoRedoService", ["+ void Push(action)", "+ void Undo()",
+                                                    "+ void Redo()"], ST_IFACE),
+        ("undo", "UndoRedoService", ["«IUndoRedoService»", "- Stack _undoStack"]),
+    ])
 
-    # ── колонка 4: модели предметной области ─────────────────────────────
-    x4 = 850
-    iapp = box("«interface» IApp", [
-        "+ Guid Id",
-        "+ string ShortName",
-        "+ string FullName",
-        "+ double Rating",
-        "+ double Price",
-    ], x4, 20, style=ST_IFACE)
-    app = box("App : IApp", [
-        "+ Guid Id",
-        "+ string ShortName",
-        "+ string FullName",
-        "+ double Rating",
-        "+ double Price",
-        "+ bool IsFeatured",
-    ], x4, 180)
-    iuser = box("«interface» IUser", [
-        "+ Guid Id",
-        "+ string Login",
-        "+ string PasswordHash",
-        "+ UserRole Role",
-        "+ string AvatarColor",
-    ], x4, 340, style=ST_IFACE)
-    user = box("User : IUser", [
-        "+ Guid Id",
-        "+ string Login",
-        "+ string PasswordHash",
-        "+ UserRole Role",
-        "+ string AvatarColor",
-        "+ string? Email",
-    ], x4, 500)
-    uapp = box("UsersApps", ["+ Guid UserId", "+ Guid AppId", "+ DateTime InstalledAt"], x4, 700)
+    # ── колонка 4: оформление, локализация, диагностика, DI ──────────────
+    c4 = column(704, [
+        ("i_theme", "«interface» IThemeService", ["+ void SetTheme(bool)"], ST_IFACE),
+        ("theme", "ThemeService", ["«IThemeService»"]),
+        ("i_loc", "«interface» ILocalizationService", ["+ void SetLanguage(code)"], ST_IFACE),
+        ("loc", "LocalizationService", ["«ILocalizationService»"]),
+        ("health", "DatabaseHealthCheckService", ["«IHealthCheckService»",
+                                                  "- string _connectionString",
+                                                  "+ Task CheckDatabase()"]),
+        ("root", "CompositionRoot", ["«static»", "+ IServiceProvider Build()"]),
+    ])
 
-    # ── связи: короткие, между соседними блоками ─────────────────────────
-    link(main_win, main_vm, 0.5, 1, 0.5, 0)
-    link(main_vm, vm_base, 0.5, 1, 0.5, 0, ST_INH)
-    link(profile_vm, vm_base, 0.5, 0, 0.5, 1, ST_INH)
+    # ── колонка 5: доступ к данным и модели предметной области ───────────
+    c5 = column(932, [
+        ("repo", "«interface» IRepository", [
+            "+ GetAllApps()",
+            "+ void AddApp(App)",
+            "+ void UpdateApp(App)",
+            "+ User? GetUserByLogin()",
+            "+ void UpdateUser(User)",
+        ], ST_IFACE),
+        ("ef", "PostgreSQLRepEF", ["«IRepository»", "«EF Core + Npgsql»"]),
+        ("ado", "PostgreSQLRepADO", ["«IRepository»", "«Npgsql ADO.NET»"]),
+        ("js", "JsonRep", ["«IRepository»", "«Buffer/*.json»"]),
+        ("app", "App", ["«IApp»", "+ Guid Id", "+ string FullName", "+ double Price",
+                        "+ List<string> Tags"]),
+        ("user", "User", ["«IUser»", "+ Guid Id", "+ string Login", "+ UserRole Role"]),
+        ("uapp", "UsersApps", ["«IUsersApps»", "+ Guid UserId", "+ Guid AppId",
+                               "+ DateTime InstalledAt"]),
+    ])
 
-    link(main_vm, auth, 1, 0.35, 0, 0.75)
-    link(main_vm, undo, 1, 0.75, 0, 0.35)
-    link(profile_vm, undo, 1, 0.25, 0, 0.75)
-
-    link(auth, hasher, 0.5, 1, 0.5, 0)
-    link(hasher, bcrypt, 0.5, 1, 0.5, 0, ST_INH)
-    link(auth, repo, 1, 0.25, 0, 0.06)
-
-    link(repo, ef, 0.5, 1, 0.5, 0, ST_INH)
-    link(ef, ado, 0.5, 1, 0.5, 0)
-    link(ado, js, 0.5, 1, 0.5, 0)
-
-    link(iapp, app, 0.5, 1, 0.5, 0, ST_INH)
-    link(iuser, user, 0.5, 1, 0.5, 0, ST_INH)
-    link(user, uapp, 0.5, 1, 0.5, 0, "endArrow=none;html=1;strokeColor=#000000;rounded=0;edgeStyle=orthogonalEdgeStyle;")
+    # ── связи: только между соседними колонками ──────────────────────────
+    link(c1["main_win"], c2["main_vm"], 1, 0.5, 0, 0.2, ST_ASSOC)
+    link(c1["edit_win"], c2["edit_vm"], 1, 0.5, 0, 0.2, ST_ASSOC)
+    link(c1["popup"], c2["profile_vm"], 1, 0.5, 0, 0.25, ST_ASSOC)
+    link(c2["main_vm"], c1["relay"], 0, 0.6, 1, 0.3)
+    link(c2["main_vm"], c3["i_auth"], 1, 0.2, 0, 0.3)
+    link(c2["main_vm"], c3["i_undo"], 1, 0.5, 0, 0.6)
+    link(c2["profile_vm"], c3["i_auth"], 1, 0.3, 0, 0.5)
+    link(c3["auth"], c3["i_auth"], 0.5, 0, 0.5, 1, ST_INH)
+    link(c3["auth"], c3["i_hash"], 0.5, 1, 0.5, 0, ST_DEP)
+    link(c3["bcrypt"], c3["i_hash"], 0.5, 0, 0.5, 1, ST_INH)
+    link(c3["undo"], c3["i_undo"], 0.5, 0, 0.5, 1, ST_INH)
+    link(c4["theme"], c4["i_theme"], 0.5, 0, 0.5, 1, ST_INH)
+    link(c4["loc"], c4["i_loc"], 0.5, 0, 0.5, 1, ST_INH)
+    link(c4["root"], c3["auth"], 0, 0.3, 1, 0.7)
+    link(c4["root"], c5["repo"], 1, 0.5, 0, 0.15)
+    link(c5["ef"], c5["repo"], 0.5, 0, 0.5, 1, ST_INH)
+    link(c5["ado"], c5["repo"], 0.5, 0, 0.5, 1, ST_INH)
+    link(c5["js"], c5["repo"], 0.5, 0, 0.5, 1, ST_INH)
     return d
 
 
