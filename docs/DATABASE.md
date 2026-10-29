@@ -16,6 +16,7 @@ erDiagram
     AGE_RATINGS    ||--o{ APPS       : "маркировка"
     APPS           ||--o{ APP_TAGS   : "имеет"
     TAGS           ||--o{ APP_TAGS   : "входит в"
+    USERS          ||--|| USER_PROFILES : "имеет профиль"
     USERS          ||--o{ USERS_APPS : "устанавливает"
     APPS           ||--o{ USERS_APPS : "установлено"
 
@@ -79,11 +80,19 @@ erDiagram
         uuid id PK
         text login UK
         text password_hash
+        int role
+        uuid profile_id FK
+    }
+
+    USER_PROFILES {
+        uuid id PK
+        uuid user_id UK,FK
         text first_name
         text last_name
         text email
-        int role
         text avatar_color
+        text language
+        text theme
     }
 
     USERS_APPS {
@@ -184,11 +193,19 @@ CREATE TABLE users (
     id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     login           text NOT NULL UNIQUE,
     password_hash   text NOT NULL,
+    role            int NOT NULL DEFAULT 0,  -- 0=User, 1=Admin
+    profile_id      uuid REFERENCES user_profiles(id)
+);
+
+CREATE TABLE user_profiles (
+    id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id         uuid NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
     first_name      text,
     last_name       text,
     email           text,
-    role            int NOT NULL DEFAULT 0,  -- 0=User, 1=Admin
-    avatar_color    text NOT NULL DEFAULT '#007AFF'
+    avatar_color    text NOT NULL DEFAULT '#007AFF',
+    language        text NOT NULL DEFAULT 'ru',
+    theme           text NOT NULL DEFAULT 'light'
 );
 ```
 
@@ -255,6 +272,7 @@ CREATE TABLE users_apps (
 |--------|-------|-----|----------------|
 | `App` | `apps` | `id` | `Tags` → comma-separated string (ValueConverter); `FinalPrice`, `ButtonLabel`, `IsDownloaded` ignored |
 | `User` | `users` | `id` | `Login` unique; `AvatarLetter` ignored |
+| `UserProfile` | `user_profiles` | `id` | `UserId` unique (1:1, cascade) |
 | `UsersApps` | `users_apps` | composite (`user_id`, `app_id`) | Cascade delete both sides |
 
 ---

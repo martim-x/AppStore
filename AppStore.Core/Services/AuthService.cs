@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using BCrypt.Net;
 using AppStore.Core.Data;
 
@@ -128,6 +128,19 @@ namespace Project.Services
             _currentUser.FirstName = firstName;
             _currentUser.LastName = lastName;
             _currentUser.Email = email;
+            _repo.UpdateUser(_currentUser);
+        }
+
+        /// <summary>
+        /// Сохранение языка интерфейса и темы оформления в профиле пользователя.
+        /// </summary>
+        public void UpdatePreferences(string language, string theme)
+        {
+            if (_currentUser == null)
+                throw new InvalidOperationException("No user is logged in.");
+
+            _currentUser.Language = language;
+            _currentUser.Theme = theme;
             _repo.UpdateUser(_currentUser);
         }
 

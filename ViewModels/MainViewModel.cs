@@ -1,4 +1,4 @@
-using Project.Commands;
+﻿using Project.Commands;
 using AppStore.Core.Data;
 using Project.Services;
 using System;
@@ -477,10 +477,34 @@ namespace Project.ViewModels
             };
         }
 
+        /// <summary>
+        /// Сохранить настройки интерфейса в профиле, если пользователь авторизован.
+        /// Ошибки записи не должны ломать работу интерфейса.
+        /// </summary>
+        private void TryPersistPreferences(string? language, string? theme)
+        {
+            try
+            {
+                var user = _auth?.CurrentUser;
+                if (user == null)
+                    return;
+
+                _auth!.UpdatePreferences(
+                    language ?? user.Language,
+                    theme ?? user.Theme);
+            }
+            catch
+            {
+                // профиль мог быть ещё не сохранён в базу — не критично
+            }
+        }
+
         private void SwitchLanguage(string lang)
         {
             _localization.SetLanguage(lang);
             CurrentLanguage = lang;
+
+            TryPersistPreferences(lang, null);
             // Rebuild collections so converters re-evaluate with new currency/labels
             Reload();
         }

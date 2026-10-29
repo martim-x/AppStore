@@ -1,4 +1,4 @@
-using AppStore.Core.Data;
+﻿using AppStore.Core.Data;
 
 namespace Project.Services
 {
@@ -10,6 +10,9 @@ namespace Project.Services
         User? Login(string login, string password);
         void Logout();
         void UpdateProfile(string? firstName, string? lastName, string? email);
+
+        /// <summary>Сохранить настройки интерфейса пользователя.</summary>
+        void UpdatePreferences(string language, string theme);
         void ChangePassword(string oldPassword, string newPassword);
     }
 }

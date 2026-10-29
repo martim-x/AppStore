@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using AppStore.Core.Services;
@@ -156,6 +156,17 @@ namespace Project.ViewModels
         private void ToggleTheme()
         {
             _theme.SetTheme(IsDarkMode);
+
+            try
+            {
+                var user = _auth.CurrentUser;
+                if (user != null)
+                    _auth.UpdatePreferences(user.Language, IsDarkMode ? "dark" : "light");
+            }
+            catch
+            {
+                // профиль ещё не сохранён — настройка применится в следующий раз
+            }
         }
     }
 }

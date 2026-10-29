@@ -489,8 +489,16 @@ namespace AppStore.Core.Data
             connection.Open();
 
             const string sql = """
-                select id, login, password_hash, first_name, last_name, email, role, avatar_color
-                from users
+                select u.id, u.login, u.password_hash, u.role,
+                       coalesce(p.first_name, '') as first_name,
+                       coalesce(p.last_name, '') as last_name,
+                       coalesce(p.email, '') as email,
+                       coalesce(p.avatar_color, '#007AFF') as avatar_color,
+                       coalesce(p.language, 'ru') as language,
+                       coalesce(p.theme, 'light') as theme,
+                       p.id as profile_id
+                from users u
+                left join user_profiles p on p.user_id = u.id
                 order by login, id
                 """;
 
@@ -509,8 +517,16 @@ namespace AppStore.Core.Data
             connection.Open();
 
             const string sql = """
-                select id, login, password_hash, first_name, last_name, email, role, avatar_color
-                from users
+                select u.id, u.login, u.password_hash, u.role,
+                       coalesce(p.first_name, '') as first_name,
+                       coalesce(p.last_name, '') as last_name,
+                       coalesce(p.email, '') as email,
+                       coalesce(p.avatar_color, '#007AFF') as avatar_color,
+                       coalesce(p.language, 'ru') as language,
+                       coalesce(p.theme, 'light') as theme,
+                       p.id as profile_id
+                from users u
+                left join user_profiles p on p.user_id = u.id
                 where lower(login) = lower(@login)
                 limit 1
                 """;
@@ -534,20 +550,15 @@ namespace AppStore.Core.Data
             try
             {
                 const string sql = """
-                    insert into users
-                    (
-                        id, login, password_hash, first_name, last_name, email, role, avatar_color
-                    )
-                    values
-                    (
-                        @id, @login, @password_hash, @first_name, @last_name, @email, @role, @avatar_color
-                    )
+                    insert into users (id, login, password_hash, role)
+                    values (@id, @login, @password_hash, @role)
                     """;
 
                 using var command = new NpgsqlCommand(sql, connection, tx);
                 FillUserParameters(command, user);
                 command.ExecuteNonQuery();
 
+                UpsertProfile(connection, tx, user);
                 tx.Commit();
             }
             catch
@@ -569,11 +580,7 @@ namespace AppStore.Core.Data
                     update users
                     set login = @login,
                         password_hash = @password_hash,
-                        first_name = @first_name,
-                        last_name = @last_name,
-                        email = @email,
-                        role = @role,
-                        avatar_color = @avatar_color
+                        role = @role
                     where id = @id
                     """;
 
@@ -581,6 +588,7 @@ namespace AppStore.Core.Data
                 FillUserParameters(command, user);
                 command.ExecuteNonQuery();
 
+                UpsertProfile(connection, tx, user);
                 tx.Commit();
             }
             catch
@@ -670,12 +678,23 @@ namespace AppStore.Core.Data
                     id uuid primary key,
                     login text not null unique,
                     password_hash text not null,
+                    role integer not null
+                );
+
+                create table if not exists user_profiles
+                (
+                    id uuid primary key,
+                    user_id uuid not null unique references users(id) on delete cascade,
                     first_name text null,
                     last_name text null,
                     email text null,
-                    role integer not null,
-                    avatar_color text not null
+                    avatar_color text not null default '#007AFF',
+                    language text not null default 'ru',
+                    theme text not null default 'light'
                 );
+
+                alter table users
+                    add column if not exists profile_id uuid null references user_profiles(id);
 
                 create table if not exists users_apps
                 (
@@ -764,20 +783,15 @@ namespace AppStore.Core.Data
             {
                 using var command = new NpgsqlCommand(
                     """
-                    insert into users
-                    (
-                        id, login, password_hash, first_name, last_name, email, role, avatar_color
-                    )
-                    values
-                    (
-                        @id, @login, @password_hash, @first_name, @last_name, @email, @role, @avatar_color
-                    )
+                    insert into users (id, login, password_hash, role)
+                    values (@id, @login, @password_hash, @role)
                     """,
                     connection
                 );
 
                 FillUserParameters(command, user);
                 command.ExecuteNonQuery();
+                UpsertProfile(connection, null, user);
             }
         }
 
@@ -939,6 +953,46 @@ namespace AppStore.Core.Data
             }
         }
 
+
+        /// <summary>Создать или обновить профиль пользователя.</summary>
+        private static void UpsertProfile(
+            NpgsqlConnection connection, NpgsqlTransaction? tx, User user)
+        {
+            const string sql = """
+                insert into user_profiles
+                    (id, user_id, first_name, last_name, email, avatar_color, language, theme)
+                values (@id, @user_id, @first_name, @last_name, @email, @avatar_color, @language, @theme)
+                on conflict (user_id) do update
+                set first_name = excluded.first_name,
+                    last_name = excluded.last_name,
+                    email = excluded.email,
+                    avatar_color = excluded.avatar_color,
+                    language = excluded.language,
+                    theme = excluded.theme
+                returning id
+                """;
+
+            using var command = new NpgsqlCommand(sql, connection, tx);
+            command.Parameters.AddWithValue("id", Guid.NewGuid());
+            command.Parameters.AddWithValue("user_id", user.Id);
+            command.Parameters.AddWithValue("first_name", (object?)user.FirstName ?? DBNull.Value);
+            command.Parameters.AddWithValue("last_name", (object?)user.LastName ?? DBNull.Value);
+            command.Parameters.AddWithValue("email", (object?)user.Email ?? DBNull.Value);
+            command.Parameters.AddWithValue("avatar_color", user.AvatarColor);
+            command.Parameters.AddWithValue("language", user.Language);
+            command.Parameters.AddWithValue("theme", user.Theme);
+
+            var savedId = (Guid)command.ExecuteScalar()!;
+
+            using var link = new NpgsqlCommand(
+                "update users set profile_id = @pid where id = @uid", connection, tx);
+            link.Parameters.AddWithValue("pid", savedId);
+            link.Parameters.AddWithValue("uid", user.Id);
+            link.ExecuteNonQuery();
+
+            user.ProfileId = savedId;
+        }
+
         private static User MapUser(NpgsqlDataReader reader)
         {
             return new User
@@ -946,11 +1000,18 @@ namespace AppStore.Core.Data
                 Id = reader.GetGuid(0),
                 Login = reader.GetString(1),
                 PasswordHash = reader.GetString(2),
-                FirstName = reader.IsDBNull(3) ? null : reader.GetString(3),
-                LastName = reader.IsDBNull(4) ? null : reader.GetString(4),
-                Email = reader.IsDBNull(5) ? null : reader.GetString(5),
-                Role = (UserRole)reader.GetInt32(6),
-                AvatarColor = reader.GetString(7),
+                Role = (UserRole)reader.GetInt32(3),
+                ProfileId = reader.IsDBNull(10) ? null : reader.GetGuid(10),
+                Profile = new UserProfile
+                {
+                    UserId = reader.GetGuid(0),
+                    FirstName = reader.IsDBNull(4) ? null : reader.GetString(4),
+                    LastName = reader.IsDBNull(5) ? null : reader.GetString(5),
+                    Email = reader.IsDBNull(6) ? null : reader.GetString(6),
+                    AvatarColor = reader.IsDBNull(7) ? "#007AFF" : reader.GetString(7),
+                    Language = reader.IsDBNull(8) ? "ru" : reader.GetString(8),
+                    Theme = reader.IsDBNull(9) ? "light" : reader.GetString(9),
+                },
             };
         }
 
@@ -986,11 +1047,9 @@ namespace AppStore.Core.Data
             command.Parameters.AddWithValue("id", user.Id);
             command.Parameters.AddWithValue("login", user.Login);
             command.Parameters.AddWithValue("password_hash", user.PasswordHash);
-            command.Parameters.AddWithValue("first_name", (object?)user.FirstName ?? DBNull.Value);
-            command.Parameters.AddWithValue("last_name", (object?)user.LastName ?? DBNull.Value);
-            command.Parameters.AddWithValue("email", (object?)user.Email ?? DBNull.Value);
+
             command.Parameters.AddWithValue("role", (int)user.Role);
-            command.Parameters.AddWithValue("avatar_color", user.AvatarColor);
+
         }
 
         private static string SerializeTags(List<string> tags) =>
