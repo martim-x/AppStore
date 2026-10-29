@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -123,24 +123,101 @@ namespace AppStore.Core.Data
         /// <summary>Хеш пароля (BCrypt или SHA-256 legacy).</summary>
         public string PasswordHash { get; set; } = string.Empty;
 
-        /// <summary>Имя пользователя.</summary>
-        public string? FirstName { get; set; }
+        /// <summary>Профиль пользователя (персональные данные и настройки).</summary>
+        [NotMapped]
+        [System.Text.Json.Serialization.JsonIgnore]
+        public UserProfile? Profile { get; set; }
 
-        /// <summary>Фамилия пользователя.</summary>
-        public string? LastName { get; set; }
+        /// <summary>Внутренняя ссылка на строку профиля в базе данных.</summary>
+        public Guid? ProfileId { get; set; }
 
-        /// <summary>Email пользователя.</summary>
-        public string? Email { get; set; }
+        private UserProfile EnsureProfile() =>
+            Profile ??= new UserProfile { UserId = Id };
+
+        /// <summary>Имя пользователя (хранится в профиле).</summary>
+        [NotMapped]
+        public string? FirstName
+        {
+            get => Profile?.FirstName;
+            set => EnsureProfile().FirstName = value;
+        }
+
+        /// <summary>Фамилия пользователя (хранится в профиле).</summary>
+        [NotMapped]
+        public string? LastName
+        {
+            get => Profile?.LastName;
+            set => EnsureProfile().LastName = value;
+        }
+
+        /// <summary>Email пользователя (хранится в профиле).</summary>
+        [NotMapped]
+        public string? Email
+        {
+            get => Profile?.Email;
+            set => EnsureProfile().Email = value;
+        }
 
         /// <summary>Роль: User или Admin.</summary>
         public UserRole Role { get; set; } = UserRole.User;
 
-        /// <summary>Цвет аватара (HEX).</summary>
-        public string AvatarColor { get; set; } = "#007AFF";
+        /// <summary>Цвет аватара (HEX, хранится в профиле).</summary>
+        [NotMapped]
+        public string AvatarColor
+        {
+            get => Profile?.AvatarColor ?? "#007AFF";
+            set => EnsureProfile().AvatarColor = value;
+        }
+
+        /// <summary>Язык интерфейса пользователя (хранится в профиле).</summary>
+        [NotMapped]
+        public string Language
+        {
+            get => Profile?.Language ?? "ru";
+            set => EnsureProfile().Language = value;
+        }
+
+        /// <summary>Тема оформления пользователя (хранится в профиле).</summary>
+        [NotMapped]
+        public string Theme
+        {
+            get => Profile?.Theme ?? "light";
+            set => EnsureProfile().Theme = value;
+        }
 
         /// <summary>Первая буква логина для аватара.</summary>
         public string AvatarLetter =>
             string.IsNullOrEmpty(Login) ? "?" : Login[0].ToString().ToUpper();
+    }
+
+    /// <summary>
+    /// Профиль пользователя: персональные данные и настройки интерфейса,
+    /// отделённые от учётных данных (логин, хеш пароля, роль).
+    /// </summary>
+    public class UserProfile
+    {
+        public Guid Id { get; set; } = Guid.NewGuid();
+
+        /// <summary>Ссылка на учётную запись (один к одному).</summary>
+        public Guid UserId { get; set; }
+
+        /// <summary>Имя.</summary>
+        public string? FirstName { get; set; }
+
+        /// <summary>Фамилия.</summary>
+        public string? LastName { get; set; }
+
+        /// <summary>Адрес электронной почты.</summary>
+        public string? Email { get; set; }
+
+        /// <summary>Цвет аватара (HEX).</summary>
+        public string AvatarColor { get; set; } = "#007AFF";
+
+        /// <summary>Язык интерфейса: ru или en.</summary>
+        public string Language { get; set; } = "ru";
+
+        /// <summary>Тема оформления: light или dark.</summary>
+        public string Theme { get; set; } = "light";
     }
 
     /// <summary>

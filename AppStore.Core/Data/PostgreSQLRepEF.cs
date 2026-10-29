@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +12,7 @@ namespace AppStore.Core.Data
         public DbSet<App> Apps { get; set; } = null!;
         public DbSet<User> Users { get; set; } = null!;
         public DbSet<UsersApps> UserAppLinks { get; set; } = null!;
+        public DbSet<UserProfile> UserProfiles { get; set; } = null!;
 
         // Справочники каталога
         public DbSet<Country> Countries { get; set; } = null!;
@@ -110,11 +111,17 @@ namespace AppStore.Core.Data
                 e.Property(u => u.Id).HasColumnName("id");
                 e.Property(u => u.Login).HasColumnName("login");
                 e.Property(u => u.PasswordHash).HasColumnName("password_hash");
-                e.Property(u => u.FirstName).HasColumnName("first_name");
-                e.Property(u => u.LastName).HasColumnName("last_name");
-                e.Property(u => u.Email).HasColumnName("email");
                 e.Property(u => u.Role).HasColumnName("role");
-                e.Property(u => u.AvatarColor).HasColumnName("avatar_color");
+                e.Property(u => u.ProfileId).HasColumnName("profile_id");
+
+                // персональные данные и настройки живут в user_profiles
+                e.Ignore(u => u.FirstName);
+                e.Ignore(u => u.LastName);
+                e.Ignore(u => u.Email);
+                e.Ignore(u => u.AvatarColor);
+                e.Ignore(u => u.Language);
+                e.Ignore(u => u.Theme);
+                e.Ignore(u => u.Profile);
 
                 // Уникальность логина: без индекса AddUser может вставить
                 // дубли, а GetUserByLogin (FirstOrDefault) тогда выдаёт
@@ -145,6 +152,25 @@ namespace AppStore.Core.Data
                 e.HasOne<App>()
                     .WithMany()
                     .HasForeignKey(x => x.AppId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<UserProfile>(e =>
+            {
+                e.ToTable("user_profiles");
+                e.HasKey(p => p.Id);
+                e.Property(p => p.Id).HasColumnName("id");
+                e.Property(p => p.UserId).HasColumnName("user_id");
+                e.Property(p => p.FirstName).HasColumnName("first_name").HasMaxLength(80);
+                e.Property(p => p.LastName).HasColumnName("last_name").HasMaxLength(80);
+                e.Property(p => p.Email).HasColumnName("email").HasMaxLength(120);
+                e.Property(p => p.AvatarColor).HasColumnName("avatar_color").HasMaxLength(9);
+                e.Property(p => p.Language).HasColumnName("language").HasMaxLength(5);
+                e.Property(p => p.Theme).HasColumnName("theme").HasMaxLength(10);
+                e.HasIndex(p => p.UserId).IsUnique().HasDatabaseName("ux_user_profiles_user");
+                e.HasOne<User>()
+                    .WithMany()
+                    .HasForeignKey(p => p.UserId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
 
@@ -512,16 +538,31 @@ namespace AppStore.Core.Data
             SeedAppsToDb();
         }
 
-        public override List<User> GetAllUsers() =>
-            _db.Users.OrderBy(u => u.Login).ThenBy(u => u.Id).ToList();
+        public override List<User> GetAllUsers()
+        {
+            var users = _db.Users.OrderBy(u => u.Login).ThenBy(u => u.Id).ToList();
+            HydrateProfiles(users);
+            return users;
+        }
 
-        public override User? GetUserByLogin(string login) =>
-            _db.Users.FirstOrDefault(u => u.Login.ToLower() == login.ToLower());
+        public override User? GetUserByLogin(string login)
+        {
+            var user = _db.Users.FirstOrDefault(u => u.Login.ToLower() == login.ToLower());
+            if (user != null)
+                HydrateProfiles(new List<User> { user });
+            return user;
+        }
 
         public override void AddUser(User user)
         {
+            var profile = user.Profile ?? new UserProfile();
+            profile.UserId = user.Id;
+            _db.UserProfiles.Add(profile);
+            user.ProfileId = profile.Id;
+
             _db.Users.Add(user);
             _db.SaveChanges();
+            user.Profile = profile;
         }
 
         public override void UpdateUser(User user)
@@ -532,13 +573,49 @@ namespace AppStore.Core.Data
 
             existing.Login = user.Login;
             existing.PasswordHash = user.PasswordHash;
-            existing.FirstName = user.FirstName;
-            existing.LastName = user.LastName;
-            existing.Email = user.Email;
             existing.Role = user.Role;
-            existing.AvatarColor = user.AvatarColor;
 
+            var profile = _db.UserProfiles.FirstOrDefault(p => p.UserId == user.Id);
+            if (profile == null)
+            {
+                profile = new UserProfile { UserId = user.Id };
+                _db.UserProfiles.Add(profile);
+            }
+
+            profile.FirstName = user.FirstName;
+            profile.LastName = user.LastName;
+            profile.Email = user.Email;
+            profile.AvatarColor = user.AvatarColor;
+            profile.Language = user.Language;
+            profile.Theme = user.Theme;
+
+            existing.ProfileId = profile.Id;
             _db.SaveChanges();
+            existing.Profile = profile;
+            user.Profile = profile;
+        }
+
+        /// <summary>Подтянуть профили (персональные данные и настройки) к пользователям.</summary>
+        private void HydrateProfiles(List<User> users)
+        {
+            if (users.Count == 0)
+                return;
+
+            var ids = users.Select(u => u.Id).ToList();
+            var profiles = _db.UserProfiles.Where(p => ids.Contains(p.UserId)).ToDictionary(p => p.UserId);
+
+            foreach (var user in users)
+            {
+                if (profiles.TryGetValue(user.Id, out var profile))
+                {
+                    user.Profile = profile;
+                    user.ProfileId = profile.Id;
+                }
+                else
+                {
+                    user.Profile = new UserProfile { UserId = user.Id };
+                }
+            }
         }
 
         // ── Работа со справочниками ─────────────────────────────────────────
