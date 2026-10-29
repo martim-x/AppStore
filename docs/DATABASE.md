@@ -22,13 +22,13 @@ erDiagram
 
     COUNTRIES {
         uuid id PK
-        text iso_code UK
+        text iso_code
         text name
     }
 
     DEVELOPERS {
         uuid id PK
-        text name UK
+        text name
         uuid country_id FK
         text website
         int founded_year
@@ -36,17 +36,17 @@ erDiagram
 
     CATEGORIES {
         uuid id PK
-        text name UK
+        text name
     }
 
     AGE_RATINGS {
         uuid id PK
-        text label UK
+        text label
     }
 
     TAGS {
         uuid id PK
-        text name UK
+        text name
     }
 
     APPS {
@@ -78,7 +78,7 @@ erDiagram
 
     USERS {
         uuid id PK
-        text login UK
+        text login
         text password_hash
         int role
         uuid profile_id FK
@@ -86,7 +86,7 @@ erDiagram
 
     USER_PROFILES {
         uuid id PK
-        uuid user_id UK,FK
+        uuid user_id PK,FK
         text first_name
         text last_name
         text email
