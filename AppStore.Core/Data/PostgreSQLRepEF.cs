@@ -52,15 +52,11 @@ namespace AppStore.Core.Data
                 e.Property(a => a.ShortName).HasColumnName("short_name");
                 e.Property(a => a.FullName).HasColumnName("full_name");
                 e.Property(a => a.Description).HasColumnName("description");
-                e.Property(a => a.Developer).HasColumnName("developer");
-                e.Property(a => a.Category).HasColumnName("category");
                 e.Property(a => a.Rating).HasColumnName("rating");
                 e.Property(a => a.RatingCount).HasColumnName("rating_count");
                 e.Property(a => a.Price).HasColumnName("price");
                 e.Property(a => a.Version).HasColumnName("version");
                 e.Property(a => a.SizeMB).HasColumnName("size_mb");
-                e.Property(a => a.Country).HasColumnName("country");
-                e.Property(a => a.AgeRating).HasColumnName("age_rating");
                 e.Property(a => a.Color).HasColumnName("color");
                 e.Property(a => a.IsFeatured).HasColumnName("is_featured");
                 e.Property(a => a.IsInStock).HasColumnName("is_in_stock");
@@ -74,7 +70,11 @@ namespace AppStore.Core.Data
                 // страну и возрастную маркировку по внешним ключам.
                 e.Property(a => a.DeveloperId).HasColumnName("developer_id");
                 e.Property(a => a.CategoryId).HasColumnName("category_id");
-                e.Ignore(a => a.CountryId);
+                e.Ignore(a => a.CountryId);                e.Ignore(a => a.Developer);
+                e.Ignore(a => a.Category);
+                e.Ignore(a => a.Country);
+                e.Ignore(a => a.AgeRating);
+                e.Ignore(a => a.Tags);
                 e.Property(a => a.AgeRatingId).HasColumnName("age_rating_id");
 
                 e.HasOne<Developer>()

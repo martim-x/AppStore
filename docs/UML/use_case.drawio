@@ -1,209 +1,192 @@
 <mxfile host="Electron" agent="hermes">
   <diagram id="UseCase" name="UseCase">
-    <mxGraphModel dx="2457" dy="1428" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1000" pageHeight="980" math="0" shadow="0">
+    <mxGraphModel dx="1814" dy="494" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1000" pageHeight="980" math="0" shadow="0">
       <root>
-        <mxCell id="0" />
-        <mxCell id="1" parent="0" />
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
         <mxCell id="v1" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;align=center;outlineConnect=0;fillColor=none;strokeColor=#000000;fontFamily=Times New Roman;fontSize=18;" value="&lt;font&gt;Клиент&lt;/font&gt;" vertex="1">
-          <mxGeometry height="70" width="40" x="-200" y="725" as="geometry" />
+          <mxGeometry height="70" width="40" x="-200" y="725" as="geometry"/>
         </mxCell>
         <mxCell id="v2" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;align=center;outlineConnect=0;fillColor=none;strokeColor=#000000;fontFamily=Times New Roman;fontSize=18;" value="Администратор" vertex="1">
-          <mxGeometry height="70" width="40" x="560" y="806" as="geometry" />
+          <mxGeometry height="70" width="40" x="560" y="806" as="geometry"/>
         </mxCell>
         <mxCell id="v3" parent="1" style="shape=ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;fontSize=18;fontFamily=Times New Roman;" value="Войти в аккаунт" vertex="1">
-          <mxGeometry height="40" width="190" x="65" y="540" as="geometry" />
+          <mxGeometry height="40" width="190" x="65" y="540" as="geometry"/>
         </mxCell>
         <mxCell id="e4" edge="1" parent="1" source="v1" style="endArrow=none;html=1;rounded=0;fontFamily=Times New Roman;fontSize=18;" target="v3">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint as="offset" />
+            <mxPoint as="offset"/>
           </mxGeometry>
         </mxCell>
         <mxCell id="v5" parent="1" style="shape=ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;fontSize=18;fontFamily=Times New Roman;" value="Выйти из аккаунта" vertex="1">
-          <mxGeometry height="40" width="190" x="65" y="660" as="geometry" />
+          <mxGeometry height="40" width="190" x="65" y="660" as="geometry"/>
         </mxCell>
         <mxCell id="e6" edge="1" parent="1" source="v1" style="endArrow=none;html=1;rounded=0;fontFamily=Times New Roman;fontSize=18;" target="v5">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint as="offset" />
+            <mxPoint as="offset"/>
           </mxGeometry>
         </mxCell>
         <mxCell id="v7" parent="1" style="shape=ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;fontSize=18;fontFamily=Times New Roman;" value="Зарегистрироваться" vertex="1">
-          <mxGeometry height="40" width="190" x="60" y="815" as="geometry" />
+          <mxGeometry height="50" width="205" x="52" y="810" as="geometry"/>
         </mxCell>
         <mxCell id="e8" edge="1" parent="1" source="v1" style="endArrow=none;html=1;rounded=0;fontFamily=Times New Roman;fontSize=18;" target="v7">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint as="offset" />
+            <mxPoint as="offset"/>
           </mxGeometry>
         </mxCell>
         <mxCell id="v9" parent="1" style="shape=ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;fontSize=18;fontFamily=Times New Roman;" value="Просмотреть каталог" vertex="1">
-          <mxGeometry height="40" width="190" x="-360" y="546" as="geometry" />
+          <mxGeometry height="50" width="214" x="-372" y="541" as="geometry"/>
         </mxCell>
         <mxCell id="e10" edge="1" parent="1" source="v1" style="endArrow=none;html=1;rounded=0;fontFamily=Times New Roman;fontSize=18;" target="v9">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint as="offset" />
+            <mxPoint as="offset"/>
           </mxGeometry>
         </mxCell>
         <mxCell id="v11" parent="1" style="shape=ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;fontSize=18;fontFamily=Times New Roman;" value="Найти приложение" vertex="1">
-          <mxGeometry height="40" width="190" x="-450" y="610" as="geometry" />
+          <mxGeometry height="40" width="190" x="-450" y="610" as="geometry"/>
         </mxCell>
         <mxCell id="e12" edge="1" parent="1" source="v1" style="endArrow=none;html=1;rounded=0;fontFamily=Times New Roman;fontSize=18;" target="v11">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint as="offset" />
+            <mxPoint as="offset"/>
           </mxGeometry>
         </mxCell>
         <mxCell id="v13" parent="1" style="shape=ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;fontSize=18;fontFamily=Times New Roman;" value="Отфильтровать приложения" vertex="1">
-          <mxGeometry height="40" width="190" x="-540" y="680" as="geometry" />
+          <mxGeometry height="50" width="262" x="-576" y="675" as="geometry"/>
         </mxCell>
         <mxCell id="e14" edge="1" parent="1" source="v1" style="endArrow=none;html=1;rounded=0;fontFamily=Times New Roman;fontSize=18;" target="v13">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint as="offset" />
+            <mxPoint as="offset"/>
           </mxGeometry>
         </mxCell>
         <mxCell id="v15" parent="1" style="shape=ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;fontSize=18;fontFamily=Times New Roman;" value="Отсортировать приложения" vertex="1">
-          <mxGeometry height="40" width="190" x="-530" y="760" as="geometry" />
+          <mxGeometry height="87" width="262" x="-776" y="720" as="geometry"/>
         </mxCell>
         <mxCell id="e16" edge="1" parent="1" source="v1" style="endArrow=none;html=1;rounded=0;fontFamily=Times New Roman;fontSize=18;" target="v15">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint as="offset" />
+            <mxPoint as="offset"/>
           </mxGeometry>
         </mxCell>
         <mxCell id="v17" parent="1" style="shape=ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;fontSize=18;fontFamily=Times New Roman;" value="Просмотреть карточку приложения" vertex="1">
-          <mxGeometry height="80" width="230" x="-570" y="815" as="geometry" />
+          <mxGeometry height="95" width="328" x="-719" y="815" as="geometry"/>
         </mxCell>
         <mxCell id="v19" parent="1" style="shape=ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;fontSize=18;fontFamily=Times New Roman;" value="Установить приложение" vertex="1">
-          <mxGeometry height="40" width="190" x="-470" y="900" as="geometry" />
+          <mxGeometry height="50" width="234" x="-492" y="895" as="geometry"/>
         </mxCell>
         <mxCell id="e20" edge="1" parent="1" source="v1" style="endArrow=none;html=1;rounded=0;fontFamily=Times New Roman;fontSize=18;" target="v19">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint as="offset" />
+            <mxPoint as="offset"/>
           </mxGeometry>
         </mxCell>
         <mxCell id="v21" parent="1" style="shape=ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;fontSize=18;fontFamily=Times New Roman;" value="Удалить приложение" vertex="1">
-          <mxGeometry height="40" width="190" x="-430" y="960" as="geometry" />
+          <mxGeometry height="50" width="205" x="-438" y="955" as="geometry"/>
         </mxCell>
         <mxCell id="e22" edge="1" parent="1" source="v1" style="endArrow=none;html=1;rounded=0;fontFamily=Times New Roman;fontSize=18;" target="v21">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint as="offset" />
+            <mxPoint as="offset"/>
           </mxGeometry>
         </mxCell>
         <mxCell id="v23" parent="1" style="shape=ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;fontSize=18;fontFamily=Times New Roman;" value="Отменить действие" vertex="1">
-          <mxGeometry height="40" width="190" x="-220" y="490" as="geometry" />
+          <mxGeometry height="40" width="190" x="-220" y="490" as="geometry"/>
         </mxCell>
         <mxCell id="e24" edge="1" parent="1" source="v1" style="endArrow=none;html=1;rounded=0;fontFamily=Times New Roman;fontSize=18;" target="v23">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint as="offset" />
+            <mxPoint as="offset"/>
           </mxGeometry>
         </mxCell>
         <mxCell id="v25" parent="1" style="shape=ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;fontSize=18;fontFamily=Times New Roman;" value="Повторить действие" vertex="1">
-          <mxGeometry height="40" width="190" x="-125" y="570" as="geometry" />
+          <mxGeometry height="50" width="205" x="-132" y="565" as="geometry"/>
         </mxCell>
         <mxCell id="e26" edge="1" parent="1" source="v1" style="endArrow=none;html=1;rounded=0;fontFamily=Times New Roman;fontSize=18;" target="v25">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint as="offset" />
+            <mxPoint as="offset"/>
           </mxGeometry>
         </mxCell>
         <mxCell id="v27" parent="1" style="shape=ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;fontSize=18;fontFamily=Times New Roman;" value="Просмотреть все приложения" vertex="1">
-          <mxGeometry height="40" width="190" x="-310" y="1005" as="geometry" />
+          <mxGeometry height="50" width="281" x="-356" y="1000" as="geometry"/>
         </mxCell>
         <mxCell id="e28" edge="1" parent="1" source="v1" style="endArrow=none;html=1;rounded=0;fontFamily=Times New Roman;fontSize=18;" target="v27">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint as="offset" />
+            <mxPoint as="offset"/>
           </mxGeometry>
         </mxCell>
         <mxCell id="v29" parent="1" style="shape=ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;fontSize=18;fontFamily=Times New Roman;" value="Просмотреть профиль" vertex="1">
-          <mxGeometry height="40" width="190" x="70" y="870" as="geometry" />
+          <mxGeometry height="50" width="214" x="58" y="865" as="geometry"/>
         </mxCell>
         <mxCell id="e30" edge="1" parent="1" source="v1" style="endArrow=none;html=1;rounded=0;fontFamily=Times New Roman;fontSize=18;" target="v29">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint as="offset" />
+            <mxPoint as="offset"/>
           </mxGeometry>
         </mxCell>
         <mxCell id="v31" parent="1" style="shape=ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;fontSize=18;fontFamily=Times New Roman;" value="Изменить профиль" vertex="1">
-          <mxGeometry height="40" width="190" y="920" as="geometry" />
+          <mxGeometry height="40" width="190" y="920" as="geometry"/>
         </mxCell>
         <mxCell id="e32" edge="1" parent="1" source="v1" style="endArrow=none;html=1;rounded=0;fontFamily=Times New Roman;fontSize=18;" target="v31">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint as="offset" />
+            <mxPoint as="offset"/>
           </mxGeometry>
         </mxCell>
         <mxCell id="v33" parent="1" style="shape=ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;fontSize=18;fontFamily=Times New Roman;" value="Сменить пароль" vertex="1">
-          <mxGeometry height="40" width="190" x="65" y="740" as="geometry" />
+          <mxGeometry height="40" width="190" x="65" y="740" as="geometry"/>
         </mxCell>
         <mxCell id="e34" edge="1" parent="1" source="v1" style="endArrow=none;html=1;rounded=0;fontFamily=Times New Roman;fontSize=18;" target="v33">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint as="offset" />
+            <mxPoint as="offset"/>
           </mxGeometry>
         </mxCell>
         <mxCell id="v35" parent="1" style="shape=ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;fontSize=18;fontFamily=Times New Roman;" value="Сменить язык" vertex="1">
-          <mxGeometry height="40" width="190" x="-80" y="980" as="geometry" />
+          <mxGeometry height="40" width="190" x="-80" y="980" as="geometry"/>
         </mxCell>
         <mxCell id="e36" edge="1" parent="1" source="v1" style="endArrow=none;html=1;rounded=0;fontFamily=Times New Roman;fontSize=18;" target="v35">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint as="offset" />
+            <mxPoint as="offset"/>
           </mxGeometry>
         </mxCell>
         <mxCell id="v37" parent="1" style="shape=ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;fontSize=18;fontFamily=Times New Roman;" value="Сменить тему" vertex="1">
-          <mxGeometry height="40" width="190" x="-160" y="1050" as="geometry" />
+          <mxGeometry height="40" width="190" x="-160" y="1050" as="geometry"/>
         </mxCell>
         <mxCell id="e38" edge="1" parent="1" source="v1" style="endArrow=none;html=1;rounded=0;fontFamily=Times New Roman;fontSize=18;" target="v37">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint as="offset" />
+            <mxPoint as="offset"/>
           </mxGeometry>
         </mxCell>
         <mxCell id="v39" parent="1" style="shape=ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;fontSize=18;fontFamily=Times New Roman;" value="Добавить приложение" vertex="1">
-          <mxGeometry height="40" width="220" x="330" y="740" as="geometry" />
+          <mxGeometry height="40" width="220" x="330" y="740" as="geometry"/>
         </mxCell>
         <mxCell id="e40" edge="1" parent="1" source="v2" style="endArrow=none;html=1;rounded=0;fontFamily=Times New Roman;fontSize=18;" target="v39">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint as="offset" />
+            <mxPoint as="offset"/>
           </mxGeometry>
         </mxCell>
         <mxCell id="v41" parent="1" style="shape=ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;fontSize=18;fontFamily=Times New Roman;" value="Редактировать приложение" vertex="1">
-          <mxGeometry height="40" width="220" x="590" y="750" as="geometry" />
+          <mxGeometry height="50" width="262" x="569" y="745" as="geometry"/>
         </mxCell>
         <mxCell id="e42" edge="1" parent="1" source="v2" style="endArrow=none;html=1;rounded=0;fontFamily=Times New Roman;fontSize=18;" target="v41">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint as="offset" />
+            <mxPoint as="offset"/>
           </mxGeometry>
         </mxCell>
         <mxCell id="v43" parent="1" style="shape=ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;fontSize=18;fontFamily=Times New Roman;" value="Удалить приложение" vertex="1">
-          <mxGeometry height="40" width="220" x="330" y="900" as="geometry" />
+          <mxGeometry height="40" width="220" x="330" y="900" as="geometry"/>
         </mxCell>
         <mxCell id="e44" edge="1" parent="1" source="v2" style="endArrow=none;html=1;rounded=0;fontFamily=Times New Roman;fontSize=18;" target="v43">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint as="offset" />
+            <mxPoint as="offset"/>
           </mxGeometry>
         </mxCell>
         <mxCell id="v45" parent="1" style="shape=ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;fontSize=18;fontFamily=Times New Roman;" value="Восстановить настройки по умолчанию" vertex="1">
-          <mxGeometry height="40" width="220" x="630" y="910" as="geometry" />
+          <mxGeometry height="50" width="340" x="570" y="905" as="geometry"/>
         </mxCell>
         <mxCell id="e46" edge="1" parent="1" source="v2" style="endArrow=none;html=1;rounded=0;fontFamily=Times New Roman;fontSize=18;" target="v45">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint as="offset" />
+            <mxPoint as="offset"/>
           </mxGeometry>
         </mxCell>
         <mxCell id="LyQTBDu22rsRpoEVyrPL-1" edge="1" parent="1" source="v1" style="endArrow=none;html=1;rounded=0;fontFamily=Times New Roman;fontSize=18;" target="v17">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint as="offset" />
+            <mxPoint as="offset"/>
           </mxGeometry>
         </mxCell>
-        <mxCell id="LyQTBDu22rsRpoEVyrPL-2" edge="1" parent="1" source="v1" style="endArrow=none;html=1;rounded=0;fontFamily=Times New Roman;fontSize=18;" target="v17">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint as="offset" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="uc_settings" value="Управлять настройками" style="ellipse;whiteSpace=wrap;html=1;fontFamily=Times New Roman;fontSize=18;" vertex="1" parent="1">
-          <mxGeometry x="250" y="1000" width="220" height="40" as="geometry" />
-        </mxCell>
-        <mxCell id="e_settings_actor" edge="1" parent="1" source="v1" target="uc_settings" style="endArrow=none;html=1;rounded=0;fontFamily=Times New Roman;fontSize=18;">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e_extend_lang" edge="1" parent="1" source="v35" target="uc_settings" value="extend" style="endArrow=open;dashed=1;html=1;rounded=0;fontFamily=Times New Roman;fontSize=16;">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e_extend_theme" edge="1" parent="1" source="v37" target="uc_settings" value="extend" style="endArrow=open;dashed=1;html=1;rounded=0;fontFamily=Times New Roman;fontSize=16;">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-      </root>
+        </root>
     </mxGraphModel>
   </diagram>
 </mxfile>

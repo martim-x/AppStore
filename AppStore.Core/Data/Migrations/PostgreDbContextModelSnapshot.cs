@@ -51,19 +51,9 @@ namespace AppStore.Core.Data.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<string>("AgeRating")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("age_rating");
-
                     b.Property<Guid?>("AgeRatingId")
                         .HasColumnType("uuid")
                         .HasColumnName("age_rating_id");
-
-                    b.Property<string>("Category")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("category");
 
                     b.Property<Guid?>("CategoryId")
                         .HasColumnType("uuid")
@@ -74,20 +64,10 @@ namespace AppStore.Core.Data.Migrations
                         .HasColumnType("text")
                         .HasColumnName("color");
 
-                    b.Property<string>("Country")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("country");
-
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("description");
-
-                    b.Property<string>("Developer")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("developer");
 
                     b.Property<Guid?>("DeveloperId")
                         .HasColumnType("uuid")
