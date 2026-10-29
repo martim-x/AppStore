@@ -55,7 +55,11 @@ namespace AppStore.Core.Data
         [NotMapped]
         public string Country { get; set; } = string.Empty;
 
-        /// <summary>Ссылка на справочник стран.</summary>
+        /// <summary>
+        /// Ссылка на справочник стран. Не хранится: страна приложения совпадает
+        /// со страной разработчика и берётся из таблицы developers.
+        /// </summary>
+        [NotMapped]
         public Guid? CountryId { get; set; }
 
         /// <summary>Возрастной рейтинг (4+, 9+, 12+, 17+).</summary>

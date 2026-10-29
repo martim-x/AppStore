@@ -10,7 +10,6 @@
 ```mermaid
 erDiagram
     COUNTRIES      ||--o{ DEVELOPERS : "регистрация"
-    COUNTRIES      ||--o{ APPS       : "страна происхождения"
     DEVELOPERS     ||--o{ APPS       : "разработчик"
     CATEGORIES     ||--o{ APPS       : "категория"
     AGE_RATINGS    ||--o{ APPS       : "маркировка"
@@ -29,8 +28,7 @@ erDiagram
     DEVELOPERS {
         uuid id PK
         text name
-        uuid country_id FK
-        text website
+            text website
         int founded_year
     }
 
@@ -56,8 +54,7 @@ erDiagram
         text description
         uuid developer_id FK
         uuid category_id FK
-        uuid country_id FK
-        uuid age_rating_id FK
+            uuid age_rating_id FK
         double_precision rating
         int rating_count
         double_precision price
@@ -159,7 +156,6 @@ CREATE TABLE apps (
     description         text NOT NULL,
     developer_id        uuid REFERENCES developers(id),
     category_id         uuid REFERENCES categories(id),
-    country_id          uuid REFERENCES countries(id),
     age_rating_id       uuid REFERENCES age_ratings(id),
     rating              double precision NOT NULL,
     rating_count        integer NOT NULL,

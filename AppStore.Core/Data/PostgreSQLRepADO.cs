@@ -102,7 +102,7 @@ namespace AppStore.Core.Data
                 from apps a
                 left join developers d on d.id = a.developer_id
                 left join categories c on c.id = a.category_id
-                left join countries n on n.id = a.country_id
+                left join countries n on n.id = d.country_id
                 left join age_ratings r on r.id = a.age_rating_id
                 order by full_name, id
                 """;
@@ -142,7 +142,7 @@ namespace AppStore.Core.Data
                 from apps a
                 left join developers d on d.id = a.developer_id
                 left join categories c on c.id = a.category_id
-                left join countries n on n.id = a.country_id
+                left join countries n on n.id = d.country_id
                 left join age_ratings r on r.id = a.age_rating_id
                 where id = @id
                 limit 1
@@ -913,10 +913,19 @@ namespace AppStore.Core.Data
             app.DeveloperId = ResolveRef(connection, tx, "developers", "name", app.Developer);
             app.CategoryId = ResolveRef(connection, tx, "categories", "name", app.Category);
 
-            var iso = string.IsNullOrWhiteSpace(app.Country)
-                ? null
-                : app.Country.Trim().ToUpperInvariant();
-            app.CountryId = ResolveRef(connection, tx, "countries", "iso_code", iso, iso);
+            // страна приложения хранится у разработчика
+            if (!string.IsNullOrWhiteSpace(app.Country) && app.DeveloperId is Guid developerId)
+            {
+                var iso = app.Country.Trim().ToUpperInvariant();
+                var countryId = ResolveRef(connection, tx, "countries", "iso_code", iso, iso);
+
+                using var setCountry = new NpgsqlCommand(
+                    "update developers set country_id = @cid where id = @did and country_id is null",
+                    connection, tx);
+                setCountry.Parameters.AddWithValue("cid", countryId);
+                setCountry.Parameters.AddWithValue("did", developerId);
+                setCountry.ExecuteNonQuery();
+            }
             app.AgeRatingId = ResolveRef(connection, tx, "age_ratings", "label", app.AgeRating);
         }
 
@@ -1029,7 +1038,7 @@ namespace AppStore.Core.Data
             command.Parameters.AddWithValue("price", app.Price);
             command.Parameters.AddWithValue("version", app.Version);
             command.Parameters.AddWithValue("size_mb", app.SizeMB);
-            command.Parameters.AddWithValue("country_id", (object?)app.CountryId ?? DBNull.Value);
+
             command.Parameters.AddWithValue("age_rating_id", (object?)app.AgeRatingId ?? DBNull.Value);
             command.Parameters.AddWithValue("color", app.Color);
             command.Parameters.AddWithValue("is_featured", app.IsFeatured);

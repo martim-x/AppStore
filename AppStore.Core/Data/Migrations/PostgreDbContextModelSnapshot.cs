@@ -79,10 +79,6 @@ namespace AppStore.Core.Data.Migrations
                         .HasColumnType("text")
                         .HasColumnName("country");
 
-                    b.Property<Guid?>("CountryId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("country_id");
-
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text")
@@ -154,8 +150,6 @@ namespace AppStore.Core.Data.Migrations
 
                     b.HasIndex("CategoryId")
                         .HasDatabaseName("ix_apps_category");
-
-                    b.HasIndex("CountryId");
 
                     b.HasIndex("DeveloperId")
                         .HasDatabaseName("ix_apps_developer");
@@ -407,11 +401,6 @@ namespace AppStore.Core.Data.Migrations
                     b.HasOne("AppStore.Core.Data.CatalogCategory", null)
                         .WithMany()
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("AppStore.Core.Data.Country", null)
-                        .WithMany()
-                        .HasForeignKey("CountryId")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("AppStore.Core.Data.Developer", null)

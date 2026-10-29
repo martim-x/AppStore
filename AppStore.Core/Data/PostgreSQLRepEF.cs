@@ -74,7 +74,7 @@ namespace AppStore.Core.Data
                 // страну и возрастную маркировку по внешним ключам.
                 e.Property(a => a.DeveloperId).HasColumnName("developer_id");
                 e.Property(a => a.CategoryId).HasColumnName("category_id");
-                e.Property(a => a.CountryId).HasColumnName("country_id");
+                e.Ignore(a => a.CountryId);
                 e.Property(a => a.AgeRatingId).HasColumnName("age_rating_id");
 
                 e.HasOne<Developer>()
@@ -85,10 +85,7 @@ namespace AppStore.Core.Data
                     .WithMany()
                     .HasForeignKey(a => a.CategoryId)
                     .OnDelete(DeleteBehavior.Restrict);
-                e.HasOne<Country>()
-                    .WithMany()
-                    .HasForeignKey(a => a.CountryId)
-                    .OnDelete(DeleteBehavior.Restrict);
+
                 e.HasOne<AgeRating>()
                     .WithMany()
                     .HasForeignKey(a => a.AgeRatingId)
@@ -453,7 +450,7 @@ namespace AppStore.Core.Data
             // Справочные поля приходят из UI строками — приводим к внешним ключам
             existing.DeveloperId = app.DeveloperId;
             existing.CategoryId = app.CategoryId;
-            existing.CountryId = app.CountryId;
+
             existing.AgeRatingId = app.AgeRatingId;
             ApplyDictionaries(existing, app);
             _db.SaveChanges();
@@ -657,6 +654,10 @@ namespace AppStore.Core.Data
             var ageRatings = _db.AgeRatings.ToDictionary(a => a.Id, a => a.Label);
 
             var appIds = apps.Select(a => a.Id).ToList();
+            var developerCountry = _db
+                .Developers.Where(d => d.CountryId != null)
+                .ToDictionary(d => d.Id, d => countries.TryGetValue(d.CountryId!.Value, out var iso) ? iso : string.Empty);
+
             var tagsByApp = _db
                 .AppTags.Where(x => appIds.Contains(x.AppId))
                 .Join(_db.Tags, x => x.TagId, t => t.Id, (x, t) => new { x.AppId, t.Name })
@@ -675,7 +676,7 @@ namespace AppStore.Core.Data
                         ? developerName
                         : string.Empty;
                 app.Country =
-                    app.CountryId is Guid nid && countries.TryGetValue(nid, out var iso)
+                    app.DeveloperId is Guid devId && developerCountry.TryGetValue(devId, out var iso)
                         ? iso
                         : string.Empty;
                 app.AgeRating =
@@ -703,9 +704,8 @@ namespace AppStore.Core.Data
             if (!string.IsNullOrWhiteSpace(target.Category))
                 target.CategoryId = EnsureCategory(target.Category);
             if (!string.IsNullOrWhiteSpace(target.Developer))
-                target.DeveloperId = EnsureDeveloper(target.Developer);
-            if (!string.IsNullOrWhiteSpace(target.Country))
-                target.CountryId = EnsureCountry(target.Country);
+                target.DeveloperId = EnsureDeveloper(target.Developer, target.Country);
+
             if (!string.IsNullOrWhiteSpace(target.AgeRating))
                 target.AgeRatingId = EnsureAgeRating(target.AgeRating);
         }
@@ -745,14 +745,27 @@ namespace AppStore.Core.Data
             return country.Id;
         }
 
-        private Guid EnsureDeveloper(string name)
+        private Guid EnsureDeveloper(string name, string? countryIso = null)
         {
             var trimmed = name.Trim();
+            var countryId = string.IsNullOrWhiteSpace(countryIso)
+                ? (Guid?)null
+                : EnsureCountry(countryIso);
+
             var existing = _db.Developers.FirstOrDefault(d => d.Name == trimmed);
             if (existing != null)
-                return existing.Id;
+            {
+                // страна разработчика хранится здесь, а не в приложении
+                if (existing.CountryId == null && countryId != null)
+                {
+                    existing.CountryId = countryId;
+                    _db.SaveChanges();
+                }
 
-            var developer = new Developer { Name = trimmed };
+                return existing.Id;
+            }
+
+            var developer = new Developer { Name = trimmed, CountryId = countryId };
             _db.Developers.Add(developer);
             _db.SaveChanges();
             return developer.Id;
