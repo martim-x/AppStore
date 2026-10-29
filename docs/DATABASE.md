@@ -9,53 +9,174 @@
 
 ```mermaid
 erDiagram
-    USERS ||--o{ USERS_APPS : "has"
-    APPS  ||--o{ USERS_APPS : "belongs to"
+    COUNTRIES      ||--o{ DEVELOPERS : "регистрация"
+    COUNTRIES      ||--o{ APPS       : "страна происхождения"
+    DEVELOPERS     ||--o{ APPS       : "разработчик"
+    CATEGORIES     ||--o{ APPS       : "категория"
+    AGE_RATINGS    ||--o{ APPS       : "маркировка"
+    APPS           ||--o{ APP_TAGS   : "имеет"
+    TAGS           ||--o{ APP_TAGS   : "входит в"
+    USERS          ||--o{ USERS_APPS : "устанавливает"
+    APPS           ||--o{ USERS_APPS : "установлено"
 
-    USERS {
+    COUNTRIES {
         uuid id PK
-        text login UK "NOT NULL"
-        text password_hash "NOT NULL"
-        text first_name
-        text last_name
-        text email
-        int role "NOT NULL, 0=User, 1=Admin"
-        text avatar_color "NOT NULL"
+        text iso_code UK
+        text name
+    }
+
+    DEVELOPERS {
+        uuid id PK
+        text name UK
+        uuid country_id FK
+        text website
+        int founded_year
+    }
+
+    CATEGORIES {
+        uuid id PK
+        text name UK
+    }
+
+    AGE_RATINGS {
+        uuid id PK
+        text label UK
+    }
+
+    TAGS {
+        uuid id PK
+        text name UK
     }
 
     APPS {
         uuid id PK
-        text short_name "NOT NULL"
-        text full_name "NOT NULL"
-        text description "NOT NULL"
-        text developer "NOT NULL"
-        text category "NOT NULL"
-        double_precision rating "NOT NULL"
-        int rating_count "NOT NULL"
-        double_precision price "NOT NULL"
-        text version "NOT NULL"
-        double_precision size_mb "NOT NULL"
-        text country "NOT NULL"
-        text age_rating "NOT NULL"
-        text color "NOT NULL"
-        boolean is_featured "NOT NULL"
-        boolean is_in_stock "NOT NULL"
-        int download_count "NOT NULL"
+        text short_name
+        text full_name
+        text description
+        uuid developer_id FK
+        uuid category_id FK
+        uuid country_id FK
+        uuid age_rating_id FK
+        double_precision rating
+        int rating_count
+        double_precision price
+        text version
+        double_precision size_mb
+        text color
+        boolean is_featured
+        boolean is_in_stock
+        int download_count
         double_precision discount_percent
-        timestamp release_date "NOT NULL"
-        text tags "NOT NULL" "comma-separated"
+        timestamp release_date
+    }
+
+    APP_TAGS {
+        uuid app_id PK,FK
+        uuid tag_id PK,FK
+    }
+
+    USERS {
+        uuid id PK
+        text login UK
+        text password_hash
+        text first_name
+        text last_name
+        text email
+        int role
+        text avatar_color
     }
 
     USERS_APPS {
         uuid user_id PK,FK
         uuid app_id PK,FK
-        timestamp installed_at "NOT NULL"
+        timestamp installed_at
     }
 ```
 
 ---
 
 ## Table Definitions (SQL)
+
+### `countries`
+```sql
+CREATE TABLE countries (
+    id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    iso_code    text NOT NULL UNIQUE,   -- ISO 3166-1 alpha-2
+    name        text NOT NULL
+);
+```
+
+### `developers`
+```sql
+CREATE TABLE developers (
+    id           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    name         text NOT NULL UNIQUE,   -- организация-разработчик (издатель)
+    country_id   uuid REFERENCES countries(id) ON DELETE SET NULL,
+    website      text,
+    founded_year integer
+);
+```
+
+### `categories`
+```sql
+CREATE TABLE categories (
+    id   uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    name text NOT NULL UNIQUE           -- Design, Games, Productivity, …
+);
+```
+
+### `age_ratings`
+```sql
+CREATE TABLE age_ratings (
+    id    uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    label text NOT NULL UNIQUE          -- 4+, 9+, 12+, 17+
+);
+```
+
+### `tags`
+```sql
+CREATE TABLE tags (
+    id   uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    name text NOT NULL UNIQUE
+);
+```
+
+### `apps`
+```sql
+CREATE TABLE apps (
+    id                  uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    short_name          text NOT NULL,
+    full_name           text NOT NULL,
+    description         text NOT NULL,
+    developer_id        uuid REFERENCES developers(id),
+    category_id         uuid REFERENCES categories(id),
+    country_id          uuid REFERENCES countries(id),
+    age_rating_id       uuid REFERENCES age_ratings(id),
+    rating              double precision NOT NULL,
+    rating_count        integer NOT NULL,
+    price               double precision NOT NULL,
+    version             text NOT NULL,
+    size_mb             double precision NOT NULL,
+    color               text NOT NULL,
+    is_featured         boolean NOT NULL,
+    is_in_stock         boolean NOT NULL,
+    download_count      integer NOT NULL,
+    discount_percent    double precision,
+    release_date        timestamp without time zone NOT NULL
+);
+
+CREATE INDEX ix_apps_category  ON apps(category_id);
+CREATE INDEX ix_apps_developer ON apps(developer_id);
+```
+
+### `app_tags`
+```sql
+CREATE TABLE app_tags (
+    app_id uuid NOT NULL REFERENCES apps(id) ON DELETE CASCADE,
+    tag_id uuid NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
+    PRIMARY KEY (app_id, tag_id)
+);
+```
 
 ### `users`
 ```sql
@@ -67,58 +188,34 @@ CREATE TABLE users (
     last_name       text,
     email           text,
     role            int NOT NULL DEFAULT 0,  -- 0=User, 1=Admin
-    avatar_color    text NOT NULL DEFAULT '#007AFF',
-    created_at      timestamp without time zone DEFAULT now()
+    avatar_color    text NOT NULL DEFAULT '#007AFF'
 );
-
-CREATE INDEX idx_users_login ON users(login);
-```
-
-### `apps`
-```sql
-CREATE TABLE apps (
-    id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    short_name      text NOT NULL,
-    full_name       text NOT NULL,
-    description     text NOT NULL,
-    developer       text NOT NULL,
-    category        text NOT NULL,
-    rating          double precision NOT NULL DEFAULT 0,
-    rating_count    int NOT NULL DEFAULT 0,
-    price           double precision NOT NULL DEFAULT 0,
-    version         text NOT NULL,
-    size_mb         double precision NOT NULL,
-    country         text NOT NULL,
-    age_rating      text NOT NULL DEFAULT '4+',
-    color           text NOT NULL DEFAULT '#007AFF',
-    is_featured     boolean NOT NULL DEFAULT false,
-    is_in_stock     boolean NOT NULL DEFAULT true,
-    download_count  int NOT NULL DEFAULT 0,
-    discount_percent double precision,
-    release_date    timestamp without time zone NOT NULL,
-    tags            text NOT NULL DEFAULT '',  -- comma-separated
-    created_at      timestamp without time zone DEFAULT now()
-);
-
-CREATE INDEX idx_apps_category ON apps(category);
-CREATE INDEX idx_apps_featured ON apps(is_featured) WHERE is_featured = true;
-CREATE INDEX idx_apps_price ON apps(price);
-CREATE INDEX idx_apps_rating ON apps(rating);
-CREATE INDEX idx_apps_release_date ON apps(release_date);
 ```
 
 ### `users_apps`
 ```sql
 CREATE TABLE users_apps (
-    user_id     uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    app_id      uuid NOT NULL REFERENCES apps(id) ON DELETE CASCADE,
-    installed_at timestamp without time zone NOT NULL DEFAULT now(),
+    user_id      uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    app_id       uuid NOT NULL REFERENCES apps(id) ON DELETE CASCADE,
+    installed_at timestamp NOT NULL,
     PRIMARY KEY (user_id, app_id)
 );
-
-CREATE INDEX idx_users_apps_user ON users_apps(user_id);
-CREATE INDEX idx_users_apps_app ON users_apps(app_id);
 ```
+
+---
+
+## Справочники в модели C#
+
+Нормализация не меняет API моделей: `App` по-прежнему отдаёт `Developer`,
+`Category`, `Country`, `AgeRating` и `Tags` строками (свойства помечены
+`[NotMapped]`), а `AppStore.Core.Data.Dictionaries` содержит сущности
+`Country`, `Developer`, `CatalogCategory`, `AgeRating`, `Tag`, `AppTag`.
+
+- **Чтение**: репозитории (`PostgreSQLRepEF`, `PostgreSQLRepADO`) соединяют
+  `apps` со справочниками и заполняют строковые свойства наименованиями.
+- **Запись**: наименования из UI разрешаются в идентификаторы; недостающие
+  строки справочников создаются (`Ensure*`/`ResolveRef`), затем пишутся связи
+  `app_tags`.
 
 ---
 
