@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -86,11 +86,24 @@ namespace AppStore.Core.Data
             connection.Open();
 
             const string sql = """
-                select id, short_name, full_name, description, developer, category,
-                       rating, rating_count, price, version, size_mb, country,
-                       age_rating, color, is_featured, is_in_stock, download_count,
-                       discount_percent, release_date, tags, logo
-                from apps
+                select a.id, a.short_name, a.full_name, a.description,
+                       coalesce(d.name, '') as developer,
+                       coalesce(c.name, '') as category,
+                       a.rating, a.rating_count, a.price, a.version, a.size_mb,
+                       coalesce(n.iso_code, '') as country,
+                       coalesce(r.label, '') as age_rating,
+                       a.color, a.is_featured, a.is_in_stock, a.download_count,
+                       a.discount_percent, a.release_date,
+                       coalesce((
+                           select string_agg(t.name, ',' order by t.name)
+                           from app_tags x join tags t on t.id = x.tag_id
+                           where x.app_id = a.id), '') as tags,
+                       a.logo
+                from apps a
+                left join developers d on d.id = a.developer_id
+                left join categories c on c.id = a.category_id
+                left join countries n on n.id = a.country_id
+                left join age_ratings r on r.id = a.age_rating_id
                 order by full_name, id
                 """;
 
@@ -113,11 +126,24 @@ namespace AppStore.Core.Data
             connection.Open();
 
             const string sql = """
-                select id, short_name, full_name, description, developer, category,
-                       rating, rating_count, price, version, size_mb, country,
-                       age_rating, color, is_featured, is_in_stock, download_count,
-                       discount_percent, release_date, tags, logo
-                from apps
+                select a.id, a.short_name, a.full_name, a.description,
+                       coalesce(d.name, '') as developer,
+                       coalesce(c.name, '') as category,
+                       a.rating, a.rating_count, a.price, a.version, a.size_mb,
+                       coalesce(n.iso_code, '') as country,
+                       coalesce(r.label, '') as age_rating,
+                       a.color, a.is_featured, a.is_in_stock, a.download_count,
+                       a.discount_percent, a.release_date,
+                       coalesce((
+                           select string_agg(t.name, ',' order by t.name)
+                           from app_tags x join tags t on t.id = x.tag_id
+                           where x.app_id = a.id), '') as tags,
+                       a.logo
+                from apps a
+                left join developers d on d.id = a.developer_id
+                left join categories c on c.id = a.category_id
+                left join countries n on n.id = a.country_id
+                left join age_ratings r on r.id = a.age_rating_id
                 where id = @id
                 limit 1
                 """;
@@ -142,20 +168,22 @@ namespace AppStore.Core.Data
             using var tx = connection.BeginTransaction();
             try
             {
+                ResolveDictionaries(connection, tx, app);
+
                 const string sql = """
                     insert into apps
                     (
-                        id, short_name, full_name, description, developer, category,
-                        rating, rating_count, price, version, size_mb, country,
-                        age_rating, color, is_featured, is_in_stock, download_count,
-                        discount_percent, release_date, tags, logo
+                        id, short_name, full_name, description, developer_id, category_id,
+                        country_id, age_rating_id, rating, rating_count, price, version,
+                        size_mb, color, is_featured, is_in_stock, download_count,
+                        discount_percent, release_date, logo
                     )
                     values
                     (
-                        @id, @short_name, @full_name, @description, @developer, @category,
-                        @rating, @rating_count, @price, @version, @size_mb, @country,
-                        @age_rating, @color, @is_featured, @is_in_stock, @download_count,
-                        @discount_percent, @release_date, @tags, @logo
+                        @id, @short_name, @full_name, @description, @developer_id, @category_id,
+                        @country_id, @age_rating_id, @rating, @rating_count, @price, @version,
+                        @size_mb, @color, @is_featured, @is_in_stock, @download_count,
+                        @discount_percent, @release_date, @logo
                     )
                     """;
 
@@ -166,6 +194,7 @@ namespace AppStore.Core.Data
                 command.Parameters.AddWithValue("logo", logoBytes ?? (object)DBNull.Value);
 
                 command.ExecuteNonQuery();
+                ReplaceTags(connection, tx, app);
                 tx.Commit();
             }
             catch
@@ -184,27 +213,28 @@ namespace AppStore.Core.Data
 
             try
             {
+                ResolveDictionaries(connection, tx, app);
+
                 const string sql = """
                     update apps
                     set short_name = @short_name,
                         full_name = @full_name,
                         description = @description,
-                        developer = @developer,
-                        category = @category,
+                        developer_id = @developer_id,
+                        category_id = @category_id,
+                        country_id = @country_id,
+                        age_rating_id = @age_rating_id,
                         rating = @rating,
                         rating_count = @rating_count,
                         price = @price,
                         version = @version,
                         size_mb = @size_mb,
-                        country = @country,
-                        age_rating = @age_rating,
                         color = @color,
                         is_featured = @is_featured,
                         is_in_stock = @is_in_stock,
                         download_count = @download_count,
                         discount_percent = @discount_percent,
-                        release_date = @release_date,
-                        tags = @tags
+                        release_date = @release_date
                     where id = @id
                     """;
 
@@ -215,6 +245,7 @@ namespace AppStore.Core.Data
                 if (rows == 0)
                     throw new InvalidOperationException($"App with id {app.Id} not found.");
 
+                ReplaceTags(connection, tx, app);
                 tx.Commit();
             }
             catch
@@ -569,29 +600,69 @@ namespace AppStore.Core.Data
             connection.Open();
 
             const string sql = """
+                create table if not exists countries
+                (
+                    id uuid primary key,
+                    iso_code text not null unique,
+                    name text not null
+                );
+
+                create table if not exists categories
+                (
+                    id uuid primary key,
+                    name text not null unique
+                );
+
+                create table if not exists age_ratings
+                (
+                    id uuid primary key,
+                    label text not null unique
+                );
+
+                create table if not exists developers
+                (
+                    id uuid primary key,
+                    name text not null unique,
+                    country_id uuid null references countries(id) on delete set null,
+                    website text null,
+                    founded_year integer null
+                );
+
+                create table if not exists tags
+                (
+                    id uuid primary key,
+                    name text not null unique
+                );
+
                 create table if not exists apps
                 (
                     id uuid primary key,
                     short_name text not null,
                     full_name text not null,
                     description text not null,
-                    developer text not null,
-                    category text not null,
+                    developer_id uuid null references developers(id),
+                    category_id uuid null references categories(id),
+                    country_id uuid null references countries(id),
+                    age_rating_id uuid null references age_ratings(id),
                     rating double precision not null,
                     rating_count integer not null,
                     price double precision not null,
                     version text not null,
                     size_mb double precision not null,
-                    country text not null,
-                    age_rating text not null,
                     color text not null,
                     is_featured boolean not null,
                     is_in_stock boolean not null,
                     download_count integer not null,
                     discount_percent double precision null,
                     release_date timestamp without time zone not null,
-                    tags text not null,
                     logo bytea null
+                );
+
+                create table if not exists app_tags
+                (
+                    app_id uuid not null references apps(id) on delete cascade,
+                    tag_id uuid not null references tags(id) on delete cascade,
+                    primary key (app_id, tag_id)
                 );
 
                 create table if not exists users
@@ -653,21 +724,23 @@ namespace AppStore.Core.Data
 
             foreach (var app in SeedApps())
             {
+                ResolveDictionaries(connection, null, app);
+
                 using var command = new NpgsqlCommand(
                     """
                     insert into apps
                     (
-                        id, short_name, full_name, description, developer, category,
-                        rating, rating_count, price, version, size_mb, country,
-                        age_rating, color, is_featured, is_in_stock, download_count,
-                        discount_percent, release_date, tags, logo
+                        id, short_name, full_name, description, developer_id, category_id,
+                        country_id, age_rating_id, rating, rating_count, price, version,
+                        size_mb, color, is_featured, is_in_stock, download_count,
+                        discount_percent, release_date, logo
                     )
                     values
                     (
-                        @id, @short_name, @full_name, @description, @developer, @category,
-                        @rating, @rating_count, @price, @version, @size_mb, @country,
-                        @age_rating, @color, @is_featured, @is_in_stock, @download_count,
-                        @discount_percent, @release_date, @tags, @logo
+                        @id, @short_name, @full_name, @description, @developer_id, @category_id,
+                        @country_id, @age_rating_id, @rating, @rating_count, @price, @version,
+                        @size_mb, @color, @is_featured, @is_in_stock, @download_count,
+                        @discount_percent, @release_date, @logo
                     )
                     """,
                     connection
@@ -678,6 +751,7 @@ namespace AppStore.Core.Data
                 command.Parameters.AddWithValue("logo", logoBytes ?? (object)DBNull.Value);
 
                 command.ExecuteNonQuery();
+                ReplaceTags(connection, null, app);
             }
         }
 
@@ -783,6 +857,88 @@ namespace AppStore.Core.Data
             };
         }
 
+
+        /// <summary>
+        /// Найти или создать строку справочника по бизнес-ключу и вернуть её id.
+        /// </summary>
+        private static Guid? ResolveRef(
+            NpgsqlConnection connection,
+            NpgsqlTransaction? tx,
+            string table,
+            string keyColumn,
+            string? value,
+            string? nameValue = null
+        )
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return null;
+
+            var sql = nameValue == null
+                ? $"insert into {table} (id, {keyColumn}) values (@id, @key) "
+                  + $"on conflict ({keyColumn}) do update set {keyColumn} = excluded.{keyColumn} returning id"
+                : $"insert into {table} (id, {keyColumn}, name) values (@id, @key, @name) "
+                  + $"on conflict ({keyColumn}) do update set {keyColumn} = excluded.{keyColumn} returning id";
+
+            using var command = new NpgsqlCommand(sql, connection, tx);
+            var id = Guid.NewGuid();
+            command.Parameters.AddWithValue("id", id);
+            command.Parameters.AddWithValue("key", value.Trim());
+            if (nameValue != null)
+                command.Parameters.AddWithValue("name", nameValue.Trim());
+
+            return (Guid)command.ExecuteScalar()!;
+        }
+
+        /// <summary>Разрешить справочные наименования приложения в идентификаторы.</summary>
+        private static void ResolveDictionaries(
+            NpgsqlConnection connection,
+            NpgsqlTransaction? tx,
+            App app
+        )
+        {
+            app.DeveloperId = ResolveRef(connection, tx, "developers", "name", app.Developer);
+            app.CategoryId = ResolveRef(connection, tx, "categories", "name", app.Category);
+
+            var iso = string.IsNullOrWhiteSpace(app.Country)
+                ? null
+                : app.Country.Trim().ToUpperInvariant();
+            app.CountryId = ResolveRef(connection, tx, "countries", "iso_code", iso, iso);
+            app.AgeRatingId = ResolveRef(connection, tx, "age_ratings", "label", app.AgeRating);
+        }
+
+        /// <summary>Переписать связи «приложение — тег» по списку наименований.</summary>
+        private static void ReplaceTags(
+            NpgsqlConnection connection,
+            NpgsqlTransaction? tx,
+            App app
+        )
+        {
+            using (
+                var delete = new NpgsqlCommand(
+                    "delete from app_tags where app_id = @id", connection, tx)
+            )
+            {
+                delete.Parameters.AddWithValue("id", app.Id);
+                delete.ExecuteNonQuery();
+            }
+
+            foreach (var name in app.Tags.Where(t => !string.IsNullOrWhiteSpace(t)).Distinct())
+            {
+                var tagId = ResolveRef(connection, tx, "tags", "name", name);
+                if (tagId == null)
+                    continue;
+
+                using var insert = new NpgsqlCommand(
+                    "insert into app_tags (app_id, tag_id) values (@app_id, @tag_id) on conflict do nothing",
+                    connection,
+                    tx
+                );
+                insert.Parameters.AddWithValue("app_id", app.Id);
+                insert.Parameters.AddWithValue("tag_id", tagId.Value);
+                insert.ExecuteNonQuery();
+            }
+        }
+
         private static User MapUser(NpgsqlDataReader reader)
         {
             return new User
@@ -804,15 +960,16 @@ namespace AppStore.Core.Data
             command.Parameters.AddWithValue("short_name", app.ShortName);
             command.Parameters.AddWithValue("full_name", app.FullName);
             command.Parameters.AddWithValue("description", app.Description);
-            command.Parameters.AddWithValue("developer", app.Developer);
-            command.Parameters.AddWithValue("category", app.Category);
+            // ссылки на справочники разрешаются отдельным вызовом (см. ResolveDictionaries)
+            command.Parameters.AddWithValue("developer_id", (object?)app.DeveloperId ?? DBNull.Value);
+            command.Parameters.AddWithValue("category_id", (object?)app.CategoryId ?? DBNull.Value);
             command.Parameters.AddWithValue("rating", app.Rating);
             command.Parameters.AddWithValue("rating_count", app.RatingCount);
             command.Parameters.AddWithValue("price", app.Price);
             command.Parameters.AddWithValue("version", app.Version);
             command.Parameters.AddWithValue("size_mb", app.SizeMB);
-            command.Parameters.AddWithValue("country", app.Country);
-            command.Parameters.AddWithValue("age_rating", app.AgeRating);
+            command.Parameters.AddWithValue("country_id", (object?)app.CountryId ?? DBNull.Value);
+            command.Parameters.AddWithValue("age_rating_id", (object?)app.AgeRatingId ?? DBNull.Value);
             command.Parameters.AddWithValue("color", app.Color);
             command.Parameters.AddWithValue("is_featured", app.IsFeatured);
             command.Parameters.AddWithValue("is_in_stock", app.IsInStock);
@@ -822,7 +979,6 @@ namespace AppStore.Core.Data
                 app.DiscountPercent.HasValue ? app.DiscountPercent.Value : DBNull.Value
             );
             command.Parameters.AddWithValue("release_date", app.ReleaseDate);
-            command.Parameters.AddWithValue("tags", SerializeTags(app.Tags));
         }
 
         private static void FillUserParameters(NpgsqlCommand command, User user)

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AppStore.Core.Data
 {
@@ -21,11 +22,19 @@ namespace AppStore.Core.Data
         /// <summary>Описание приложения.</summary>
         public string Description { get; set; } = string.Empty;
 
-        /// <summary>Разработчик/издатель.</summary>
+        /// <summary>Разработчик/издатель (наименование из справочника developers).</summary>
+        [NotMapped]
         public string Developer { get; set; } = string.Empty;
 
+        /// <summary>Ссылка на справочник организаций-разработчиков.</summary>
+        public Guid? DeveloperId { get; set; }
+
         /// <summary>Категория (Design, Productivity, Games, Development, Media, Social, Education, Finance, Health, Utilities).</summary>
+        [NotMapped]
         public string Category { get; set; } = string.Empty;
+
+        /// <summary>Ссылка на справочник категорий.</summary>
+        public Guid? CategoryId { get; set; }
 
         /// <summary>Рейтинг (0.0 - 5.0).</summary>
         public double Rating { get; set; }
@@ -43,10 +52,18 @@ namespace AppStore.Core.Data
         public double SizeMB { get; set; }
 
         /// <summary>Страна происхождения (ISO код).</summary>
+        [NotMapped]
         public string Country { get; set; } = string.Empty;
 
+        /// <summary>Ссылка на справочник стран.</summary>
+        public Guid? CountryId { get; set; }
+
         /// <summary>Возрастной рейтинг (4+, 9+, 12+, 17+).</summary>
+        [NotMapped]
         public string AgeRating { get; set; } = "4+";
+
+        /// <summary>Ссылка на справочник возрастных маркировок.</summary>
+        public Guid? AgeRatingId { get; set; }
 
         /// <summary>Акцентный цвет (HEX).</summary>
         public string Color { get; set; } = "#007AFF";
@@ -69,8 +86,13 @@ namespace AppStore.Core.Data
         /// <summary>Дата релиза.</summary>
         public DateTime ReleaseDate { get; set; }
 
-        /// <summary>Теги для фильтрации и поиска.</summary>
+        /// <summary>Теги для фильтрации и поиска (из справочника tags).</summary>
+        [NotMapped]
         public List<string> Tags { get; set; } = new();
+
+        /// <summary>Ссылки на справочник тегов (связь «многие ко многим»).</summary>
+        [NotMapped]
+        public List<Guid> TagIds { get; set; } = new();
 
         /// <summary>
         /// Итоговая цена с учётом скидки.

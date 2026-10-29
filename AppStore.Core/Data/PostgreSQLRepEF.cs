@@ -13,6 +13,14 @@ namespace AppStore.Core.Data
         public DbSet<User> Users { get; set; } = null!;
         public DbSet<UsersApps> UserAppLinks { get; set; } = null!;
 
+        // Справочники каталога
+        public DbSet<Country> Countries { get; set; } = null!;
+        public DbSet<Developer> Developers { get; set; } = null!;
+        public DbSet<CatalogCategory> Categories { get; set; } = null!;
+        public DbSet<AgeRating> AgeRatings { get; set; } = null!;
+        public DbSet<Tag> Tags { get; set; } = null!;
+        public DbSet<AppTag> AppTags { get; set; } = null!;
+
         public PostgreDbContext(DbContextOptions<PostgreDbContext> options)
             : base(options) { }
 
@@ -61,19 +69,32 @@ namespace AppStore.Core.Data
                     .HasColumnName("release_date")
                     .HasColumnType("timestamp without time zone");
 
-                e.Property(a => a.Tags)
-                    .HasColumnName("tags")
-                    .HasConversion(
-                        v => string.Join(",", v),
-                        v =>
-                            string.IsNullOrWhiteSpace(v)
-                                ? new List<string>()
-                                : v.Split(",", StringSplitOptions.RemoveEmptyEntries).ToList()
-                    )
-                    .Metadata.SetValueComparer(new ValueComparer<List<string>>(
-                        (c1, c2) => (c1 ?? new List<string>()).SequenceEqual(c2 ?? new List<string>()),
-                        c => (c ?? new List<string>()).Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
-                        c => (c ?? new List<string>()).ToList()));
+                // Справочники: приложение ссылается на категорию, разработчика,
+                // страну и возрастную маркировку по внешним ключам.
+                e.Property(a => a.DeveloperId).HasColumnName("developer_id");
+                e.Property(a => a.CategoryId).HasColumnName("category_id");
+                e.Property(a => a.CountryId).HasColumnName("country_id");
+                e.Property(a => a.AgeRatingId).HasColumnName("age_rating_id");
+
+                e.HasOne<Developer>()
+                    .WithMany()
+                    .HasForeignKey(a => a.DeveloperId)
+                    .OnDelete(DeleteBehavior.Restrict);
+                e.HasOne<CatalogCategory>()
+                    .WithMany()
+                    .HasForeignKey(a => a.CategoryId)
+                    .OnDelete(DeleteBehavior.Restrict);
+                e.HasOne<Country>()
+                    .WithMany()
+                    .HasForeignKey(a => a.CountryId)
+                    .OnDelete(DeleteBehavior.Restrict);
+                e.HasOne<AgeRating>()
+                    .WithMany()
+                    .HasForeignKey(a => a.AgeRatingId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                e.HasIndex(a => a.CategoryId).HasDatabaseName("ix_apps_category");
+                e.HasIndex(a => a.DeveloperId).HasDatabaseName("ix_apps_developer");
 
                 e.Ignore(a => a.FinalPrice);
                 e.Ignore(a => a.ButtonLabel);
@@ -125,6 +146,85 @@ namespace AppStore.Core.Data
                     .WithMany()
                     .HasForeignKey(x => x.AppId)
                     .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // ── Справочники каталога ────────────────────────────────────────
+            modelBuilder.Entity<Country>(e =>
+            {
+                e.ToTable("countries");
+                e.HasKey(c => c.Id);
+                e.Property(c => c.Id).HasColumnName("id");
+                e.Property(c => c.IsoCode).HasColumnName("iso_code").HasMaxLength(2);
+                e.Property(c => c.Name).HasColumnName("name").HasMaxLength(80);
+                e.HasIndex(c => c.IsoCode).IsUnique().HasDatabaseName("ux_countries_iso");
+                e.Ignore(c => c.Developers);
+                e.Ignore(c => c.Apps);
+            });
+
+            modelBuilder.Entity<Developer>(e =>
+            {
+                e.ToTable("developers");
+                e.HasKey(d => d.Id);
+                e.Property(d => d.Id).HasColumnName("id");
+                e.Property(d => d.Name).HasColumnName("name").HasMaxLength(120);
+                e.Property(d => d.CountryId).HasColumnName("country_id");
+                e.Property(d => d.Website).HasColumnName("website").HasMaxLength(200);
+                e.Property(d => d.FoundedYear).HasColumnName("founded_year");
+                e.HasIndex(d => d.Name).IsUnique().HasDatabaseName("ux_developers_name");
+                e.HasOne<Country>()
+                    .WithMany()
+                    .HasForeignKey(d => d.CountryId)
+                    .OnDelete(DeleteBehavior.SetNull);
+                e.Ignore(d => d.Country);
+                e.Ignore(d => d.Apps);
+            });
+
+            modelBuilder.Entity<CatalogCategory>(e =>
+            {
+                e.ToTable("categories");
+                e.HasKey(c => c.Id);
+                e.Property(c => c.Id).HasColumnName("id");
+                e.Property(c => c.Name).HasColumnName("name").HasMaxLength(60);
+                e.HasIndex(c => c.Name).IsUnique().HasDatabaseName("ux_categories_name");
+                e.Ignore(c => c.Apps);
+            });
+
+            modelBuilder.Entity<AgeRating>(e =>
+            {
+                e.ToTable("age_ratings");
+                e.HasKey(a => a.Id);
+                e.Property(a => a.Id).HasColumnName("id");
+                e.Property(a => a.Label).HasColumnName("label").HasMaxLength(10);
+                e.HasIndex(a => a.Label).IsUnique().HasDatabaseName("ux_age_ratings_label");
+                e.Ignore(a => a.Apps);
+            });
+
+            modelBuilder.Entity<Tag>(e =>
+            {
+                e.ToTable("tags");
+                e.HasKey(t => t.Id);
+                e.Property(t => t.Id).HasColumnName("id");
+                e.Property(t => t.Name).HasColumnName("name").HasMaxLength(60);
+                e.HasIndex(t => t.Name).IsUnique().HasDatabaseName("ux_tags_name");
+                e.Ignore(t => t.Apps);
+            });
+
+            modelBuilder.Entity<AppTag>(e =>
+            {
+                e.ToTable("app_tags");
+                e.HasKey(x => new { x.AppId, x.TagId });
+                e.Property(x => x.AppId).HasColumnName("app_id");
+                e.Property(x => x.TagId).HasColumnName("tag_id");
+                e.HasOne<App>()
+                    .WithMany()
+                    .HasForeignKey(x => x.AppId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                e.HasOne<Tag>()
+                    .WithMany()
+                    .HasForeignKey(x => x.TagId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                e.Ignore(x => x.App);
+                e.Ignore(x => x.Tag);
             });
         }
     }
@@ -264,6 +364,7 @@ namespace AppStore.Core.Data
         public override List<App> GetAllApps()
         {
             var apps = _db.Apps.OrderBy(a => a.FullName).ThenBy(a => a.Id).ToList();
+            HydrateNames(apps);
 
             var installedIds =
                 _userId == Guid.Empty
@@ -285,6 +386,8 @@ namespace AppStore.Core.Data
             if (app == null)
                 return null;
 
+            HydrateNames(new List<App> { app });
+
             app.IsDownloaded =
                 _userId != Guid.Empty
                 && _db.UserAppLinks.Any(x => x.UserId == _userId && x.AppId == id);
@@ -294,8 +397,10 @@ namespace AppStore.Core.Data
 
         public override void AddApp(App app)
         {
+            ApplyDictionaries(app);
             _db.Apps.Add(app);
             _db.SaveChanges();
+            ReplaceTags(app);
         }
 
         public override void UpdateApp(App app)
@@ -307,24 +412,26 @@ namespace AppStore.Core.Data
             existing.ShortName = app.ShortName;
             existing.FullName = app.FullName;
             existing.Description = app.Description;
-            existing.Developer = app.Developer;
-            existing.Category = app.Category;
             existing.Rating = app.Rating;
             existing.RatingCount = app.RatingCount;
             existing.Price = app.Price;
             existing.Version = app.Version;
             existing.SizeMB = app.SizeMB;
-            existing.Country = app.Country;
-            existing.AgeRating = app.AgeRating;
             existing.Color = app.Color;
             existing.IsFeatured = app.IsFeatured;
             existing.IsInStock = app.IsInStock;
             existing.DownloadCount = app.DownloadCount;
             existing.DiscountPercent = app.DiscountPercent;
             existing.ReleaseDate = app.ReleaseDate;
-            existing.Tags = app.Tags;
 
+            // Справочные поля приходят из UI строками — приводим к внешним ключам
+            existing.DeveloperId = app.DeveloperId;
+            existing.CategoryId = app.CategoryId;
+            existing.CountryId = app.CountryId;
+            existing.AgeRatingId = app.AgeRatingId;
+            ApplyDictionaries(existing, app);
             _db.SaveChanges();
+            ReplaceTags(existing);
         }
 
         public override void DeleteApp(Guid id)
@@ -434,12 +541,198 @@ namespace AppStore.Core.Data
             _db.SaveChanges();
         }
 
-        private void SeedAppsToDb()
+        // ── Работа со справочниками ─────────────────────────────────────────
+        //
+        // Модель App хранит наименования справочных значений (Developer, Category,
+        // Country, AgeRating, Tags) как немаркированные свойства: они удобны для
+        // привязок UI. В базе эти значения нормализованы и связаны внешними
+        // ключами, поэтому при чтении наименования восстанавливаются из
+        // справочников, а при записи приводятся к идентификаторам строк.
+
+        private static readonly Dictionary<string, string> CountryNames = new()
         {
-            foreach (var app in SeedApps())
-                _db.Apps.Add(app);
+            ["US"] = "США",
+            ["RU"] = "Россия",
+            ["BY"] = "Беларусь",
+            ["DE"] = "Германия",
+            ["GB"] = "Великобритания",
+            ["SE"] = "Швеция",
+            ["JP"] = "Япония",
+            ["CA"] = "Канада",
+            ["NL"] = "Нидерланды",
+            ["AU"] = "Австралия",
+            ["FR"] = "Франция",
+            ["CN"] = "Китай",
+            ["KR"] = "Республика Корея",
+            ["UA"] = "Украина",
+            ["IL"] = "Израиль",
+        };
+
+        /// <summary>Заполнить наименования справочных полей по внешним ключам.</summary>
+        private void HydrateNames(List<App> apps)
+        {
+            if (apps.Count == 0)
+                return;
+
+            var categories = _db.Categories.ToDictionary(c => c.Id, c => c.Name);
+            var developers = _db.Developers.ToDictionary(d => d.Id, d => d.Name);
+            var countries = _db.Countries.ToDictionary(c => c.Id, c => c.IsoCode);
+            var ageRatings = _db.AgeRatings.ToDictionary(a => a.Id, a => a.Label);
+
+            var appIds = apps.Select(a => a.Id).ToList();
+            var tagsByApp = _db
+                .AppTags.Where(x => appIds.Contains(x.AppId))
+                .Join(_db.Tags, x => x.TagId, t => t.Id, (x, t) => new { x.AppId, t.Name })
+                .ToList()
+                .GroupBy(x => x.AppId)
+                .ToDictionary(g => g.Key, g => g.Select(v => v.Name).ToList());
+
+            foreach (var app in apps)
+            {
+                app.Category =
+                    app.CategoryId is Guid cid && categories.TryGetValue(cid, out var categoryName)
+                        ? categoryName
+                        : string.Empty;
+                app.Developer =
+                    app.DeveloperId is Guid did && developers.TryGetValue(did, out var developerName)
+                        ? developerName
+                        : string.Empty;
+                app.Country =
+                    app.CountryId is Guid nid && countries.TryGetValue(nid, out var iso)
+                        ? iso
+                        : string.Empty;
+                app.AgeRating =
+                    app.AgeRatingId is Guid aid && ageRatings.TryGetValue(aid, out var label)
+                        ? label
+                        : string.Empty;
+                app.Tags = tagsByApp.TryGetValue(app.Id, out var tags) ? tags : new List<string>();
+            }
+        }
+
+        /// <summary>
+        /// Привести справочные наименования приложения к внешним ключам,
+        /// создавая недостающие строки справочников.
+        /// </summary>
+        private void ApplyDictionaries(App target, App? source = null)
+        {
+            if (source != null)
+            {
+                target.Developer = source.Developer;
+                target.Category = source.Category;
+                target.Country = source.Country;
+                target.AgeRating = source.AgeRating;
+            }
+
+            if (!string.IsNullOrWhiteSpace(target.Category))
+                target.CategoryId = EnsureCategory(target.Category);
+            if (!string.IsNullOrWhiteSpace(target.Developer))
+                target.DeveloperId = EnsureDeveloper(target.Developer);
+            if (!string.IsNullOrWhiteSpace(target.Country))
+                target.CountryId = EnsureCountry(target.Country);
+            if (!string.IsNullOrWhiteSpace(target.AgeRating))
+                target.AgeRatingId = EnsureAgeRating(target.AgeRating);
+        }
+
+        /// <summary>Переписать связи «приложение — тег» по списку наименований.</summary>
+        private void ReplaceTags(App app)
+        {
+            var links = _db.AppTags.Where(x => x.AppId == app.Id).ToList();
+            if (links.Count > 0)
+            {
+                _db.AppTags.RemoveRange(links);
+                _db.SaveChanges();
+            }
+
+            foreach (var name in app.Tags.Where(t => !string.IsNullOrWhiteSpace(t)).Distinct())
+            {
+                _db.AppTags.Add(new AppTag { AppId = app.Id, TagId = EnsureTag(name) });
+            }
 
             _db.SaveChanges();
+        }
+
+        private Guid EnsureCountry(string isoCode)
+        {
+            var iso = isoCode.Trim().ToUpperInvariant();
+            var existing = _db.Countries.FirstOrDefault(c => c.IsoCode == iso);
+            if (existing != null)
+                return existing.Id;
+
+            var country = new Country
+            {
+                IsoCode = iso,
+                Name = CountryNames.TryGetValue(iso, out var name) ? name : iso,
+            };
+            _db.Countries.Add(country);
+            _db.SaveChanges();
+            return country.Id;
+        }
+
+        private Guid EnsureDeveloper(string name)
+        {
+            var trimmed = name.Trim();
+            var existing = _db.Developers.FirstOrDefault(d => d.Name == trimmed);
+            if (existing != null)
+                return existing.Id;
+
+            var developer = new Developer { Name = trimmed };
+            _db.Developers.Add(developer);
+            _db.SaveChanges();
+            return developer.Id;
+        }
+
+        private Guid EnsureCategory(string name)
+        {
+            var trimmed = name.Trim();
+            var existing = _db.Categories.FirstOrDefault(c => c.Name == trimmed);
+            if (existing != null)
+                return existing.Id;
+
+            var category = new CatalogCategory { Name = trimmed };
+            _db.Categories.Add(category);
+            _db.SaveChanges();
+            return category.Id;
+        }
+
+        private Guid EnsureAgeRating(string label)
+        {
+            var trimmed = label.Trim();
+            var existing = _db.AgeRatings.FirstOrDefault(a => a.Label == trimmed);
+            if (existing != null)
+                return existing.Id;
+
+            var rating = new AgeRating { Label = trimmed };
+            _db.AgeRatings.Add(rating);
+            _db.SaveChanges();
+            return rating.Id;
+        }
+
+        private Guid EnsureTag(string name)
+        {
+            var trimmed = name.Trim();
+            var existing = _db.Tags.FirstOrDefault(t => t.Name == trimmed);
+            if (existing != null)
+                return existing.Id;
+
+            var tag = new Tag { Name = trimmed };
+            _db.Tags.Add(tag);
+            _db.SaveChanges();
+            return tag.Id;
+        }
+
+        private void SeedAppsToDb()
+        {
+            var apps = SeedApps();
+            foreach (var app in apps)
+            {
+                ApplyDictionaries(app);
+                _db.Apps.Add(app);
+            }
+
+            _db.SaveChanges();
+
+            foreach (var app in apps)
+                ReplaceTags(app);
         }
 
         private void SeedUsersToDb()

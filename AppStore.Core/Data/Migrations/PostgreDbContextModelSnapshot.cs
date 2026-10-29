@@ -22,6 +22,28 @@ namespace AppStore.Core.Data.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("AppStore.Core.Data.AgeRating", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Label")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("label");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Label")
+                        .IsUnique()
+                        .HasDatabaseName("ux_age_ratings_label");
+
+                    b.ToTable("age_ratings", (string)null);
+                });
+
             modelBuilder.Entity("AppStore.Core.Data.App", b =>
                 {
                     b.Property<Guid>("Id")
@@ -34,10 +56,18 @@ namespace AppStore.Core.Data.Migrations
                         .HasColumnType("text")
                         .HasColumnName("age_rating");
 
+                    b.Property<Guid?>("AgeRatingId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("age_rating_id");
+
                     b.Property<string>("Category")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("category");
+
+                    b.Property<Guid?>("CategoryId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("category_id");
 
                     b.Property<string>("Color")
                         .IsRequired()
@@ -49,6 +79,10 @@ namespace AppStore.Core.Data.Migrations
                         .HasColumnType("text")
                         .HasColumnName("country");
 
+                    b.Property<Guid?>("CountryId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("country_id");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text")
@@ -58,6 +92,10 @@ namespace AppStore.Core.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("developer");
+
+                    b.Property<Guid?>("DeveloperId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("developer_id");
 
                     b.Property<double?>("DiscountPercent")
                         .HasColumnType("double precision")
@@ -105,11 +143,6 @@ namespace AppStore.Core.Data.Migrations
                         .HasColumnType("double precision")
                         .HasColumnName("size_mb");
 
-                    b.Property<string>("Tags")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("tags");
-
                     b.Property<string>("Version")
                         .IsRequired()
                         .HasColumnType("text")
@@ -117,7 +150,143 @@ namespace AppStore.Core.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AgeRatingId");
+
+                    b.HasIndex("CategoryId")
+                        .HasDatabaseName("ix_apps_category");
+
+                    b.HasIndex("CountryId");
+
+                    b.HasIndex("DeveloperId")
+                        .HasDatabaseName("ix_apps_developer");
+
                     b.ToTable("apps", (string)null);
+                });
+
+            modelBuilder.Entity("AppStore.Core.Data.AppTag", b =>
+                {
+                    b.Property<Guid>("AppId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("app_id");
+
+                    b.Property<Guid>("TagId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tag_id");
+
+                    b.HasKey("AppId", "TagId");
+
+                    b.HasIndex("TagId");
+
+                    b.ToTable("app_tags", (string)null);
+                });
+
+            modelBuilder.Entity("AppStore.Core.Data.CatalogCategory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)")
+                        .HasColumnName("name");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasDatabaseName("ux_categories_name");
+
+                    b.ToTable("categories", (string)null);
+                });
+
+            modelBuilder.Entity("AppStore.Core.Data.Country", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("IsoCode")
+                        .IsRequired()
+                        .HasMaxLength(2)
+                        .HasColumnType("character varying(2)")
+                        .HasColumnName("iso_code");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("name");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IsoCode")
+                        .IsUnique()
+                        .HasDatabaseName("ux_countries_iso");
+
+                    b.ToTable("countries", (string)null);
+                });
+
+            modelBuilder.Entity("AppStore.Core.Data.Developer", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid?>("CountryId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("country_id");
+
+                    b.Property<int?>("FoundedYear")
+                        .HasColumnType("integer")
+                        .HasColumnName("founded_year");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("Website")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("website");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CountryId");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasDatabaseName("ux_developers_name");
+
+                    b.ToTable("developers", (string)null);
+                });
+
+            modelBuilder.Entity("AppStore.Core.Data.Tag", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)")
+                        .HasColumnName("name");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasDatabaseName("ux_tags_name");
+
+                    b.ToTable("tags", (string)null);
                 });
 
             modelBuilder.Entity("AppStore.Core.Data.User", b =>
@@ -186,6 +355,52 @@ namespace AppStore.Core.Data.Migrations
                     b.HasIndex("AppId");
 
                     b.ToTable("users_apps", (string)null);
+                });
+
+            modelBuilder.Entity("AppStore.Core.Data.App", b =>
+                {
+                    b.HasOne("AppStore.Core.Data.AgeRating", null)
+                        .WithMany()
+                        .HasForeignKey("AgeRatingId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("AppStore.Core.Data.CatalogCategory", null)
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("AppStore.Core.Data.Country", null)
+                        .WithMany()
+                        .HasForeignKey("CountryId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("AppStore.Core.Data.Developer", null)
+                        .WithMany()
+                        .HasForeignKey("DeveloperId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("AppStore.Core.Data.AppTag", b =>
+                {
+                    b.HasOne("AppStore.Core.Data.App", null)
+                        .WithMany()
+                        .HasForeignKey("AppId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AppStore.Core.Data.Tag", null)
+                        .WithMany()
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("AppStore.Core.Data.Developer", b =>
+                {
+                    b.HasOne("AppStore.Core.Data.Country", null)
+                        .WithMany()
+                        .HasForeignKey("CountryId")
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 
             modelBuilder.Entity("AppStore.Core.Data.UsersApps", b =>
