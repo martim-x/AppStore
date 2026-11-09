@@ -58,5 +58,19 @@ namespace Project.Services
 
         private static double Round(double value) =>
             Math.Round(value, 1, MidpointRounding.AwayFromZero);
+
+        /// <summary>
+        /// Символ звезды для блока «Ваша оценка»: залитая звезда, если
+        /// оценка пользователя не меньше номера звезды.
+        /// </summary>
+        /// <param name="rating">Оценка пользователя (null — ещё не оценивал).</param>
+        /// <param name="index">Номер звезды от 1 до 5.</param>
+        public static string StarFor(int? rating, int index)
+        {
+            if (index < MinValue || index > MaxValue)
+                throw new ArgumentOutOfRangeException(nameof(index));
+
+            return (rating ?? 0) >= index ? "★" : "☆";
+        }
     }
 }

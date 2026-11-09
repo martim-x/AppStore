@@ -59,5 +59,38 @@ namespace AppStore.UnitTests.Services
             rating.Should().Be(3.0);
             count.Should().Be(1);
         }
+
+        [Fact]
+        public void StarFor_NoUserRating_ReturnsEmptyStars()
+        {
+            RatingAggregator.StarFor(null, 1).Should().Be("☆");
+            RatingAggregator.StarFor(null, 5).Should().Be("☆");
+        }
+
+        [Fact]
+        public void StarFor_ThreePoints_FillsThreeStars()
+        {
+            var stars = Enumerable.Range(1, 5).Select(i => RatingAggregator.StarFor(3, i));
+
+            stars.Should().Equal("★", "★", "★", "☆", "☆");
+        }
+
+        [Fact]
+        public void StarFor_ChangedRating_UpdatesImmediately()
+        {
+            var before = Enumerable.Range(1, 5).Select(i => RatingAggregator.StarFor(5, i));
+            var after = Enumerable.Range(1, 5).Select(i => RatingAggregator.StarFor(1, i));
+
+            before.Should().OnlyContain(s => s == "★");
+            after.Should().Equal("★", "☆", "☆", "☆", "☆");
+        }
+
+        [Fact]
+        public void StarFor_OutOfRangeIndex_Throws()
+        {
+            Action act = () => RatingAggregator.StarFor(3, 6);
+
+            act.Should().Throw<ArgumentOutOfRangeException>();
+        }
     }
 }

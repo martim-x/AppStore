@@ -315,4 +315,26 @@ namespace Project.Converters
             CultureInfo culture
         ) => throw new NotSupportedException();
     }
+
+    /// <summary>
+    /// Состояние звезды в блоке «Ваша оценка» (APP-003).
+    /// Оценка пользователя больше или равна номеру звезды - звезда залита.
+    /// </summary>
+    public class RatingStarStateConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var rating = value is int current ? current : (int?)null;
+            var index = int.TryParse(parameter?.ToString(), out var parsed) ? parsed : 0;
+
+            return Project.Services.RatingAggregator.StarFor(rating, index);
+        }
+
+        public object ConvertBack(
+            object value,
+            Type targetType,
+            object parameter,
+            CultureInfo culture
+        ) => throw new NotSupportedException();
+    }
 }

@@ -40,6 +40,7 @@ c:\users\tim\documents\objectorientedprogramming\term2\lab4-12\appstore\applicat
       <converters:PriceConverter x:Key="PriceConv" />
       <converters:DownloadCountConverter x:Key="DlCountConv" />
       <converters:RatingToStarsConverter x:Key="RatingStars" />
+      <converters:RatingStarStateConverter x:Key="StarState" />
       <converters:SizeConverter x:Key="SizeConv" />
       <converters:StringToColorBrushConverter x:Key="ColorBrush" />
       <converters:DiscountVisibilityConverter x:Key="DiscountVis" />

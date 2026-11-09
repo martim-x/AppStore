@@ -346,11 +346,11 @@
             VerticalAlignment="Center"
             Margin="0,0,10,0"
           />
-          <Button Content="★" Tag="1" Style="{DynamicResource RatingButtonStyle}" Command="{Binding RateAppCommand}" CommandParameter="1" />
-          <Button Content="★" Tag="2" Style="{DynamicResource RatingButtonStyle}" Command="{Binding RateAppCommand}" CommandParameter="2" />
-          <Button Content="★" Tag="3" Style="{DynamicResource RatingButtonStyle}" Command="{Binding RateAppCommand}" CommandParameter="3" />
-          <Button Content="★" Tag="4" Style="{DynamicResource RatingButtonStyle}" Command="{Binding RateAppCommand}" CommandParameter="4" />
-          <Button Content="★" Tag="5" Style="{DynamicResource RatingButtonStyle}" Command="{Binding RateAppCommand}" CommandParameter="5" />
+          <Button Content="{Binding UserRating, Converter={StaticResource StarState}, ConverterParameter=1}" Tag="1" Style="{DynamicResource RatingButtonStyle}" Command="{Binding RateAppCommand}" CommandParameter="1" />
+          <Button Content="{Binding UserRating, Converter={StaticResource StarState}, ConverterParameter=2}" Tag="2" Style="{DynamicResource RatingButtonStyle}" Command="{Binding RateAppCommand}" CommandParameter="2" />
+          <Button Content="{Binding UserRating, Converter={StaticResource StarState}, ConverterParameter=3}" Tag="3" Style="{DynamicResource RatingButtonStyle}" Command="{Binding RateAppCommand}" CommandParameter="3" />
+          <Button Content="{Binding UserRating, Converter={StaticResource StarState}, ConverterParameter=4}" Tag="4" Style="{DynamicResource RatingButtonStyle}" Command="{Binding RateAppCommand}" CommandParameter="4" />
+          <Button Content="{Binding UserRating, Converter={StaticResource StarState}, ConverterParameter=5}" Tag="5" Style="{DynamicResource RatingButtonStyle}" Command="{Binding RateAppCommand}" CommandParameter="5" />
           <TextBlock
             Text="{Binding UserRatingText}"
             FontSize="13"
