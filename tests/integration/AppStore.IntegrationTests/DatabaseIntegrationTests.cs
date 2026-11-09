@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Npgsql;
 using AppStore.Core.Data;
 using AppStore.Core.Configuration;
 using Project.Services;
@@ -33,7 +34,9 @@ namespace AppStore.IntegrationTests
             {
                 ["DB_HOST"] = "localhost",
                 ["DB_PORT_FROM"] = "5433",
-                ["DB_NAME"] = "appstore",
+                // Отдельная БД: тест RestoreDefaults удаляет всех пользователей,
+                // и при работе по рабочей базе стирает демо-учётки и оценки.
+                ["DB_NAME"] = "appstore_test",
                 ["DB_ADMIN"] = "postgres",
                 ["DB_ADMIN_PASS"] = "changeme"
             };
@@ -50,6 +53,10 @@ namespace AppStore.IntegrationTests
             // Force Settings to reload from environment
             var loadMethod = typeof(Settings).GetMethod("LoadFromEnvironment", BindingFlags.NonPublic | BindingFlags.Instance);
             loadMethod?.Invoke(Settings.Instance, null);
+
+            // Тестовая БД создаётся автоматически: работа идёт в отдельной базе,
+            // чтобы RestoreDefaults не стирал демо-данные рабочего стенда.
+            EnsureTestDatabaseExists();
 
             // Build DI container for core services only
             var services = new ServiceCollection();
@@ -88,6 +95,34 @@ namespace AppStore.IntegrationTests
         public async Task DisposeAsync()
         {
             await _dbContext.DisposeAsync();
+        }
+
+        /// <summary>
+        /// Создать тестовую БД, если её ещё нет: миграции применяются позже,
+        /// а подключение к несуществующей базе падает на открытии соединения.
+        /// </summary>
+        private static void EnsureTestDatabaseExists()
+        {
+            var settings = Settings.Instance;
+            var adminBuilder = new NpgsqlConnectionStringBuilder(settings.ConnectionString)
+            {
+                Database = "postgres"
+            };
+
+            using var connection = new NpgsqlConnection(adminBuilder.ConnectionString);
+            connection.Open();
+
+            using (var exists = new NpgsqlCommand(
+                "select 1 from pg_database where datname = @name", connection))
+            {
+                exists.Parameters.AddWithValue("name", settings.DbName);
+                if (exists.ExecuteScalar() != null)
+                    return;
+            }
+
+            using var create = new NpgsqlCommand(
+                $"create database \"{settings.DbName}\"", connection);
+            create.ExecuteNonQuery();
         }
 
         [Fact]
