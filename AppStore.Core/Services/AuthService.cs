@@ -85,6 +85,59 @@ namespace Project.Services
         }
 
         /// <summary>
+        /// Регистрация обычного пользователя (роль User).
+        /// Логин обрезается по краям и проверяется на уникальность без учёта регистра;
+        /// пароль хешируется BCrypt. Успешная регистрация сразу открывает сессию.
+        /// </summary>
+        public RegistrationResult Register(string login, string password)
+        {
+            var normalizedLogin = (login ?? string.Empty).Trim();
+
+            if (normalizedLogin.Length == 0)
+                return RegistrationResult.Fail("RegisterErrorLoginRequired");
+
+            if (normalizedLogin.Length < 3)
+                return RegistrationResult.Fail("RegisterErrorLoginShort");
+
+            if (normalizedLogin.Length > 32)
+                return RegistrationResult.Fail("RegisterErrorLoginLong");
+
+            if (string.IsNullOrEmpty(password) || password.Length < 8)
+                return RegistrationResult.Fail("RegisterErrorPasswordShort");
+
+            if (_repo.GetUserByLogin(normalizedLogin) != null)
+                return RegistrationResult.Fail("RegisterErrorLoginTaken");
+
+            var user = new User
+            {
+                Id = Guid.NewGuid(),
+                Login = normalizedLogin,
+                PasswordHash = _passwordHasher.HashPassword(password),
+                Role = UserRole.User,
+            };
+
+            _repo.AddUser(user);
+            OpenSession(user);
+
+            return RegistrationResult.Ok(user);
+        }
+
+        /// <summary>Открыть сессию пользователя во всех реализациях репозитория.</summary>
+        private void OpenSession(User user)
+        {
+            _currentUser = user;
+
+            if (_repo is JsonRep jsonRep)
+                jsonRep.SetCurrentUser(user.Id);
+
+            if (_repo is PostgreSQLRepADO adoRep)
+                adoRep.SetCurrentUser(user.Id);
+
+            if (_repo is PostgreSQLRepEF efRep)
+                efRep.SetCurrentUser(user.Id);
+        }
+
+        /// <summary>
         /// Проверяет, является ли хеш legacy SHA-256 (64 hex chars, no $2a$/$2b$/$2y$ prefix).
         /// </summary>
         private static bool IsLegacySha256Hash(string hash)

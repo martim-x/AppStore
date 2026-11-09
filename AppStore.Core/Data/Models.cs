@@ -238,4 +238,23 @@ namespace AppStore.Core.Data
         /// <summary>Дата установки/покупки.</summary>
         public DateTime InstalledAt { get; set; } = DateTime.Now;
     }
+
+    /// <summary>
+    /// Оценка приложения пользователем (APP-003).
+    /// Одна оценка на пару пользователь-приложение; повторная оценка заменяет прежнюю.
+    /// </summary>
+    public class AppRating
+    {
+        /// <summary>ID пользователя, поставившего оценку.</summary>
+        public Guid UserId { get; set; }
+
+        /// <summary>ID оценённого приложения.</summary>
+        public Guid AppId { get; set; }
+
+        /// <summary>Оценка от 1 до 5.</summary>
+        public int Value { get; set; }
+
+        /// <summary>Когда оценка поставлена или изменена (UTC).</summary>
+        public DateTime RatedAt { get; set; } = DateTime.Now;
+    }
 }

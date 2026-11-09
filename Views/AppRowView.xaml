@@ -43,6 +43,18 @@
             TextTrimming="CharacterEllipsis"
           />
           <TextBlock Text="{Binding Category}" Style="{DynamicResource AppCategoryStyle}" />
+          <!-- Рейтинг приложения (APP-003) -->
+          <TextBlock
+            FontSize="11"
+            Foreground="{DynamicResource RatingStarBrush}"
+            Margin="0,1,0,0"
+          >
+            <Run Text="★ " />
+            <Run Text="{Binding Rating, StringFormat={}{0:F1}, Mode=OneWay}" />
+            <Run Text=" (" />
+            <Run Text="{Binding RatingCount, Converter={StaticResource DlCountConv}, Mode=OneWay}" />
+            <Run Text=")" />
+          </TextBlock>
         </StackPanel>
         <!-- Get / price button -->
         <Button

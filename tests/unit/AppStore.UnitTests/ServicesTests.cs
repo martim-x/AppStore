@@ -246,6 +246,92 @@ namespace AppStore.UnitTests.Services
 
             hash1.Should().NotBe(hash2);
         }
+
+        // ── Регистрация (APP-002) ────────────────────────────────────────────
+
+        [Fact]
+        public void Register_NewLogin_CreatesUserWithBcryptHashAndUserRole()
+        {
+            _repoMock.Setup(r => r.GetUserByLogin("newuser")).Returns((User?)null);
+            _passwordHasherMock.Setup(h => h.HashPassword("secret123")).Returns(HashPassword);
+
+            var result = _authService.Register("newuser", "secret123");
+
+            result.Success.Should().BeTrue();
+            result.ErrorKey.Should().BeNull();
+            result.User.Should().NotBeNull();
+            result.User!.Login.Should().Be("newuser");
+            result.User.Role.Should().Be(UserRole.User);
+            result.User.PasswordHash.Should().Be(HashPassword);
+            _repoMock.Verify(r => r.AddUser(It.Is<User>(u => u.Login == "newuser")), Times.Once);
+        }
+
+        [Fact]
+        public void Register_TrimsLogin()
+        {
+            _repoMock.Setup(r => r.GetUserByLogin("trimmed")).Returns((User?)null);
+            _passwordHasherMock.Setup(h => h.HashPassword("secret123")).Returns(HashPassword);
+
+            var result = _authService.Register("  trimmed  ", "secret123");
+
+            result.Success.Should().BeTrue();
+            result.User!.Login.Should().Be("trimmed");
+        }
+
+        [Fact]
+        public void Register_DuplicateLogin_ReturnsErrorAndDoesNotAddUser()
+        {
+            var existing = new User { Id = Guid.NewGuid(), Login = "taken", Role = UserRole.User };
+            _repoMock.Setup(r => r.GetUserByLogin("taken")).Returns(existing);
+
+            var result = _authService.Register("taken", "secret123");
+
+            result.Success.Should().BeFalse();
+            result.ErrorKey.Should().Be("RegisterErrorLoginTaken");
+            _repoMock.Verify(r => r.AddUser(It.IsAny<User>()), Times.Never);
+        }
+
+        [Fact]
+        public void Register_EmptyLogin_ReturnsError()
+        {
+            var result = _authService.Register("   ", "secret123");
+
+            result.Success.Should().BeFalse();
+            result.ErrorKey.Should().Be("RegisterErrorLoginRequired");
+            _repoMock.Verify(r => r.AddUser(It.IsAny<User>()), Times.Never);
+        }
+
+        [Fact]
+        public void Register_ShortLogin_ReturnsError()
+        {
+            var result = _authService.Register("ab", "secret123");
+
+            result.Success.Should().BeFalse();
+            result.ErrorKey.Should().Be("RegisterErrorLoginShort");
+        }
+
+        [Fact]
+        public void Register_ShortPassword_ReturnsError()
+        {
+            var result = _authService.Register("newuser", "1234567");
+
+            result.Success.Should().BeFalse();
+            result.ErrorKey.Should().Be("RegisterErrorPasswordShort");
+            _repoMock.Verify(r => r.AddUser(It.IsAny<User>()), Times.Never);
+        }
+
+        [Fact]
+        public void Register_Success_AutoLogsIn()
+        {
+            _repoMock.Setup(r => r.GetUserByLogin("newuser")).Returns((User?)null);
+            _passwordHasherMock.Setup(h => h.HashPassword("secret123")).Returns(HashPassword);
+
+            var result = _authService.Register("newuser", "secret123");
+
+            result.Success.Should().BeTrue();
+            _authService.CurrentUser.Should().BeSameAs(result.User);
+            _authService.IsAdmin.Should().BeFalse();
+        }
     }
 
     public class UndoRedoServiceTests

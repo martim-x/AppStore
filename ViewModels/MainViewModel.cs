@@ -55,6 +55,7 @@ namespace Project.ViewModels
         private bool _isCategoryGridOpen;
         private string _currentLanguage = "en";
         private int _visibleCount = 6;
+        private int? _userRating;
 
         // ── observable collections ──────────────────────────────────────────
         public ObservableCollection<App> Apps
@@ -82,8 +83,33 @@ namespace Project.ViewModels
                 SetField(ref _selectedApp, value);
                 if (value != null)
                     IsDetailOpen = true;
+
+                LoadUserRating();
             }
         }
+
+        /// <summary>
+        /// Оценка текущего пользователя для выбранного приложения (APP-003).
+        /// null — пользователь ещё не оценивал приложение.
+        /// </summary>
+        public int? UserRating
+        {
+            get => _userRating;
+            set
+            {
+                if (!SetField(ref _userRating, value))
+                    return;
+
+                OnPropertyChanged(nameof(UserRatingText));
+                OnPropertyChanged(nameof(HasUserRating));
+            }
+        }
+
+        /// <summary>Текст «Ваша оценка: N» для панели деталей.</summary>
+        public string UserRatingText => _userRating.HasValue ? _userRating.Value.ToString() : "—";
+
+        /// <summary>Поставлена ли пользователем оценка выбранному приложению.</summary>
+        public bool HasUserRating => _userRating.HasValue;
 
         // ── filter / search state ───────────────────────────────────────────
         public string SearchQuery
@@ -211,6 +237,7 @@ namespace Project.ViewModels
         public ICommand SelectCategoryCommand { get; }
         public ICommand SelectTagCommand { get; }
         public ICommand SwitchLanguageCommand { get; }
+        public ICommand RateAppCommand { get; }
         public ICommand ClearSearchCommand { get; }
         public ICommand RefreshCommand { get; }
         public ICommand ToggleSeeAllCommand { get; }
@@ -356,6 +383,20 @@ namespace Project.ViewModels
             {
                 if (lang != null)
                     SwitchLanguage(lang);
+            });
+
+            RateAppCommand = new RelayCommand<string>(value =>
+            {
+                if (SelectedApp == null || !int.TryParse(value, out var rating))
+                    return;
+
+                if (_auth.CurrentUser == null)
+                    return;
+
+                _repo.RateApp(SelectedApp.Id, rating);
+                UserRating = rating;
+                Reload();
+                RefreshSelectedApp(SelectedApp.Id);
             });
             ClearSearchCommand = new RelayCommand(() => SearchQuery = string.Empty);
             RefreshCommand = new RelayCommand(Reload);
@@ -524,6 +565,37 @@ namespace Project.ViewModels
                 _isDetailOpen = wasOpen;
                 OnPropertyChanged(nameof(SelectedApp));
             }
+        }
+
+        /// <summary>Прочитать оценку текущего пользователя для выбранного приложения.</summary>
+        private void LoadUserRating()
+        {
+            if (_selectedApp == null || _auth.CurrentUser == null)
+            {
+                UserRating = null;
+                return;
+            }
+
+            UserRating = _repo.GetUserRating(_selectedApp.Id);
+        }
+
+        /// <summary>Перечитать выбранное приложение, сохранив открытую панель деталей.</summary>
+        private void RefreshSelectedApp(Guid id)
+        {
+            if (_selectedApp?.Id != id)
+                return;
+
+            var fresh = _repo.GetAppById(id);
+            if (fresh == null)
+                return;
+
+            bool wasOpen = _isDetailOpen;
+            _selectedApp = null;
+            OnPropertyChanged(nameof(SelectedApp));
+            _selectedApp = fresh;
+            _isDetailOpen = wasOpen;
+            OnPropertyChanged(nameof(SelectedApp));
+            IsDetailOpen = wasOpen;
         }
     }
 }

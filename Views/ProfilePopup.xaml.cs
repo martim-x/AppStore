@@ -50,6 +50,10 @@ namespace Project.Views
             vm.GetNewPassword = () => NewPasswordBox.Password;
             DataContext = vm;
 
+            // SizeToContent=Height: фактическая высота известна только после
+            // загрузки окна. Позиционируем там же, иначе попап уходит за нижний
+            // край экрана (в настройках теперь больше строк).
+            Loaded += (_, __) => PositionNearOwner();
             PositionNearOwner();
         }
 
@@ -57,10 +61,19 @@ namespace Project.Views
         {
             if (Owner == null)
                 return;
+
+            var height = ActualHeight > 0 ? ActualHeight : 580;
+            var work = SystemParameters.WorkArea;
+
             Left = Owner.Left + 12;
-            Top = Owner.Top + Owner.ActualHeight - 580;
-            if (Top < Owner.Top)
-                Top = Owner.Top + 20;
+
+            var top = Owner.Top + Owner.ActualHeight - height - 8;
+            if (top + height > work.Bottom - 8)
+                top = work.Bottom - height - 8;
+            if (top < work.Top + 8)
+                top = work.Top + 8;
+
+            Top = top;
         }
 
         private void OnLogout(object sender, RoutedEventArgs e)
@@ -72,6 +85,19 @@ namespace Project.Views
         }
 
         private void OnDeactivated(object sender, System.EventArgs e) { }
+
+        /// <summary>
+        /// Переключение языка из настроек профиля (APP-001).
+        /// Команда живёт в MainViewModel — она же обновляет валюту и сохраняет выбор в профиль.
+        /// </summary>
+        private void OnLanguageClick(object sender, RoutedEventArgs e)
+        {
+            if (sender is not FrameworkElement fe || fe.Tag is not string lang)
+                return;
+
+            if (Owner is MainWindow main && main.DataContext is MainViewModel vm)
+                vm.SwitchLanguageCommand.Execute(lang);
+        }
 
         private void OnPasswordBoxGotFocus(object sender, RoutedEventArgs e)
         {

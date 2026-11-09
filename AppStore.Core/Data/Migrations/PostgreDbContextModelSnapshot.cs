@@ -137,6 +137,34 @@ namespace AppStore.Core.Data.Migrations
                     b.ToTable("apps", (string)null);
                 });
 
+            modelBuilder.Entity("AppStore.Core.Data.AppRating", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<Guid>("AppId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("app_id");
+
+                    b.Property<DateTime>("RatedAt")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("rated_at");
+
+                    b.Property<int>("Value")
+                        .HasColumnType("integer")
+                        .HasColumnName("value");
+
+                    b.HasKey("UserId", "AppId");
+
+                    b.HasIndex("AppId");
+
+                    b.ToTable("app_ratings", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_app_ratings_value", "value between 1 and 5");
+                        });
+                });
+
             modelBuilder.Entity("AppStore.Core.Data.AppTag", b =>
                 {
                     b.Property<Guid>("AppId")
@@ -387,6 +415,21 @@ namespace AppStore.Core.Data.Migrations
                         .WithMany()
                         .HasForeignKey("DeveloperId")
                         .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("AppStore.Core.Data.AppRating", b =>
+                {
+                    b.HasOne("AppStore.Core.Data.App", null)
+                        .WithMany()
+                        .HasForeignKey("AppId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AppStore.Core.Data.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("AppStore.Core.Data.AppTag", b =>

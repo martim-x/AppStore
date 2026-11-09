@@ -215,6 +215,21 @@ CREATE TABLE users_apps (
 );
 ```
 
+### `app_ratings`
+```sql
+CREATE TABLE app_ratings (
+    user_id  uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    app_id   uuid NOT NULL REFERENCES apps(id) ON DELETE CASCADE,
+    value    integer NOT NULL CHECK (value BETWEEN 1 AND 5),
+    rated_at timestamp NOT NULL,
+    PRIMARY KEY (user_id, app_id)
+);
+```
+
+Одна оценка на пару «пользователь–приложение»: повторная оценка заменяет
+прежнюю. Агрегат (`apps.rating`, `apps.rating_count`) пересчитывается в той же
+транзакции модулем `RatingAggregator`. Миграция — `AddAppRatings`.
+
 ---
 
 ## Справочники в модели C#

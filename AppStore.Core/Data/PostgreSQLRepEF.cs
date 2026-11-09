@@ -12,6 +12,7 @@ namespace AppStore.Core.Data
         public DbSet<App> Apps { get; set; } = null!;
         public DbSet<User> Users { get; set; } = null!;
         public DbSet<UsersApps> UserAppLinks { get; set; } = null!;
+        public DbSet<AppRating> AppRatings { get; set; } = null!;
         public DbSet<UserProfile> UserProfiles { get; set; } = null!;
 
         // Справочники каталога
@@ -139,6 +140,31 @@ namespace AppStore.Core.Data
                 e.Property(x => x.AppId).HasColumnName("app_id");
                 e.Property(x => x.InstalledAt)
                     .HasColumnName("installed_at")
+                    .HasColumnType("timestamp without time zone");
+
+                e.HasOne<User>()
+                    .WithMany()
+                    .HasForeignKey(x => x.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                e.HasOne<App>()
+                    .WithMany()
+                    .HasForeignKey(x => x.AppId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<AppRating>(e =>
+            {
+                e.ToTable("app_ratings", t =>
+                    t.HasCheckConstraint("ck_app_ratings_value", "value between 1 and 5"));
+
+                e.HasKey(x => new { x.UserId, x.AppId });
+
+                e.Property(x => x.UserId).HasColumnName("user_id");
+                e.Property(x => x.AppId).HasColumnName("app_id");
+                e.Property(x => x.Value).HasColumnName("value");
+                e.Property(x => x.RatedAt)
+                    .HasColumnName("rated_at")
                     .HasColumnType("timestamp without time zone");
 
                 e.HasOne<User>()
@@ -567,7 +593,6 @@ namespace AppStore.Core.Data
             var existing = _db.Users.FirstOrDefault(u => u.Id == user.Id);
             if (existing == null)
                 throw new InvalidOperationException($"User with id {user.Id} not found.");
-
             existing.Login = user.Login;
             existing.PasswordHash = user.PasswordHash;
             existing.Role = user.Role;
@@ -590,6 +615,64 @@ namespace AppStore.Core.Data
             _db.SaveChanges();
             existing.Profile = profile;
             user.Profile = profile;
+        }
+
+        /// <summary>Оценка текущего пользователя для приложения (null — не оценивал).</summary>
+        public override int? GetUserRating(Guid appId)
+        {
+            if (_userId == Guid.Empty)
+                return null;
+
+            return _db.AppRatings
+                .AsNoTracking()
+                .Where(r => r.UserId == _userId && r.AppId == appId)
+                .Select(r => (int?)r.Value)
+                .FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Поставить или изменить оценку 1–5 (APP-003).
+        /// Оценка сохраняется в app_ratings, агрегат apps.rating/rating_count
+        /// пересчитывается по накопленной сумме.
+        /// </summary>
+        public override void RateApp(Guid appId, int value)
+        {
+            if (_userId == Guid.Empty)
+                throw new InvalidOperationException("No user is logged in.");
+
+            if (value < Project.Services.RatingAggregator.MinValue ||
+                value > Project.Services.RatingAggregator.MaxValue)
+                throw new ArgumentOutOfRangeException(nameof(value), "Оценка должна быть от 1 до 5.");
+
+            var app = _db.Apps.FirstOrDefault(a => a.Id == appId)
+                ?? throw new InvalidOperationException($"App with id {appId} not found.");
+
+            var existing = _db.AppRatings.FirstOrDefault(r => r.UserId == _userId && r.AppId == appId);
+            var oldValue = existing?.Value;
+
+            if (existing == null)
+            {
+                _db.AppRatings.Add(new AppRating
+                {
+                    UserId = _userId,
+                    AppId = appId,
+                    Value = value,
+                    RatedAt = DateTime.Now,
+                });
+            }
+            else
+            {
+                existing.Value = value;
+                existing.RatedAt = DateTime.Now;
+            }
+
+            var (rating, count) = Project.Services.RatingAggregator.Apply(
+                app.Rating, app.RatingCount, oldValue, value);
+
+            app.Rating = rating;
+            app.RatingCount = count;
+
+            _db.SaveChanges();
         }
 
         /// <summary>Подтянуть профили (персональные данные и настройки) к пользователям.</summary>

@@ -76,7 +76,7 @@ namespace AppStore.IntegrationTests
             var repoField = typeof(PostgreSQLRepEF).GetField("_db", BindingFlags.NonPublic | BindingFlags.Instance);
             repoField?.SetValue(_repository, _dbContext);
 
-            _authService = _services.GetRequiredService<IAuthService>();
+            _authService = new AuthService(_repository, new BCryptHasher(), new SHA256Hasher());
         }
 
         public async Task InitializeAsync()
@@ -161,10 +161,18 @@ namespace AppStore.IntegrationTests
 
             _repository.AddApp(newApp);
 
-            var retrieved = _repository.GetAppById(newApp.Id);
-            retrieved.Should().NotBeNull();
-            retrieved!.ShortName.Should().Be("TestApp");
-            retrieved.FullName.Should().Be("Test Application");
+            try
+            {
+                var retrieved = _repository.GetAppById(newApp.Id);
+                retrieved.Should().NotBeNull();
+                retrieved!.ShortName.Should().Be("TestApp");
+                retrieved.FullName.Should().Be("Test Application");
+            }
+            finally
+            {
+                // Тестовое приложение не должно оставаться в каталоге.
+                _repository.DeleteApp(newApp.Id);
+            }
         }
 
         [Fact]
@@ -175,12 +183,22 @@ namespace AppStore.IntegrationTests
             var originalName = app.FullName;
             app.FullName = "Updated Name";
 
-            _repository.UpdateApp(app);
+            try
+            {
+                _repository.UpdateApp(app);
 
-            var retrieved = _repository.GetAppById(app.Id);
-            retrieved.Should().NotBeNull();
-            retrieved!.FullName.Should().Be("Updated Name");
-            retrieved.FullName.Should().NotBe(originalName);
+                var retrieved = _repository.GetAppById(app.Id);
+                retrieved.Should().NotBeNull();
+                retrieved!.FullName.Should().Be("Updated Name");
+                retrieved.FullName.Should().NotBe(originalName);
+            }
+            finally
+            {
+                // Возвращаем каталог в исходное состояние: тест не должен
+                // оставлять переименованное приложение в рабочей БД.
+                app.FullName = originalName;
+                _repository.UpdateApp(app);
+            }
         }
 
         [Fact]
@@ -300,6 +318,135 @@ namespace AppStore.IntegrationTests
             freshRepo.GetAllUsers().Should().Contain(u => u.Login == "user");
 
             dbContext.Dispose();
+        }
+
+        // ── QA-001: оценки и регистрация ─────────────────────────────────────
+
+        [Fact]
+        public void RateApp_NewRating_PersistsAndUpdatesAggregate()
+        {
+            var user = _authService.Login("user", "1234")!;
+            user.Should().NotBeNull();
+
+            var app = new App
+            {
+                ShortName = "Rated",
+                FullName = "Rated App",
+                Description = "Rating target",
+                Developer = "Test",
+                Category = "Test",
+                Rating = 0,
+                RatingCount = 0,
+                Price = 0,
+                Version = "1.0",
+                SizeMB = 1,
+                Country = "US",
+                AgeRating = "4+",
+                Color = "#FF0000",
+                IsInStock = true,
+                ReleaseDate = DateTime.Now,
+                Tags = new List<string> { "test" },
+            };
+            _repository.AddApp(app);
+
+            try
+            {
+                _repository.RateApp(app.Id, 4);
+
+                _repository.GetUserRating(app.Id).Should().Be(4);
+                var stored = _repository.GetAppById(app.Id)!;
+                stored.Rating.Should().Be(4.0);
+                stored.RatingCount.Should().Be(1);
+            }
+            finally
+            {
+                _repository.DeleteApp(app.Id);
+            }
+        }
+
+        [Fact]
+        public void RateApp_SecondRating_ReplacesValueAndKeepsCount()
+        {
+            var user = _authService.Login("user", "1234")!;
+            user.Should().NotBeNull();
+
+            var app = new App
+            {
+                ShortName = "Rerated",
+                FullName = "Rerated App",
+                Description = "Rating target",
+                Developer = "Test",
+                Category = "Test",
+                Rating = 0,
+                RatingCount = 0,
+                Price = 0,
+                Version = "1.0",
+                SizeMB = 1,
+                Country = "US",
+                AgeRating = "4+",
+                Color = "#FF0000",
+                IsInStock = true,
+                ReleaseDate = DateTime.Now,
+                Tags = new List<string> { "test" },
+            };
+            _repository.AddApp(app);
+
+            try
+            {
+                _repository.RateApp(app.Id, 5);
+                _repository.RateApp(app.Id, 2);
+
+                _repository.GetUserRating(app.Id).Should().Be(2);
+                var stored = _repository.GetAppById(app.Id)!;
+                stored.Rating.Should().Be(2.0);
+                stored.RatingCount.Should().Be(1);
+            }
+            finally
+            {
+                _repository.DeleteApp(app.Id);
+            }
+        }
+
+        [Fact]
+        public void RateApp_Unauthenticated_Throws()
+        {
+            _repository.SetCurrentUser(null);
+            var app = _repository.GetAllApps().First();
+
+            Action act = () => _repository.RateApp(app.Id, 5);
+
+            act.Should().Throw<InvalidOperationException>();
+        }
+
+        [Fact]
+        public void Register_NewUser_CanLoginAndHasIsolatedProfile()
+        {
+            var login = "reg_" + Guid.NewGuid().ToString("N")[..8];
+
+            var result = _authService.Register(login, "secret123");
+
+            result.Success.Should().BeTrue();
+            result.User!.Role.Should().Be(UserRole.User);
+
+            _authService.Logout();
+            var loggedIn = _authService.Login(login, "secret123");
+
+            loggedIn.Should().NotBeNull();
+            loggedIn!.Login.Should().Be(login);
+            loggedIn.FirstName.Should().BeNull();
+        }
+
+        [Fact]
+        public void RegisteredUser_SeesNoForeignInstalledApps()
+        {
+            var login = "iso_" + Guid.NewGuid().ToString("N")[..8];
+            var result = _authService.Register(login, "secret123");
+            result.Success.Should().BeTrue();
+
+            var apps = _repository.GetAllApps();
+
+            apps.Should().NotBeEmpty();
+            apps.Should().OnlyContain(a => !a.IsDownloaded);
         }
     }
 }

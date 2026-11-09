@@ -2,6 +2,7 @@
   x:Class="Project.Views.LoginWindow"
   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  Title="{DynamicResource AppTitle}"
   Background="{DynamicResource WindowBgBrush}"
   FontFamily="Segoe UI"
   Width="380"
@@ -47,6 +48,7 @@
           HorizontalAlignment="Center"
         />
         <TextBlock
+          x:Name="SubtitleText"
           Text="{DynamicResource LoginSubtitle}"
           FontSize="13"
           Foreground="{DynamicResource SecondaryTextBrush}"
@@ -115,7 +117,7 @@
         CornerRadius="10"
         BorderThickness="1.5"
         BorderBrush="{DynamicResource DividerBrush}"
-        Margin="0,0,0,24"
+        Margin="0,0,0,14"
       >
         <PasswordBox
           x:Name="PassBox"
@@ -136,6 +138,41 @@
           </PasswordBox.Template>
         </PasswordBox>
       </Border>
+      <!-- Confirm password (только режим регистрации) -->
+      <StackPanel x:Name="ConfirmPanel" Visibility="Collapsed">
+        <TextBlock
+          Text="{DynamicResource ConfirmPasswordLabel}"
+          Style="{DynamicResource CaptionStyle}"
+          Margin="0,0,0,4"
+        />
+        <Border
+          x:Name="ConfirmFieldBorder"
+          Background="{DynamicResource InfoCardBgBrush}"
+          CornerRadius="10"
+          BorderThickness="1.5"
+          BorderBrush="{DynamicResource DividerBrush}"
+          Margin="0,0,0,14"
+        >
+          <PasswordBox
+            x:Name="ConfirmBox"
+            Background="Transparent"
+            BorderThickness="0"
+            FontSize="14"
+            Foreground="{DynamicResource TitleTextBrush}"
+            Padding="12,10"
+            CaretBrush="{DynamicResource AccentBlueBrush}"
+            GotFocus="OnFieldFocus"
+            LostFocus="OnFieldBlur"
+            KeyDown="OnKeyDown"
+          >
+            <PasswordBox.Template>
+              <ControlTemplate TargetType="PasswordBox">
+                <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center" />
+              </ControlTemplate>
+            </PasswordBox.Template>
+          </PasswordBox>
+        </Border>
+      </StackPanel>
       <!-- Sign in button — градиент уникален для Login, PrimaryButtonStyle не подходит -->
       <Button
         x:Name="SignInBtn"
@@ -173,16 +210,34 @@
             </ControlTemplate.Triggers>
           </ControlTemplate>
         </Button.Template>
-        <TextBlock Text="{DynamicResource SignIn}" />
+        <TextBlock x:Name="SubmitText" Text="{DynamicResource SignIn}" />
       </Button>
       <!-- Hint -->
       <TextBlock
+        x:Name="LoginHintText"
         Margin="0,14,0,0"
         HorizontalAlignment="Center"
         FontSize="11"
         Foreground="{DynamicResource TextSecondaryBrush}"
         Text="{DynamicResource LoginHint}"
       />
+      <!-- Переключение режима вход ↔ регистрация -->
+      <Button
+        x:Name="ToggleModeButton"
+        Click="OnToggleMode"
+        Margin="0,12,0,0"
+        HorizontalAlignment="Center"
+        Background="Transparent"
+        BorderThickness="0"
+        Cursor="Hand"
+      >
+        <TextBlock
+          x:Name="ToggleModeText"
+          Text="{DynamicResource NoAccount}"
+          FontSize="12"
+          Foreground="{DynamicResource AccentBlueBrush}"
+        />
+      </Button>
     </StackPanel>
   </Border>
 </Window>

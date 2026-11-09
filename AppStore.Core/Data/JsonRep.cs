@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -11,17 +11,20 @@ namespace AppStore.Core.Data
         private readonly string _appsFilePath;
         private readonly string _usersFilePath;
         private readonly string _usersAppsFilePath;
+        private readonly string _ratingsFilePath;
         private Guid? _currentUserId;
 
         private List<App> _appsCache = new();
         private List<User> _usersCache = new();
         private List<UsersApps> _usersAppsCache = new();
+        private List<AppRating> _ratingsCache = new();
 
         public JsonRep(
             Guid? currentUserId = null,
             string? appsFilePath = null,
             string? usersFilePath = null,
-            string? usersAppsFilePath = null
+            string? usersAppsFilePath = null,
+            string? ratingsFilePath = null
         )
         {
             _currentUserId = currentUserId;
@@ -34,10 +37,12 @@ namespace AppStore.Core.Data
             _appsFilePath = appsFilePath ?? Path.Combine(appDataDir, "apps.json");
             _usersFilePath = usersFilePath ?? Path.Combine(appDataDir, "users.json");
             _usersAppsFilePath = usersAppsFilePath ?? Path.Combine(appDataDir, "users_apps.json");
+            _ratingsFilePath = ratingsFilePath ?? Path.Combine(appDataDir, "app_ratings.json");
 
             LoadApps();
             LoadUsers();
             LoadUsersApps();
+            LoadRatings();
             SaveBufferFiles();
         }
 
@@ -105,9 +110,11 @@ namespace AppStore.Core.Data
         {
             _appsCache.RemoveAll(a => a.Id == id);
             _usersAppsCache.RemoveAll(x => x.AppId == id);
+            _ratingsCache.RemoveAll(r => r.AppId == id);
 
             SaveApps();
             SaveUsersApps();
+            SaveRatings();
             SaveBufferFiles();
         }
 
@@ -175,10 +182,12 @@ namespace AppStore.Core.Data
             _appsCache = SeedApps();
             _usersCache = SeedUsers();
             _usersAppsCache = SeedUsersApps();
+            _ratingsCache = new List<AppRating>();
 
             SaveApps();
             SaveUsers();
             SaveUsersApps();
+            SaveRatings();
             SaveBufferFiles();
         }
 
@@ -203,6 +212,64 @@ namespace AppStore.Core.Data
                 _usersCache[idx] = user;
 
             SaveUsers();
+            SaveBufferFiles();
+        }
+
+        /// <summary>Оценка текущего пользователя для приложения (null — не оценивал).</summary>
+        public override int? GetUserRating(Guid appId)
+        {
+            if (_currentUserId == null)
+                return null;
+
+            return _ratingsCache
+                .FirstOrDefault(r => r.UserId == _currentUserId.Value && r.AppId == appId)
+                ?.Value;
+        }
+
+        /// <summary>
+        /// Поставить или изменить оценку 1–5 (APP-003).
+        /// Оценка хранится в app_ratings.json, агрегат приложения пересчитывается.
+        /// </summary>
+        public override void RateApp(Guid appId, int value)
+        {
+            if (_currentUserId == null)
+                throw new InvalidOperationException("No user is logged in.");
+
+            if (value < Project.Services.RatingAggregator.MinValue ||
+                value > Project.Services.RatingAggregator.MaxValue)
+                throw new ArgumentOutOfRangeException(nameof(value), "Оценка должна быть от 1 до 5.");
+
+            var app = _appsCache.FirstOrDefault(a => a.Id == appId)
+                ?? throw new InvalidOperationException($"App with id {appId} not found.");
+
+            var existing = _ratingsCache.FirstOrDefault(r =>
+                r.UserId == _currentUserId.Value && r.AppId == appId);
+            var oldValue = existing?.Value;
+
+            if (existing == null)
+            {
+                _ratingsCache.Add(new AppRating
+                {
+                    UserId = _currentUserId.Value,
+                    AppId = appId,
+                    Value = value,
+                    RatedAt = DateTime.Now,
+                });
+            }
+            else
+            {
+                existing.Value = value;
+                existing.RatedAt = DateTime.Now;
+            }
+
+            var (rating, count) = Project.Services.RatingAggregator.Apply(
+                app.Rating, app.RatingCount, oldValue, value);
+
+            app.Rating = rating;
+            app.RatingCount = count;
+
+            SaveApps();
+            SaveRatings();
             SaveBufferFiles();
         }
 
@@ -281,6 +348,32 @@ namespace AppStore.Core.Data
             }
         }
 
+        private void LoadRatings()
+        {
+            try
+            {
+                if (File.Exists(_ratingsFilePath))
+                {
+                    var json = File.ReadAllText(_ratingsFilePath).Trim();
+                    if (!string.IsNullOrWhiteSpace(json) && json != "[]")
+                    {
+                        _ratingsCache =
+                            JsonConvert.DeserializeObject<List<AppRating>>(json)
+                            ?? new List<AppRating>();
+                        return;
+                    }
+                }
+
+                _ratingsCache = new List<AppRating>();
+                SaveRatings();
+            }
+            catch
+            {
+                _ratingsCache = new List<AppRating>();
+                SaveRatings();
+            }
+        }
+
         private void SaveApps()
         {
             Directory.CreateDirectory(Path.GetDirectoryName(_appsFilePath)!);
@@ -305,6 +398,15 @@ namespace AppStore.Core.Data
             File.WriteAllText(
                 _usersAppsFilePath,
                 JsonConvert.SerializeObject(_usersAppsCache, Formatting.Indented)
+            );
+        }
+
+        private void SaveRatings()
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(_ratingsFilePath)!);
+            File.WriteAllText(
+                _ratingsFilePath,
+                JsonConvert.SerializeObject(_ratingsCache, Formatting.Indented)
             );
         }
 

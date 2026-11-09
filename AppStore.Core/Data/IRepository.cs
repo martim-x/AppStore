@@ -44,5 +44,11 @@ namespace AppStore.Core.Data
 
         /// <summary>Обновить данные пользователя.</summary>
         void UpdateUser(User user);
+
+        /// <summary>Оценка текущего пользователя для приложения (null — не оценивал).</summary>
+        int? GetUserRating(Guid appId);
+
+        /// <summary>Поставить или изменить оценку (1–5) и пересчитать агрегат приложения.</summary>
+        void RateApp(Guid appId, int value);
     }
 }

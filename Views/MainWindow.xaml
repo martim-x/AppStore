@@ -64,25 +64,6 @@
               VerticalAlignment="Center"
             />
           </StackPanel>
-          <StackPanel Orientation="Horizontal">
-            <Button
-              Content="EN"
-              Style="{DynamicResource GetButtonStyle}"
-              Padding="10,4"
-              FontSize="12"
-              Margin="0,0,6,0"
-              Command="{Binding SwitchLanguageCommand}"
-              CommandParameter="en"
-            />
-            <Button
-              Content="RU"
-              Style="{DynamicResource GetButtonStyle}"
-              Padding="10,4"
-              FontSize="12"
-              Command="{Binding SwitchLanguageCommand}"
-              CommandParameter="ru"
-            />
-          </StackPanel>
         </StackPanel>
         <!-- Search -->
         <Border DockPanel.Dock="Top" Margin="12,0,12,12">
@@ -593,6 +574,18 @@
                       Foreground="{DynamicResource SecondaryTextBrush}"
                       Margin="0,1,0,0"
                     />
+                    <!-- Рейтинг приложения (APP-003) -->
+                    <TextBlock
+                      FontSize="11"
+                      Foreground="{DynamicResource RatingStarBrush}"
+                      Margin="0,1,0,0"
+                    >
+                      <Run Text="★ " />
+                      <Run Text="{Binding Rating, StringFormat={}{0:F1}, Mode=OneWay}" />
+                      <Run Text=" (" />
+                      <Run Text="{Binding RatingCount, Converter={StaticResource DlCountConv}, Mode=OneWay}" />
+                      <Run Text=")" />
+                    </TextBlock>
                   </StackPanel>
                   <Button
                     Grid.Column="2"

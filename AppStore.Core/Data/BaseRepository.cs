@@ -31,6 +31,11 @@ namespace AppStore.Core.Data
         public abstract void AddUser(User user);
         public abstract void UpdateUser(User user);
 
+        // ── Абстрактные методы — Ratings (APP-003) ──────────────────────────────
+
+        public abstract int? GetUserRating(Guid appId);
+        public abstract void RateApp(Guid appId, int value);
+
         // ── Общие утилиты ────────────────────────────────────────────────────────
 
         /// <summary>

@@ -291,6 +291,48 @@
       </Grid>
       <!-- ── Separator ─────────────────────────────────────── -->
       <Border Height="1" Background="{DynamicResource SeparatorBrush}" />
+      <!-- ═══ Language Row (APP-001: настройки отдельно от навигации) ═══ -->
+      <Grid Margin="18,12,18,12">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+          <TextBlock
+            Text="{DynamicResource LanguageLabel}"
+            FontSize="13"
+            FontWeight="SemiBold"
+            Foreground="{DynamicResource TitleTextBrush}"
+          />
+          <TextBlock
+            Text="{DynamicResource LanguageHint}"
+            FontSize="11"
+            Foreground="{DynamicResource SecondaryTextBrush}"
+            Margin="0,2,0,0"
+          />
+        </StackPanel>
+        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+          <Button
+            Content="RU"
+            Tag="ru"
+            Click="OnLanguageClick"
+            Style="{DynamicResource GetButtonStyle}"
+            Padding="10,4"
+            FontSize="12"
+            Margin="0,0,6,0"
+          />
+          <Button
+            Content="EN"
+            Tag="en"
+            Click="OnLanguageClick"
+            Style="{DynamicResource GetButtonStyle}"
+            Padding="10,4"
+            FontSize="12"
+          />
+        </StackPanel>
+      </Grid>
+      <!-- ── Separator ─────────────────────────────────────── -->
+      <Border Height="1" Background="{DynamicResource SeparatorBrush}" />
       <!-- ═══ Dark Mode Toggle Row ════════════════════════════ -->
       <Grid Margin="18,12,18,12">
         <Grid.ColumnDefinitions>

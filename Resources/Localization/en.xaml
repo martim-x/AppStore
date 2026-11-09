@@ -112,4 +112,19 @@
   <sys:String x:Key="HealthCheckHint">Check database availability</sys:String>
   <sys:String x:Key="DarkModeLabel">Dark Mode</sys:String>
   <sys:String x:Key="DarkModeHint">Switch app appearance</sys:String>
+  <!-- Registration (APP-002) -->
+  <sys:String x:Key="RegisterTitle">Create your account</sys:String>
+  <sys:String x:Key="Register">Create Account</sys:String>
+  <sys:String x:Key="ConfirmPasswordLabel">Confirm password</sys:String>
+  <sys:String x:Key="NoAccount">No account? Create one</sys:String>
+  <sys:String x:Key="HaveAccount">Already have an account? Sign in</sys:String>
+  <sys:String x:Key="RegisterErrorLoginRequired">Enter a login</sys:String>
+  <sys:String x:Key="RegisterErrorLoginShort">Login must be at least 3 characters</sys:String>
+  <sys:String x:Key="RegisterErrorLoginLong">Login must not exceed 32 characters</sys:String>
+  <sys:String x:Key="RegisterErrorPasswordShort">Password must be at least 8 characters</sys:String>
+  <sys:String x:Key="RegisterErrorLoginTaken">This login is already taken</sys:String>
+  <sys:String x:Key="RegisterErrorPasswordMismatch">Passwords do not match</sys:String>
+  <sys:String x:Key="YourRating">Your rating:</sys:String>
+  <sys:String x:Key="LanguageLabel">Interface language</sys:String>
+  <sys:String x:Key="LanguageHint">Russian or English</sys:String>
 </ResourceDictionary>

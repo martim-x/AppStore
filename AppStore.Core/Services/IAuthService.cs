@@ -8,6 +8,10 @@ namespace Project.Services
         bool IsAdmin { get; }
 
         User? Login(string login, string password);
+
+        /// <summary>Регистрация обычного пользователя (роль User).</summary>
+        RegistrationResult Register(string login, string password);
+
         void Logout();
         void UpdateProfile(string? firstName, string? lastName, string? email);
 

@@ -598,6 +598,110 @@ namespace AppStore.Core.Data
             }
         }
 
+        /// <summary>Оценка текущего пользователя для приложения (null — не оценивал).</summary>
+        public override int? GetUserRating(Guid appId)
+        {
+            if (_userId == Guid.Empty)
+                return null;
+
+            using var connection = new NpgsqlConnection(_connectionString);
+            connection.Open();
+
+            using var command = new NpgsqlCommand(
+                "select value from app_ratings where user_id = @user_id and app_id = @app_id",
+                connection);
+            command.Parameters.AddWithValue("user_id", _userId);
+            command.Parameters.AddWithValue("app_id", appId);
+
+            var result = command.ExecuteScalar();
+            return result is null or DBNull ? null : Convert.ToInt32(result);
+        }
+
+        /// <summary>
+        /// Поставить или изменить оценку 1–5 (APP-003).
+        /// Оценка пишется в app_ratings, агрегат apps пересчитывается в той же транзакции.
+        /// </summary>
+        public override void RateApp(Guid appId, int value)
+        {
+            if (_userId == Guid.Empty)
+                throw new InvalidOperationException("No user is logged in.");
+
+            if (value < Project.Services.RatingAggregator.MinValue ||
+                value > Project.Services.RatingAggregator.MaxValue)
+                throw new ArgumentOutOfRangeException(nameof(value), "Оценка должна быть от 1 до 5.");
+
+            using var connection = new NpgsqlConnection(_connectionString);
+            connection.Open();
+
+            using var tx = connection.BeginTransaction();
+            try
+            {
+                double rating;
+                int ratingCount;
+
+                using (var appCmd = new NpgsqlCommand(
+                    "select rating, rating_count from apps where id = @id for update",
+                    connection, tx))
+                {
+                    appCmd.Parameters.AddWithValue("id", appId);
+                    using var reader = appCmd.ExecuteReader();
+                    if (!reader.Read())
+                        throw new InvalidOperationException($"App with id {appId} not found.");
+
+                    rating = reader.GetDouble(0);
+                    ratingCount = reader.GetInt32(1);
+                }
+
+                int? oldValue = null;
+                using (var oldCmd = new NpgsqlCommand(
+                    "select value from app_ratings where user_id = @user_id and app_id = @app_id",
+                    connection, tx))
+                {
+                    oldCmd.Parameters.AddWithValue("user_id", _userId);
+                    oldCmd.Parameters.AddWithValue("app_id", appId);
+                    var old = oldCmd.ExecuteScalar();
+                    if (old is not null and not DBNull)
+                        oldValue = Convert.ToInt32(old);
+                }
+
+                using (var upsert = new NpgsqlCommand(
+                    """
+                    insert into app_ratings (user_id, app_id, value, rated_at)
+                    values (@user_id, @app_id, @value, @rated_at)
+                    on conflict (user_id, app_id)
+                    do update set value = excluded.value, rated_at = excluded.rated_at
+                    """,
+                    connection, tx))
+                {
+                    upsert.Parameters.AddWithValue("user_id", _userId);
+                    upsert.Parameters.AddWithValue("app_id", appId);
+                    upsert.Parameters.AddWithValue("value", value);
+                    upsert.Parameters.AddWithValue("rated_at", DateTime.Now);
+                    upsert.ExecuteNonQuery();
+                }
+
+                var (newRating, newCount) = Project.Services.RatingAggregator.Apply(
+                    rating, ratingCount, oldValue, value);
+
+                using (var updateApp = new NpgsqlCommand(
+                    "update apps set rating = @rating, rating_count = @rating_count where id = @id",
+                    connection, tx))
+                {
+                    updateApp.Parameters.AddWithValue("rating", newRating);
+                    updateApp.Parameters.AddWithValue("rating_count", newCount);
+                    updateApp.Parameters.AddWithValue("id", appId);
+                    updateApp.ExecuteNonQuery();
+                }
+
+                tx.Commit();
+            }
+            catch
+            {
+                tx.Rollback();
+                throw;
+            }
+        }
+
         // =========================
         // Инфраструктура
         // =========================
@@ -705,6 +809,19 @@ namespace AppStore.Core.Data
                     constraint fk_users_apps_user
                         foreign key (user_id) references users(id) on delete cascade,
                     constraint fk_users_apps_app
+                        foreign key (app_id) references apps(id) on delete cascade
+                );
+
+                create table if not exists app_ratings
+                (
+                    user_id uuid not null,
+                    app_id uuid not null,
+                    value integer not null check (value between 1 and 5),
+                    rated_at timestamp without time zone not null,
+                    primary key (user_id, app_id),
+                    constraint fk_app_ratings_user
+                        foreign key (user_id) references users(id) on delete cascade,
+                    constraint fk_app_ratings_app
                         foreign key (app_id) references apps(id) on delete cascade
                 );
                 """;

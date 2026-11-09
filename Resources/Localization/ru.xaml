@@ -110,4 +110,19 @@
   <sys:String x:Key="HealthCheckHint">Проверить доступность базы данных</sys:String>
   <sys:String x:Key="DarkModeLabel">Тёмная тема</sys:String>
   <sys:String x:Key="DarkModeHint">Переключить оформление</sys:String>
+  <!-- Регистрация (APP-002) -->
+  <sys:String x:Key="RegisterTitle">Создайте аккаунт</sys:String>
+  <sys:String x:Key="Register">Зарегистрироваться</sys:String>
+  <sys:String x:Key="ConfirmPasswordLabel">Повторите пароль</sys:String>
+  <sys:String x:Key="NoAccount">Нет аккаунта? Зарегистрироваться</sys:String>
+  <sys:String x:Key="HaveAccount">Уже есть аккаунт? Войти</sys:String>
+  <sys:String x:Key="RegisterErrorLoginRequired">Введите логин</sys:String>
+  <sys:String x:Key="RegisterErrorLoginShort">Логин должен содержать не менее 3 символов</sys:String>
+  <sys:String x:Key="RegisterErrorLoginLong">Логин не должен превышать 32 символа</sys:String>
+  <sys:String x:Key="RegisterErrorPasswordShort">Пароль должен содержать не менее 8 символов</sys:String>
+  <sys:String x:Key="RegisterErrorLoginTaken">Логин уже занят</sys:String>
+  <sys:String x:Key="RegisterErrorPasswordMismatch">Пароли не совпадают</sys:String>
+  <sys:String x:Key="YourRating">Ваша оценка:</sys:String>
+  <sys:String x:Key="LanguageLabel">Язык интерфейса</sys:String>
+  <sys:String x:Key="LanguageHint">Русский или английский</sys:String>
 </ResourceDictionary>

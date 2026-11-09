@@ -334,6 +334,32 @@
             </Grid>
           </Border>
         </UniformGrid>
+        <!-- Ваша оценка (APP-003): 1–5 звёзд, оценка сохраняется в app_ratings -->
+        <StackPanel
+          Orientation="Horizontal"
+          HorizontalAlignment="Center"
+          Margin="0,0,0,4"
+        >
+          <TextBlock
+            Text="{DynamicResource YourRating}"
+            Style="{DynamicResource CaptionStyle}"
+            VerticalAlignment="Center"
+            Margin="0,0,10,0"
+          />
+          <Button Content="★" Tag="1" Style="{DynamicResource RatingButtonStyle}" Command="{Binding RateAppCommand}" CommandParameter="1" />
+          <Button Content="★" Tag="2" Style="{DynamicResource RatingButtonStyle}" Command="{Binding RateAppCommand}" CommandParameter="2" />
+          <Button Content="★" Tag="3" Style="{DynamicResource RatingButtonStyle}" Command="{Binding RateAppCommand}" CommandParameter="3" />
+          <Button Content="★" Tag="4" Style="{DynamicResource RatingButtonStyle}" Command="{Binding RateAppCommand}" CommandParameter="4" />
+          <Button Content="★" Tag="5" Style="{DynamicResource RatingButtonStyle}" Command="{Binding RateAppCommand}" CommandParameter="5" />
+          <TextBlock
+            Text="{Binding UserRatingText}"
+            FontSize="13"
+            FontWeight="SemiBold"
+            Foreground="{DynamicResource RatingStarBrush}"
+            VerticalAlignment="Center"
+            Margin="8,0,0,0"
+          />
+        </StackPanel>
       </StackPanel>
     </Border>
     <!-- BODY -->
