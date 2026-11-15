@@ -20,8 +20,15 @@ namespace Project.Views
             if (services == null)
                 return;
 
-            var dlg = new EditDeleteDialog(vm, services) { Owner = window };
-            dlg.ShowDialog();
+            // REPORT-010: промежуточный диалог Edit/Delete убран — кнопка
+            // «Изменить» сразу открывает окно редактирования; удаление
+            // выполняется кнопкой в нижней части этой формы.
+            var dlg = services.GetService<AddEditWindow>() ?? new AddEditWindow(services);
+            dlg.Initialize(vm.SelectedApp);
+            dlg.Owner = window;
+
+            if (dlg.ShowDialog() == true)
+                vm.RefreshCommand.Execute(null);
         }
     }
 }

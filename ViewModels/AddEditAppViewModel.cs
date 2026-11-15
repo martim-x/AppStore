@@ -41,8 +41,10 @@ namespace Project.ViewModels
 
         public ICommand SaveCommand { get; }
         public ICommand CancelCommand { get; }
+        public ICommand DeleteCommand { get; }
         public Action? OnSaved { get; set; }
         public Action? OnCancelled { get; set; }
+        public Action? OnDeleted { get; set; }
 
         /// <summary>
         /// Теги приложения одной строкой (через запятую). REPORT-007: тегами
@@ -69,6 +71,9 @@ namespace Project.ViewModels
             Reset();
             SaveCommand = new RelayCommand(Save, () => !string.IsNullOrWhiteSpace(App.ShortName));
             CancelCommand = new RelayCommand(() => OnCancelled?.Invoke());
+            // REPORT-007: удалять каталог может только администратор — форма
+            // доступна только роли Admin, удаление допустимо в режиме правки.
+            DeleteCommand = new RelayCommand(Delete, () => IsEditMode && App.Id != Guid.Empty);
         }
 
         public void LoadExisting(App existing)
@@ -98,6 +103,12 @@ namespace Project.ViewModels
             else
                 _repo.AddApp(App);
             OnSaved?.Invoke();
+        }
+
+        private void Delete()
+        {
+            _repo.DeleteApp(App.Id);
+            OnDeleted?.Invoke();
         }
 
         private static App Clone(App s) =>

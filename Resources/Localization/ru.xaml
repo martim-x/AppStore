@@ -29,7 +29,7 @@
   <sys:String x:Key="TopApps">Лучшие приложения</sys:String>
   <sys:String x:Key="SeeAll">Все</sys:String>
   <sys:String x:Key="Filters">Фильтры</sys:String>
-  <sys:String x:Key="AddApp">+ Добавить</sys:String>
+  <sys:String x:Key="AddApp">Добавить</sys:String>
   <sys:String x:Key="EditApp">Редактировать</sys:String>
   <!-- Featured banner -->
   <sys:String x:Key="FeaturedToday">ВЫБОР ДНЯ</sys:String>
@@ -98,6 +98,8 @@
   <!-- Stats -->
   <sys:String x:Key="AppsInStore">приложений</sys:String>
   <sys:String x:Key="AppsInstalled">установлено</sys:String>
+  <sys:String x:Key="AppsSuffix">прил.</sys:String>
+  <sys:String x:Key="SearchCategoriesHint">Поиск по категориям…</sys:String>
   <!-- Auth -->
   <sys:String x:Key="LoginSubtitle">Войдите в аккаунт</sys:String>
   <sys:String x:Key="LoginLabel">Логин</sys:String>

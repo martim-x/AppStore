@@ -139,7 +139,7 @@ namespace Project.Views
         private void OnResetFilters(object sender, RoutedEventArgs e)
         {
             Vm.MinRating = 0;
-            Vm.MaxPrice = 1000;
+            Vm.MaxPrice = AppStore.Core.Configuration.Settings.Instance.MaxPriceFilter;
             Vm.MinPrice = 0;
             Vm.DownloadedOnly = false;
             FilterPopup.IsOpen = false;
@@ -174,6 +174,12 @@ namespace Project.Views
                 if (popup.LoggedOut)
                     Vm.LogoutCommand.Execute(null);
             };
+        }
+
+        private void OnCategoryTileClick(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is FrameworkElement fe && fe.DataContext is MainViewModel.CategoryItem cat)
+                Vm.SelectCategoryCommand.Execute(cat.Name);
         }
     }
 }

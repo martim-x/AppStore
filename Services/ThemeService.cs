@@ -9,6 +9,9 @@ namespace Project.Services
 
         public bool IsDark => _isDark;
 
+        /// <inheritdoc />
+        public event Action<bool>? ThemeChanged;
+
         /// <summary>
         /// Swaps the style/theme ResourceDictionary at index 0 of
         /// Application.Current.Resources.MergedDictionaries.
@@ -26,6 +29,10 @@ namespace Project.Services
                 : "pack://application:,,,/Resources/Styles/LightAppTheme.xaml";
 
             dicts[0] = new ResourceDictionary { Source = new Uri(themeUri, UriKind.Absolute) };
+
+            // Оптимизированные подписчики (баннер и т.п.) перерисовываются
+            // под новую тему без пересоздания окна.
+            ThemeChanged?.Invoke(isDark);
         }
     }
 }

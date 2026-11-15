@@ -495,6 +495,20 @@ namespace Project.ViewModels
 
         private void RefreshList()
         {
+            // Экран «Категории»: плитки категорий с поиском (решение автора
+            // 15.11.2026) — список приложений на нём не показывается.
+            if (_selectedCategory == "Categories")
+            {
+                BuildCategoriesView();
+                Apps = new ObservableCollection<App>();
+                OnPropertyChanged(nameof(IsCategoriesViewOpen));
+                OnPropertyChanged(nameof(IsEmpty));
+                OnPropertyChanged(nameof(IsFeaturedVisible));
+                return;
+            }
+
+            OnPropertyChanged(nameof(IsCategoriesViewOpen));
+
             var result = BuildQuery();
 
             if (_visibleCount < int.MaxValue)
@@ -505,21 +519,91 @@ namespace Project.ViewModels
             OnPropertyChanged(nameof(IsFeaturedVisible));
         }
 
+        /// <summary>Поиск по названию, разработчику, категории и тегам.</summary>
+        private static IEnumerable<App> SearchFilter(IEnumerable<App> all, string q)
+        {
+            return all.Where(a =>
+                a.ShortName.ToLowerInvariant().Contains(q)
+                || a.FullName.ToLowerInvariant().Contains(q)
+                || a.Developer.ToLowerInvariant().Contains(q)
+                || a.Category.ToLowerInvariant().Contains(q)
+                || a.Tags.Any(t => t.ToLowerInvariant().Contains(q))
+            );
+        }
+
+        /// <summary>Верхняя граница фильтра цены из настроек (appsettings.json).</summary>
+        private static double MaxPriceBound => AppStore.Core.Configuration.Settings.Instance.MaxPriceFilter;
+
+        // ── categories screen ───────────────────────────────────────────────
+
+        public bool IsCategoriesViewOpen => _selectedCategory == "Categories" && !IsDetailOpen;
+
+        private string _categorySearchQuery = string.Empty;
+
+        /// <summary>Поисковый запрос на экране «Категории» (фильтр плиток).</summary>
+        public string CategorySearchQuery
+        {
+            get => _categorySearchQuery;
+            set
+            {
+                if (SetField(ref _categorySearchQuery, value))
+                    BuildCategoriesView();
+            }
+        }
+
+        public ObservableCollection<CategoryItem> CategoriesView { get; } = new();
+
+        /// <summary>Плитка категории: имя в БД + локализованное название + число приложений.</summary>
+        public sealed record CategoryItem(string Name, string LocalizedName, int Count);
+
+        private void BuildCategoriesView()
+        {
+            CategoriesView.Clear();
+
+            var q = _categorySearchQuery.Trim().ToLowerInvariant();
+            var groups = _repo
+                .GetAllApps()
+                .GroupBy(a => a.Category)
+                .Select(g => new CategoryItem(
+                    g.Key,
+                    LocalizeCategory(g.Key) ?? g.Key,
+                    g.Count()))
+                .Where(c =>
+                    string.IsNullOrEmpty(q)
+                    || c.Name.ToLowerInvariant().Contains(q)
+                    || c.LocalizedName.ToLowerInvariant().Contains(q))
+                .OrderBy(c => c.LocalizedName);
+
+            foreach (var item in groups)
+                CategoriesView.Add(item);
+        }
+
         private IEnumerable<App> BuildQuery()
         {
-            var all = _repo.GetAllApps();
+            IEnumerable<App> all = _repo.GetAllApps();
+
+            // Фильтры панели «Фильтры» действуют во всех режимах
+            // (поиск, теги, разделы) — раньше цена и рейтинг применялись
+            // только к обычному списку (баг: фильтр по цене «не работал»).
+            if (_downloadedOnly || _selectedCategory == "Installed")
+                all = all.Where(a => a.IsDownloaded);
+
+            if (_minPrice > 0)
+                all = all.Where(a => a.FinalPrice >= _minPrice);
+
+            if (_maxPrice < MaxPriceBound)
+                all = all.Where(a => a.FinalPrice <= _maxPrice);
+
+            if (_minRating > 0)
+                all = all.Where(a => a.Rating >= _minRating);
 
             // Search takes priority
             if (!string.IsNullOrWhiteSpace(_searchQuery))
             {
                 var q = _searchQuery.ToLowerInvariant();
-                return all.Where(a =>
-                    a.ShortName.ToLowerInvariant().Contains(q)
-                    || a.FullName.ToLowerInvariant().Contains(q)
-                    || a.Developer.ToLowerInvariant().Contains(q)
-                    || a.Category.ToLowerInvariant().Contains(q)
-                    || a.Tags.Any(t => t.ToLowerInvariant().Contains(q))
-                );
+                return _sortBy == "name"
+                    ? SearchFilter(all, q).OrderBy(a => a.ShortName)
+                    : SearchFilter(all, q).OrderByDescending(a => a.Rating);
             }
 
             // Tag filter
@@ -543,18 +627,6 @@ namespace Project.ViewModels
 
             if (dbCat != null)
                 query = query.Where(a => a.Category == dbCat);
-
-            if (_selectedCategory == "Installed" || _downloadedOnly)
-                query = query.Where(a => a.IsDownloaded);
-
-            if (_minPrice > 0)
-                query = query.Where(a => a.FinalPrice >= _minPrice);
-
-            if (_maxPrice < 1000)
-                query = query.Where(a => a.FinalPrice <= _maxPrice);
-
-            if (_minRating > 0)
-                query = query.Where(a => a.Rating >= _minRating);
 
             return _sortBy switch
             {

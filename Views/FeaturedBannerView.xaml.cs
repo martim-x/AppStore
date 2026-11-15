@@ -131,7 +131,33 @@ namespace Project.Views
             // Direct event при загрузке
             RaiseEvent(new RoutedEventArgs(BannerLoadedEvent, this));
 
-            bool isDark = Application.Current.Resources["IsDarkTheme"] is bool b && b;
+            // Баннер перекрашивается при смене темы в рантайме: подписка
+            // на ThemeService.ThemeChanged (раньше тема читалась один раз
+            // из несуществующего ключа IsDarkTheme — баннер всегда был светлым).
+            if (DataContext is MainViewModel vm)
+            {
+                vm.ThemeService.ThemeChanged -= OnThemeChanged;
+                vm.ThemeService.ThemeChanged += OnThemeChanged;
+            }
+
+            ApplyBannerTheme();
+            Unloaded += (_, __) =>
+            {
+                if (DataContext is MainViewModel vm2)
+                    vm2.ThemeService.ThemeChanged -= OnThemeChanged;
+            };
+        }
+
+        private void OnThemeChanged(bool isDark) => ApplyBannerTheme();
+
+        private void ApplyBannerTheme()
+        {
+            // Текущая тема определяется по активному словарю стилей:
+            // индекс 0 MergedDictionaries — DarkAppTheme или LightAppTheme.
+            var source = Application.Current.Resources.MergedDictionaries.Count > 0
+                ? Application.Current.Resources.MergedDictionaries[0].Source?.ToString() ?? ""
+                : "";
+            bool isDark = source.Contains("DarkAppTheme", StringComparison.OrdinalIgnoreCase);
 
             Color startBase = isDark
                 ? (Color)ColorConverter.ConvertFromString("#162447")

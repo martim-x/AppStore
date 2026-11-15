@@ -260,6 +260,16 @@
             IsChecked="{Binding App.IsFeatured}"
           />
         </WrapPanel>
+        <!-- Удаление приложения (REPORT-010: без промежуточного диалога) -->
+        <Button
+          Style="{DynamicResource DangerButtonStyle}"
+          HorizontalAlignment="Stretch"
+          Command="{Binding DeleteCommand}"
+          Visibility="{Binding IsEditMode, Converter={StaticResource BoolToVis}}"
+          Margin="0,8,0,0"
+        >
+          <TextBlock Text="{DynamicResource DeleteAppTitle}" FontSize="13" FontWeight="SemiBold" />
+        </Button>
       </StackPanel>
     </ScrollViewer>
     <!-- Footer -->

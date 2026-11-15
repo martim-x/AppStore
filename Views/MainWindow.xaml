@@ -26,7 +26,7 @@
   </Window.CommandBindings>
   <Grid>
     <Grid.ColumnDefinitions>
-      <ColumnDefinition Width="220" MinWidth="180" MaxWidth="280" />
+      <ColumnDefinition Width="270" MinWidth="220" MaxWidth="330" />
       <ColumnDefinition Width="*" />
     </Grid.ColumnDefinitions>
     <!-- SIDEBAR -->
@@ -448,7 +448,7 @@
         Grid.Row="2"
         VerticalScrollBarVisibility="Auto"
         HorizontalScrollBarVisibility="Disabled"
-        Visibility="{Binding IsCategoryGridOpen, Converter={StaticResource InverseBoolToVis}}"
+        Visibility="{Binding IsCategoriesViewOpen, Converter={StaticResource InverseBoolToVis}}"
       >
         <StackPanel>
           <Grid Margin="20,14,20,4">
@@ -510,6 +510,83 @@
               HorizontalAlignment="Center"
             />
           </StackPanel>
+        </StackPanel>
+      </ScrollViewer>
+      <!-- CATEGORIES SCREEN: плитки категорий с поиском (решение автора 15.11.2026) -->
+      <ScrollViewer
+        Grid.Row="2"
+        Padding="20,14,20,20"
+        VerticalScrollBarVisibility="Auto"
+        HorizontalScrollBarVisibility="Disabled"
+        Visibility="{Binding IsCategoriesViewOpen, Converter={StaticResource BoolToVis}}"
+      >
+        <StackPanel>
+          <TextBlock
+            Text="{DynamicResource CatCategories}"
+            FontSize="17"
+            FontWeight="Bold"
+            Foreground="{DynamicResource TitleTextBrush}"
+            Margin="0,0,0,10"
+          />
+          <TextBox
+            Style="{DynamicResource FormTextBoxStyle}"
+            BorderBrush="{DynamicResource DividerBrush}"
+            Text="{Binding CategorySearchQuery, UpdateSourceTrigger=PropertyChanged}"
+            Tag="{DynamicResource SearchCategoriesHint}"
+            Margin="0,0,0,14"
+          />
+          <ItemsControl ItemsSource="{Binding CategoriesView}">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate>
+                <WrapPanel Orientation="Horizontal" />
+              </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <Border
+                  Background="{DynamicResource InfoCardBgBrush}"
+                  CornerRadius="10"
+                  Margin="0,0,12,12"
+                  Padding="16,12"
+                  Width="220"
+                  Cursor="Hand"
+                  MouseLeftButtonUp="OnCategoryTileClick"
+                >
+                  <Grid>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*" />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                      <TextBlock
+                        Text="{Binding LocalizedName}"
+                        FontSize="14"
+                        FontWeight="SemiBold"
+                        Foreground="{DynamicResource TitleTextBrush}"
+                        TextTrimming="CharacterEllipsis"
+                      />
+                      <TextBlock
+                        FontSize="11"
+                        Foreground="{DynamicResource SecondaryTextBrush}"
+                        Margin="0,2,0,0"
+                      >
+                        <Run Text="{Binding Count, Mode=OneWay}" />
+                        <Run Text="{DynamicResource AppsSuffix}" />
+                      </TextBlock>
+                    </StackPanel>
+                    <TextBlock
+                      Grid.Column="1"
+                      Text="→"
+                      FontSize="14"
+                      Foreground="{DynamicResource SeeAllBrush}"
+                      VerticalAlignment="Center"
+                      Margin="10,0,0,0"
+                    />
+                  </Grid>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
         </StackPanel>
       </ScrollViewer>
     </Grid>
@@ -608,7 +685,7 @@
           <Slider
             Style="{DynamicResource DarkSliderStyle}"
             Minimum="0"
-            Maximum="100"
+            Maximum="1000"
             Value="{Binding MaxPrice}"
             Margin="0,0,0,14"
           />

@@ -27,6 +27,25 @@ namespace Project.Views
                 DialogResult = false;
                 Close();
             };
+            // Удаление из формы правки (REPORT-010): подтверждение и закрытие.
+            vm.OnDeleted = () =>
+            {
+                var confirm = new ConfirmDialog(
+                    (string)Application.Current.Resources["DeleteConfirmTitle"],
+                    (string)Application.Current.Resources["DeleteConfirmMsg"],
+                    (string)Application.Current.Resources["DeleteBtn"],
+                    isDanger: true
+                )
+                { Owner = this };
+
+                confirm.ShowDialog();
+
+                if (confirm.DialogResult == true)
+                {
+                    DialogResult = true;
+                    Close();
+                }
+            };
             DataContext = vm;
             Title = "Add New App";
         }

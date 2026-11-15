@@ -95,7 +95,7 @@
           Text="{Binding FirstName, UpdateSourceTrigger=PropertyChanged}"
           Tag="{DynamicResource PlaceholderFirstName}"
           Margin="0,0,0,10"
-          MinHeight="34"
+          MinHeight="39"
         />
         <!-- Last Name -->
         <TextBlock
@@ -110,7 +110,7 @@
           Text="{Binding LastName, UpdateSourceTrigger=PropertyChanged}"
           Tag="{DynamicResource PlaceholderLastName}"
           Margin="0,0,0,10"
-          MinHeight="34"
+          MinHeight="39"
         />
         <!-- Email -->
         <TextBlock
@@ -125,7 +125,7 @@
           Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"
           Tag="{DynamicResource PlaceholderEmail}"
           Margin="0,0,0,10"
-          MinHeight="34"
+          MinHeight="39"
         />
         <!-- Save Profile button -->
         <Button
@@ -161,7 +161,7 @@
           BorderThickness="1.5"
           BorderBrush="{DynamicResource DividerBrush}"
           Margin="0,0,0,10"
-          MinHeight="34"
+          MinHeight="39"
         >
           <PasswordBox
             x:Name="OldPasswordBox"
@@ -195,7 +195,7 @@
           BorderThickness="1.5"
           BorderBrush="{DynamicResource DividerBrush}"
           Margin="0,0,0,10"
-          MinHeight="34"
+          MinHeight="39"
         >
           <PasswordBox
             x:Name="NewPasswordBox"
