@@ -1,5 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows.Input;
 using Project.Commands;
 using AppStore.Core.Data;
@@ -43,6 +44,25 @@ namespace Project.ViewModels
         public Action? OnSaved { get; set; }
         public Action? OnCancelled { get; set; }
 
+        /// <summary>
+        /// Теги приложения одной строкой (через запятую). REPORT-007: тегами
+        /// управляет администратор — форма Add/Edit доступна только роли Admin;
+        /// разбор и нормализацию выполняет репозиторий (ReplaceTags: trim + distinct).
+        /// </summary>
+        public string TagsText
+        {
+            get => string.Join(", ", App.Tags);
+            set
+            {
+                App.Tags = value
+                    .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(t => t.Trim())
+                    .Where(t => t.Length > 0)
+                    .Distinct()
+                    .ToList();
+            }
+        }
+
         public AddEditAppViewModel(IRepository repo)
         {
             _repo = repo;
@@ -62,6 +82,7 @@ namespace Project.ViewModels
             {
                 Reset();
             }
+            OnPropertyChanged(nameof(TagsText));
         }
 
         private void Reset()

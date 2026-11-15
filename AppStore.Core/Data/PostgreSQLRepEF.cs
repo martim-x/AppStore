@@ -480,6 +480,11 @@ namespace AppStore.Core.Data
             existing.AgeRatingId = app.AgeRatingId;
             ApplyDictionaries(existing, app);
             _db.SaveChanges();
+
+            // Теги перезаписываются целиком (ReplaceTags) — берём список из UI,
+            // иначе трекнутая сущность вернёт прежние связи и правка тегов
+            // молча потеряется (найдено при smoke-тесте 15.11.2026).
+            existing.Tags = app.Tags;
             ReplaceTags(existing);
         }
 

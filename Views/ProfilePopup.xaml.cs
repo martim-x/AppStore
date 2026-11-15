@@ -50,30 +50,9 @@ namespace Project.Views
             vm.GetNewPassword = () => NewPasswordBox.Password;
             DataContext = vm;
 
-            // SizeToContent=Height: фактическая высота известна только после
-            // загрузки окна. Позиционируем там же, иначе попап уходит за нижний
-            // край экрана (в настройках теперь больше строк).
-            Loaded += (_, __) => PositionNearOwner();
-            PositionNearOwner();
-        }
-
-        private void PositionNearOwner()
-        {
-            if (Owner == null)
-                return;
-
-            var height = ActualHeight > 0 ? ActualHeight : 580;
-            var work = SystemParameters.WorkArea;
-
-            Left = Owner.Left + 12;
-
-            var top = Owner.Top + Owner.ActualHeight - height - 8;
-            if (top + height > work.Bottom - 8)
-                top = work.Bottom - height - 8;
-            if (top < work.Top + 8)
-                top = work.Top + 8;
-
-            Top = top;
+            // Позиционирование: WindowStartupLocation=CenterOwner в XAML —
+            // окно настроек всплывает по центру главного окна
+            // (решение автора 15.11.2026, REPORT-010).
         }
 
         private void OnLogout(object sender, RoutedEventArgs e)

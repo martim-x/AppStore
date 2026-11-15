@@ -12,7 +12,7 @@
   WindowStartupLocation="CenterOwner"
   ResizeMode="CanResize"
 >
-  <Grid Margin="24">
+  <Grid Margin="20">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto" />
       <RowDefinition Height="*" />
@@ -212,6 +212,20 @@
           Text="{Binding App.DiscountPercent, UpdateSourceTrigger=PropertyChanged}"
           Margin="0,0,0,14"
         />
+        <!-- REPORT-007: тегами управляет администратор (форма Add/Edit только для Admin) -->
+        <StackPanel Margin="0,0,0,14">
+          <TextBlock
+            Text="{DynamicResource Tags}"
+            Style="{DynamicResource CaptionStyle}"
+            Margin="0,0,0,4"
+          />
+          <TextBox
+            Style="{DynamicResource FormTextBoxStyle}"
+            BorderBrush="{DynamicResource DividerBrush}"
+            Text="{Binding TagsText, UpdateSourceTrigger=PropertyChanged}"
+            ToolTip="{DynamicResource TagsHint}"
+          />
+        </StackPanel>
         <TextBlock Text="App Color (hex)" Style="{DynamicResource CaptionStyle}" Margin="0,0,0,4" />
         <Grid Margin="0,0,0,14">
           <Grid.ColumnDefinitions>

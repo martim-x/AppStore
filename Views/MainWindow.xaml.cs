@@ -130,6 +130,7 @@ namespace Project.Views
         private void OnAddAppClick(object sender, RoutedEventArgs e)
         {
             var dlg = _services.GetService<AddEditWindow>() ?? new AddEditWindow(_services);
+            dlg.Owner = this; // REPORT-010: по центру главного окна
 
             if (dlg.ShowDialog() == true)
                 Vm.RefreshCommand.Execute(null);

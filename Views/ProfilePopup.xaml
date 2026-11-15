@@ -8,6 +8,7 @@
   SizeToContent="Height"
   ResizeMode="CanResize"
   ShowInTaskbar="False"
+  WindowStartupLocation="CenterOwner"
   Deactivated="OnDeactivated"
 >
   <!--
@@ -30,7 +31,7 @@
     </Border.Effect>
     <StackPanel>
       <!-- ═══ Avatar + Name + Role ══════════════════════════ -->
-      <StackPanel Margin="18,18,18,14" HorizontalAlignment="Center">
+      <StackPanel Margin="20,20,20,14" HorizontalAlignment="Center">
         <Border
           x:Name="AvatarBorder"
           Width="56"
@@ -68,7 +69,7 @@
       <!-- ── Separator ─────────────────────────────────────── -->
       <Border Height="1" Background="{DynamicResource SeparatorBrush}" />
       <!-- ═══ Editable Profile Fields ═══════════════════════ -->
-      <StackPanel Margin="18,14,18,14">
+      <StackPanel Margin="20,14,20,14">
         <TextBlock
           Text="{DynamicResource ProfileEditTitle}"
           FontSize="12"
@@ -79,37 +80,37 @@
         <!-- First Name -->
         <TextBlock
           Text="{DynamicResource LabelFirstName}"
-          FontSize="11"
+          FontSize="12"
           Foreground="{DynamicResource SecondaryTextBrush}"
-          Margin="0,0,0,4"
+          Margin="0,0,0,6"
         />
         <TextBox
           Style="{DynamicResource FormTextBoxStyle}"
           BorderBrush="{DynamicResource DividerBrush}"
           Text="{Binding FirstName, UpdateSourceTrigger=PropertyChanged}"
           Tag="{DynamicResource PlaceholderFirstName}"
-          Margin="0,0,0,10"
+          Margin="0,0,0,14"
         />
         <!-- Last Name -->
         <TextBlock
           Text="{DynamicResource LabelLastName}"
-          FontSize="11"
+          FontSize="12"
           Foreground="{DynamicResource SecondaryTextBrush}"
-          Margin="0,0,0,4"
+          Margin="0,0,0,6"
         />
         <TextBox
           Style="{DynamicResource FormTextBoxStyle}"
           BorderBrush="{DynamicResource DividerBrush}"
           Text="{Binding LastName, UpdateSourceTrigger=PropertyChanged}"
           Tag="{DynamicResource PlaceholderLastName}"
-          Margin="0,0,0,10"
+          Margin="0,0,0,14"
         />
         <!-- Email -->
         <TextBlock
           Text="{DynamicResource LabelEmail}"
-          FontSize="11"
+          FontSize="12"
           Foreground="{DynamicResource SecondaryTextBrush}"
-          Margin="0,0,0,4"
+          Margin="0,0,0,6"
         />
         <TextBox
           Style="{DynamicResource FormTextBoxStyle}"
@@ -130,7 +131,7 @@
       <!-- ── Separator ─────────────────────────────────────── -->
       <Border Height="1" Background="{DynamicResource SeparatorBrush}" />
       <!-- ═══ Change Password Section ════════════════════════ -->
-      <StackPanel Margin="18,14,18,14">
+      <StackPanel Margin="20,14,20,14">
         <TextBlock
           Text="{DynamicResource ChangePasswordTitle}"
           FontSize="12"
@@ -141,9 +142,9 @@
         <!-- Old Password -->
         <TextBlock
           Text="{DynamicResource LabelOldPassword}"
-          FontSize="11"
+          FontSize="12"
           Foreground="{DynamicResource SecondaryTextBrush}"
-          Margin="0,0,0,4"
+          Margin="0,0,0,6"
         />
         <Border
           x:Name="OldPwBorder"
@@ -151,7 +152,7 @@
           CornerRadius="10"
           BorderThickness="1.5"
           BorderBrush="{DynamicResource DividerBrush}"
-          Margin="0,0,0,10"
+          Margin="0,0,0,14"
         >
           <PasswordBox
             x:Name="OldPasswordBox"
@@ -174,9 +175,9 @@
         <!-- New Password -->
         <TextBlock
           Text="{DynamicResource LabelNewPassword}"
-          FontSize="11"
+          FontSize="12"
           Foreground="{DynamicResource SecondaryTextBrush}"
-          Margin="0,0,0,4"
+          Margin="0,0,0,6"
         />
         <Border
           x:Name="NewPwBorder"
@@ -221,7 +222,7 @@
       <!-- ── Separator ─────────────────────────────────────── -->
       <Border Height="1" Background="{DynamicResource SeparatorBrush}" />
       <!-- ═══ Database Health Check ══════════════════════════ -->
-      <Grid Margin="18,12,18,12">
+      <Grid Margin="20,12,20,12">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="Auto" />
           <ColumnDefinition Width="*" />
@@ -257,7 +258,7 @@
         <Button
           Grid.Column="2"
           Margin="8,0,0,0"
-          Padding="10,4"
+          Padding="14,6"
           Background="Transparent"
           BorderThickness="0"
           Cursor="Hand"
@@ -292,7 +293,7 @@
       <!-- ── Separator ─────────────────────────────────────── -->
       <Border Height="1" Background="{DynamicResource SeparatorBrush}" />
       <!-- ═══ Language Row (APP-001: настройки отдельно от навигации) ═══ -->
-      <Grid Margin="18,12,18,12">
+      <Grid Margin="20,12,20,12">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*" />
           <ColumnDefinition Width="Auto" />
@@ -334,7 +335,7 @@
       <!-- ── Separator ─────────────────────────────────────── -->
       <Border Height="1" Background="{DynamicResource SeparatorBrush}" />
       <!-- ═══ Dark Mode Toggle Row ════════════════════════════ -->
-      <Grid Margin="18,12,18,12">
+      <Grid Margin="20,12,20,12">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*" />
           <ColumnDefinition Width="Auto" />
@@ -369,7 +370,7 @@
         Background="Transparent"
         BorderThickness="0"
         Cursor="Hand"
-        Padding="18,12"
+        Padding="20,12"
         HorizontalContentAlignment="Left"
       >
         <Button.Template>
