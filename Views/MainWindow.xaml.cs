@@ -131,12 +131,36 @@ namespace Project.Views
         // край совпадает с правым краем главного окна (решение автора 15.11.2026).
         private void OnFilterPopupOpened(object sender, EventArgs e)
         {
+            UpdateFilterPopupPosition();
+        }
+
+        private void UpdateFilterPopupPosition()
+        {
+            if (FilterPopup.Child is FrameworkElement content)
+            {
+                content.SizeChanged -= OnFilterPopupContentSizeChanged;
+                content.SizeChanged += OnFilterPopupContentSizeChanged;
+            }
+
             if (FilterPopup.PlacementTarget is FrameworkElement target
                 && Window.GetWindow(target) is Window win)
             {
                 var leftInWin = target.TranslatePoint(new Point(0, 0), win).X;
                 FilterPopup.HorizontalOffset =
                     win.ActualWidth - FilterPopup.ActualWidth - leftInWin;
+            }
+        }
+
+        // Фактическая ширина попапа известна после layout'а — пересчитываем
+        // позицию, чтобы правый край точно совпал с краем главного окна.
+        private void OnFilterPopupContentSizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (FilterPopup.PlacementTarget is FrameworkElement target
+                && Window.GetWindow(target) is Window win)
+            {
+                var leftInWin = target.TranslatePoint(new Point(0, 0), win).X;
+                FilterPopup.HorizontalOffset =
+                    win.ActualWidth - e.NewSize.Width - leftInWin;
             }
         }
 

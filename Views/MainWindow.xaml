@@ -611,8 +611,9 @@
       <Border
         Background="{DynamicResource FilterPopupBgBrush}"
         CornerRadius="12"
-        Padding="14,10"
-        MinWidth="420"
+        Padding="10,8"
+        Width="360"
+        MinWidth="360"
         BorderThickness="1"
         BorderBrush="{DynamicResource FilterPopupBorderBrush}"
       >
@@ -622,10 +623,10 @@
         <StackPanel>
           <TextBlock
             Text="{DynamicResource Filters}"
-            FontSize="13"
+            FontSize="12"
             FontWeight="SemiBold"
             Foreground="{DynamicResource TitleTextBrush}"
-            Margin="0,0,0,10"
+            Margin="0,0,0,8"
           />
           <!-- Сортировка -->
           <Grid Margin="0,0,0,8">
