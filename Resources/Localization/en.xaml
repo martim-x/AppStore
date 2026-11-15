@@ -14,6 +14,17 @@
   <sys:String x:Key="CatDevelop">Develop</sys:String>
   <sys:String x:Key="CatCategories">Categories</sys:String>
   <sys:String x:Key="CatInstalled">Installed</sys:String>
+  <!-- App categories (данные БД локализуются конвертером CategoryConverter) -->
+  <sys:String x:Key="Cat01Development">Development</sys:String>
+  <sys:String x:Key="Cat02Design">Design</sys:String>
+  <sys:String x:Key="Cat03Productivity">Productivity</sys:String>
+  <sys:String x:Key="Cat04Games">Games</sys:String>
+  <sys:String x:Key="Cat05Media">Media</sys:String>
+  <sys:String x:Key="Cat06Social">Social</sys:String>
+  <sys:String x:Key="Cat07Utilities">Utilities</sys:String>
+  <sys:String x:Key="Cat08Education">Education</sys:String>
+  <sys:String x:Key="Cat09Finance">Finance</sys:String>
+  <sys:String x:Key="Cat10Health">Health</sys:String>
   <!-- Section headers -->
   <sys:String x:Key="TopApps">Top Apps</sys:String>
   <sys:String x:Key="SeeAll">See All</sys:String>
@@ -31,8 +42,9 @@
   <sys:String x:Key="TileDevLabel">Developer</sys:String>
   <sys:String x:Key="TileLang">Language</sys:String>
   <sys:String x:Key="TileSize">Size</sys:String>
-  <sys:String x:Key="BtnOpen">Open</sys:String>
+  <sys:String x:Key="BtnOpen">Delete App</sys:String>
   <sys:String x:Key="BtnGet">Get</sys:String>
+  <sys:String x:Key="Free">Free</sys:String>
   <sys:String x:Key="BtnUninstall">Uninstall</sys:String>
   <!-- Detail view -->
   <sys:String x:Key="Back">Back</sys:String>

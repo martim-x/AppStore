@@ -30,15 +30,26 @@
       <DropShadowEffect ShadowDepth="0" BlurRadius="28" Opacity="0.22" Color="#000000" />
     </Border.Effect>
     <StackPanel>
-      <!-- ═══ Avatar + Name + Role ══════════════════════════ -->
-      <StackPanel Margin="20,20,20,14" HorizontalAlignment="Center">
+      <!-- ═══ Заголовок «Профиль» ═══════════════════════════ -->
+      <TextBlock
+        Text="{DynamicResource ProfileEditTitle}"
+        FontSize="14"
+        FontWeight="SemiBold"
+        Foreground="{DynamicResource TitleTextBrush}"
+        Margin="20,16,20,10"
+      />
+      <!-- ═══ Шапка: аватар + имя + статус ══════════════════ -->
+      <Grid Margin="20,0,20,10">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto" />
+          <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
         <Border
           x:Name="AvatarBorder"
+          Grid.Column="0"
           Width="56"
           Height="56"
           CornerRadius="28"
-          HorizontalAlignment="Center"
-          Margin="0,0,0,10"
         >
           <TextBlock
             x:Name="AvatarLetter"
@@ -49,75 +60,72 @@
             VerticalAlignment="Center"
           />
         </Border>
-        <TextBlock
-          x:Name="LoginText"
-          FontSize="15"
-          FontWeight="SemiBold"
-          Foreground="{DynamicResource TitleTextBrush}"
-          HorizontalAlignment="Center"
-        />
-        <Border
-          x:Name="RoleBadge"
-          CornerRadius="8"
-          Padding="10,3"
-          HorizontalAlignment="Center"
-          Margin="0,6,0,0"
-        >
-          <TextBlock x:Name="RoleText" FontSize="11" FontWeight="SemiBold" Foreground="White" />
-        </Border>
-      </StackPanel>
+        <StackPanel Grid.Column="1" Margin="16,0,0,0" VerticalAlignment="Center">
+          <TextBlock
+            x:Name="LoginText"
+            FontSize="16"
+            FontWeight="SemiBold"
+            Foreground="{DynamicResource TitleTextBrush}"
+          />
+          <Border
+            x:Name="RoleBadge"
+            CornerRadius="10"
+            Padding="10,4"
+            HorizontalAlignment="Left"
+            Margin="0,10,0,0"
+          >
+            <TextBlock x:Name="RoleText" FontSize="12" FontWeight="SemiBold" Foreground="White" />
+          </Border>
+        </StackPanel>
+      </Grid>
       <!-- ── Separator ─────────────────────────────────────── -->
       <Border Height="1" Background="{DynamicResource SeparatorBrush}" />
-      <!-- ═══ Editable Profile Fields ═══════════════════════ -->
-      <StackPanel Margin="20,14,20,14">
-        <TextBlock
-          Text="{DynamicResource ProfileEditTitle}"
-          FontSize="12"
-          FontWeight="SemiBold"
-          Foreground="{DynamicResource SecondaryTextBrush}"
-          Margin="0,0,0,10"
-        />
+      <!-- ═══ Поля профиля (Имя, Фамилия, Эл. почта) ════════ -->
+      <StackPanel Margin="20,10,20,10">
         <!-- First Name -->
         <TextBlock
           Text="{DynamicResource LabelFirstName}"
           FontSize="12"
           Foreground="{DynamicResource SecondaryTextBrush}"
-          Margin="0,0,0,6"
+          Margin="0,0,0,10"
         />
         <TextBox
           Style="{DynamicResource FormTextBoxStyle}"
           BorderBrush="{DynamicResource DividerBrush}"
           Text="{Binding FirstName, UpdateSourceTrigger=PropertyChanged}"
           Tag="{DynamicResource PlaceholderFirstName}"
-          Margin="0,0,0,14"
+          Margin="0,0,0,10"
+          MinHeight="34"
         />
         <!-- Last Name -->
         <TextBlock
           Text="{DynamicResource LabelLastName}"
           FontSize="12"
           Foreground="{DynamicResource SecondaryTextBrush}"
-          Margin="0,0,0,6"
+          Margin="0,0,0,10"
         />
         <TextBox
           Style="{DynamicResource FormTextBoxStyle}"
           BorderBrush="{DynamicResource DividerBrush}"
           Text="{Binding LastName, UpdateSourceTrigger=PropertyChanged}"
           Tag="{DynamicResource PlaceholderLastName}"
-          Margin="0,0,0,14"
+          Margin="0,0,0,10"
+          MinHeight="34"
         />
         <!-- Email -->
         <TextBlock
           Text="{DynamicResource LabelEmail}"
           FontSize="12"
           Foreground="{DynamicResource SecondaryTextBrush}"
-          Margin="0,0,0,6"
+          Margin="0,0,0,10"
         />
         <TextBox
           Style="{DynamicResource FormTextBoxStyle}"
           BorderBrush="{DynamicResource DividerBrush}"
           Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"
           Tag="{DynamicResource PlaceholderEmail}"
-          Margin="0,0,0,14"
+          Margin="0,0,0,10"
+          MinHeight="34"
         />
         <!-- Save Profile button -->
         <Button
@@ -131,12 +139,12 @@
       <!-- ── Separator ─────────────────────────────────────── -->
       <Border Height="1" Background="{DynamicResource SeparatorBrush}" />
       <!-- ═══ Change Password Section ════════════════════════ -->
-      <StackPanel Margin="20,14,20,14">
+      <StackPanel Margin="20,10,20,10">
         <TextBlock
           Text="{DynamicResource ChangePasswordTitle}"
-          FontSize="12"
+          FontSize="13"
           FontWeight="SemiBold"
-          Foreground="{DynamicResource SecondaryTextBrush}"
+          Foreground="{DynamicResource TitleTextBrush}"
           Margin="0,0,0,10"
         />
         <!-- Old Password -->
@@ -144,7 +152,7 @@
           Text="{DynamicResource LabelOldPassword}"
           FontSize="12"
           Foreground="{DynamicResource SecondaryTextBrush}"
-          Margin="0,0,0,6"
+          Margin="0,0,0,10"
         />
         <Border
           x:Name="OldPwBorder"
@@ -152,7 +160,8 @@
           CornerRadius="10"
           BorderThickness="1.5"
           BorderBrush="{DynamicResource DividerBrush}"
-          Margin="0,0,0,14"
+          Margin="0,0,0,10"
+          MinHeight="34"
         >
           <PasswordBox
             x:Name="OldPasswordBox"
@@ -177,7 +186,7 @@
           Text="{DynamicResource LabelNewPassword}"
           FontSize="12"
           Foreground="{DynamicResource SecondaryTextBrush}"
-          Margin="0,0,0,6"
+          Margin="0,0,0,10"
         />
         <Border
           x:Name="NewPwBorder"
@@ -185,7 +194,8 @@
           CornerRadius="10"
           BorderThickness="1.5"
           BorderBrush="{DynamicResource DividerBrush}"
-          Margin="0,0,0,14"
+          Margin="0,0,0,10"
+          MinHeight="34"
         >
           <PasswordBox
             x:Name="NewPasswordBox"
@@ -221,79 +231,9 @@
       </StackPanel>
       <!-- ── Separator ─────────────────────────────────────── -->
       <Border Height="1" Background="{DynamicResource SeparatorBrush}" />
-      <!-- ═══ Database Health Check ══════════════════════════ -->
-      <Grid Margin="20,12,20,12">
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="Auto" />
-          <ColumnDefinition Width="*" />
-          <ColumnDefinition Width="Auto" />
-        </Grid.ColumnDefinitions>
-        <!-- Индикатор состояния БД -->
-        <Ellipse
-          Grid.Column="0"
-          Width="9"
-          Height="9"
-          VerticalAlignment="Center"
-          Margin="0,0,9,0"
-        >
-          <Ellipse.Style>
-            <Style TargetType="Ellipse">
-              <Setter Property="Fill" Value="#34C759" />
-              <Style.Triggers>
-                <DataTrigger Binding="{Binding IsDatabaseHealthy}" Value="False">
-                  <Setter Property="Fill" Value="#FF3B30" />
-                </DataTrigger>
-              </Style.Triggers>
-            </Style>
-          </Ellipse.Style>
-        </Ellipse>
-        <TextBlock
-          Grid.Column="1"
-          VerticalAlignment="Center"
-          Text="{Binding DatabaseStatus}"
-          TextTrimming="CharacterEllipsis"
-          FontSize="11"
-          Foreground="{DynamicResource SecondaryTextBrush}"
-        />
-        <Button
-          Grid.Column="2"
-          Margin="8,0,0,0"
-          Padding="14,6"
-          Background="Transparent"
-          BorderThickness="0"
-          Cursor="Hand"
-          Command="{Binding CheckDatabaseCommand}"
-          ToolTip="{DynamicResource HealthCheckHint}"
-        >
-          <Button.Template>
-            <ControlTemplate TargetType="Button">
-              <Border
-                x:Name="Bd"
-                Background="{TemplateBinding Background}"
-                Padding="{TemplateBinding Padding}"
-                CornerRadius="6"
-              >
-                <ContentPresenter />
-              </Border>
-              <ControlTemplate.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                  <Setter TargetName="Bd" Property="Background" Value="#1F0072F7" />
-                </Trigger>
-              </ControlTemplate.Triggers>
-            </ControlTemplate>
-          </Button.Template>
-          <TextBlock
-            Text="{DynamicResource HealthCheckRefresh}"
-            FontSize="11"
-            FontWeight="SemiBold"
-            Foreground="{DynamicResource AccentBlueBrush}"
-          />
-        </Button>
-      </Grid>
-      <!-- ── Separator ─────────────────────────────────────── -->
-      <Border Height="1" Background="{DynamicResource SeparatorBrush}" />
+      <!-- ═══ Database Health Check: убран по решению автора (15.11.2026) ═══ -->
       <!-- ═══ Language Row (APP-001: настройки отдельно от навигации) ═══ -->
-      <Grid Margin="20,12,20,12">
+      <Grid Margin="20,10,20,10">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*" />
           <ColumnDefinition Width="Auto" />
@@ -309,7 +249,7 @@
             Text="{DynamicResource LanguageHint}"
             FontSize="11"
             Foreground="{DynamicResource SecondaryTextBrush}"
-            Margin="0,2,0,0"
+            Margin="0,4,0,0"
           />
         </StackPanel>
         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
@@ -318,16 +258,16 @@
             Tag="ru"
             Click="OnLanguageClick"
             Style="{DynamicResource GetButtonStyle}"
-            Padding="10,4"
+            Padding="12,0"
             FontSize="12"
-            Margin="0,0,6,0"
+            Margin="0,0,10,0"
           />
           <Button
             Content="EN"
             Tag="en"
             Click="OnLanguageClick"
             Style="{DynamicResource GetButtonStyle}"
-            Padding="10,4"
+            Padding="12,0"
             FontSize="12"
           />
         </StackPanel>
@@ -335,7 +275,7 @@
       <!-- ── Separator ─────────────────────────────────────── -->
       <Border Height="1" Background="{DynamicResource SeparatorBrush}" />
       <!-- ═══ Dark Mode Toggle Row ════════════════════════════ -->
-      <Grid Margin="20,12,20,12">
+      <Grid Margin="20,10,20,10">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*" />
           <ColumnDefinition Width="Auto" />
@@ -351,7 +291,7 @@
             Text="{DynamicResource DarkModeHint}"
             FontSize="11"
             Foreground="{DynamicResource SecondaryTextBrush}"
-            Margin="0,2,0,0"
+            Margin="0,4,0,0"
           />
         </StackPanel>
         <ToggleButton
@@ -370,7 +310,7 @@
         Background="Transparent"
         BorderThickness="0"
         Cursor="Hand"
-        Padding="20,12"
+        Padding="20,10"
         HorizontalContentAlignment="Left"
       >
         <Button.Template>
@@ -408,7 +348,7 @@
           />
         </StackPanel>
       </Button>
-      <Border Height="4" />
+      <Border Height="10" />
     </StackPanel>
   </Border>
 </Window>

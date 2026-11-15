@@ -653,7 +653,6 @@ namespace AppStore.Core.Data
                 ?? throw new InvalidOperationException($"App with id {appId} not found.");
 
             var existing = _db.AppRatings.FirstOrDefault(r => r.UserId == _userId && r.AppId == appId);
-            var oldValue = existing?.Value;
 
             if (existing == null)
             {
@@ -671,11 +670,20 @@ namespace AppStore.Core.Data
                 existing.RatedAt = DateTime.Now;
             }
 
-            var (rating, count) = Project.Services.RatingAggregator.Apply(
-                app.Rating, app.RatingCount, oldValue, value);
+            // Оценка приложения = среднее арифметическое оценок пользователей
+            // из app_ratings (решение автора 15.11.2026); seed-значения
+            // apps.rating/rating_count больше не участвуют в расчёте.
+            // Сначала сохраняем строку оценки, затем берём среднее из БД —
+            // иначе запрос не видит несохранённое значение.
+            _db.SaveChanges();
 
-            app.Rating = rating;
-            app.RatingCount = count;
+            var avg = _db.AppRatings
+                .Where(r => r.AppId == appId)
+                .Select(r => (int?)r.Value)
+                .ToList();
+
+            app.Rating = avg.Count > 0 ? Math.Round(avg.Average(v => v!.Value), 1) : 0;
+            app.RatingCount = avg.Count;
 
             _db.SaveChanges();
         }

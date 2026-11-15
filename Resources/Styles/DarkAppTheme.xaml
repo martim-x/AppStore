@@ -78,7 +78,7 @@
           <Border
             x:Name="Bd"
             Background="{TemplateBinding Background}"
-            CornerRadius="8"
+            CornerRadius="10"
             Padding="{TemplateBinding Padding}"
           >
             <TextBlock
@@ -167,7 +167,8 @@
     <Setter Property="Foreground" Value="{DynamicResource GetBtnTextBrush}" />
     <Setter Property="FontSize" Value="{StaticResource NavFontSize}" />
     <Setter Property="FontWeight" Value="SemiBold" />
-    <Setter Property="Padding" Value="14,5" />
+    <Setter Property="Padding" Value="18,0" />
+    <Setter Property="MinHeight" Value="40" />
     <Setter Property="Cursor" Value="Hand" />
     <Setter Property="FocusVisualStyle" Value="{x:Null}" />
     <Setter Property="Template">
@@ -176,7 +177,7 @@
           <Border
             x:Name="Bd"
             Background="{TemplateBinding Background}"
-            CornerRadius="8"
+            CornerRadius="10"
             Padding="{TemplateBinding Padding}"
           >
             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
@@ -202,7 +203,8 @@
     <Setter Property="Foreground" Value="White" />
     <Setter Property="FontSize" Value="{StaticResource NavFontSize}" />
     <Setter Property="FontWeight" Value="SemiBold" />
-    <Setter Property="Padding" Value="14,6" />
+    <Setter Property="Padding" Value="18,0" />
+    <Setter Property="MinHeight" Value="40" />
     <Setter Property="Cursor" Value="Hand" />
     <Setter Property="FocusVisualStyle" Value="{x:Null}" />
     <Setter Property="Template">
@@ -211,7 +213,7 @@
           <Border
             x:Name="Bd"
             Background="{TemplateBinding Background}"
-            CornerRadius="8"
+            CornerRadius="10"
             Padding="{TemplateBinding Padding}"
           >
             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
@@ -251,7 +253,7 @@
           <Border
             x:Name="Bd"
             Background="{TemplateBinding Background}"
-            CornerRadius="8"
+            CornerRadius="10"
             Padding="{TemplateBinding Padding}"
           >
             <ContentPresenter
@@ -279,6 +281,7 @@
     <Setter Property="FontSize" Value="{StaticResource FormFontSize}" />
     <Setter Property="BorderThickness" Value="1.5" />
     <Setter Property="Padding" Value="12,10" />
+    <Setter Property="MinHeight" Value="40" />
     <Setter Property="FocusVisualStyle" Value="{x:Null}" />
     <Setter Property="Template">
       <Setter.Value>
@@ -610,6 +613,138 @@
             </Trigger>
             <Trigger Property="IsMouseOver" Value="True">
               <Setter TargetName="Track" Property="Opacity" Value="0.9" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <!--
+      Implicit ComboBox style ── выпадающий список наследует тему.
+      Без этого стиля PART_Popup ComboBox'а рисуется системным белым
+      и в тёмной теме выглядит светлым (замечание автора 15.11.2026).
+      Шаблон совместим с IsEditable=false (все ComboBox проекта таковы).
+  -->
+  <Style TargetType="ComboBox">
+    <Setter Property="Background" Value="{DynamicResource InfoCardBgBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource TitleTextBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource DividerBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="FontSize" Value="{StaticResource FormFontSize}" />
+    <Setter Property="MinHeight" Value="40" />
+    <Setter Property="Padding" Value="12,0" />
+    <Setter Property="SnapsToDevicePixels" Value="True" />
+    <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+    <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto" />
+    <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
+    <Setter Property="ScrollViewer.CanContentScroll" Value="True" />
+    <Setter Property="ItemContainerStyle">
+      <Setter.Value>
+        <Style TargetType="ComboBoxItem">
+          <Setter Property="Foreground" Value="{DynamicResource TitleTextBrush}" />
+          <Setter Property="Padding" Value="12,8" />
+          <Setter Property="SnapsToDevicePixels" Value="True" />
+          <Setter Property="Template">
+            <Setter.Value>
+              <ControlTemplate TargetType="ComboBoxItem">
+                <Border x:Name="Bd" Background="Transparent" Padding="{TemplateBinding Padding}">
+                  <ContentPresenter />
+                </Border>
+                <ControlTemplate.Triggers>
+                  <Trigger Property="IsHighlighted" Value="True">
+                    <Setter
+                      TargetName="Bd"
+                      Property="Background"
+                      Value="{DynamicResource CategorySelectedBgBrush}"
+                    />
+                  </Trigger>
+                  <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}" />
+                  </Trigger>
+                </ControlTemplate.Triggers>
+              </ControlTemplate>
+            </Setter.Value>
+          </Setter>
+        </Style>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="ComboBox">
+          <Grid>
+            <ToggleButton
+              x:Name="ToggleButton"
+              Focusable="False"
+              ClickMode="Press"
+              IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+            >
+              <ToggleButton.Template>
+                <ControlTemplate TargetType="ToggleButton">
+                  <Border
+                    x:Name="Bd"
+                    Background="{DynamicResource InfoCardBgBrush}"
+                    BorderBrush="{DynamicResource DividerBrush}"
+                    BorderThickness="{Binding BorderThickness, RelativeSource={RelativeSource TemplatedParent}}"
+                    CornerRadius="10"
+                  >
+                    <Path
+                      HorizontalAlignment="Right"
+                      Margin="0,0,14,0"
+                      VerticalAlignment="Center"
+                      Data="M 0 0 L 4 4 L 8 0 Z"
+                      Fill="{DynamicResource SecondaryTextBrush}"
+                    />
+                  </Border>
+                  <ControlTemplate.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                      <Setter
+                        TargetName="Bd"
+                        Property="BorderBrush"
+                        Value="{DynamicResource AccentBlueBrush}"
+                      />
+                    </Trigger>
+                  </ControlTemplate.Triggers>
+                </ControlTemplate>
+              </ToggleButton.Template>
+            </ToggleButton>
+            <ContentPresenter
+              x:Name="ContentSite"
+              IsHitTestVisible="False"
+              Content="{TemplateBinding SelectionBoxItem}"
+              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+              ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+              Margin="{TemplateBinding Padding}"
+              HorizontalAlignment="Left"
+              VerticalAlignment="Center"
+            />
+            <Popup
+              x:Name="Popup"
+              Placement="Bottom"
+              IsOpen="{TemplateBinding IsDropDownOpen}"
+              AllowsTransparency="True"
+              Focusable="False"
+              PopupAnimation="Slide"
+            >
+              <Border
+                x:Name="DropDownBorder"
+                Background="{DynamicResource PopupBgBrush}"
+                BorderBrush="{DynamicResource DividerBrush}"
+                BorderThickness="1"
+                CornerRadius="10"
+                Margin="0,4,0,0"
+                Padding="0,4"
+                MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}"
+                MaxHeight="{TemplateBinding MaxDropDownHeight}"
+              >
+                <ScrollViewer>
+                  <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained" />
+                </ScrollViewer>
+              </Border>
+            </Popup>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsEnabled" Value="False">
+              <Setter Property="Opacity" Value="0.5" />
             </Trigger>
           </ControlTemplate.Triggers>
         </ControlTemplate>

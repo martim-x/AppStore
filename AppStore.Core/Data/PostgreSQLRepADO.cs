@@ -636,32 +636,15 @@ namespace AppStore.Core.Data
             using var tx = connection.BeginTransaction();
             try
             {
-                double rating;
-                int ratingCount;
-
+                // Блокируем строку приложения на время транзакции (rate + aggregate).
                 using (var appCmd = new NpgsqlCommand(
-                    "select rating, rating_count from apps where id = @id for update",
+                    "select id from apps where id = @id for update",
                     connection, tx))
                 {
                     appCmd.Parameters.AddWithValue("id", appId);
                     using var reader = appCmd.ExecuteReader();
                     if (!reader.Read())
                         throw new InvalidOperationException($"App with id {appId} not found.");
-
-                    rating = reader.GetDouble(0);
-                    ratingCount = reader.GetInt32(1);
-                }
-
-                int? oldValue = null;
-                using (var oldCmd = new NpgsqlCommand(
-                    "select value from app_ratings where user_id = @user_id and app_id = @app_id",
-                    connection, tx))
-                {
-                    oldCmd.Parameters.AddWithValue("user_id", _userId);
-                    oldCmd.Parameters.AddWithValue("app_id", appId);
-                    var old = oldCmd.ExecuteScalar();
-                    if (old is not null and not DBNull)
-                        oldValue = Convert.ToInt32(old);
                 }
 
                 using (var upsert = new NpgsqlCommand(
@@ -680,8 +663,24 @@ namespace AppStore.Core.Data
                     upsert.ExecuteNonQuery();
                 }
 
-                var (newRating, newCount) = Project.Services.RatingAggregator.Apply(
-                    rating, ratingCount, oldValue, value);
+                // Оценка приложения = среднее арифметическое оценок пользователей
+                // из app_ratings (решение автора 15.11.2026); прежнее
+                // инкрементальное значение seed больше не участвует.
+                double newRating;
+                int newCount;
+                using (var avgCmd = new NpgsqlCommand(
+                    """
+                    select coalesce(round(avg(value)::numeric, 1), 0), count(*)
+                    from app_ratings where app_id = @app_id
+                    """,
+                    connection, tx))
+                {
+                    avgCmd.Parameters.AddWithValue("app_id", appId);
+                    using var reader = avgCmd.ExecuteReader();
+                    reader.Read();
+                    newRating = Convert.ToDouble(reader[0]);
+                    newCount = Convert.ToInt32(reader[1]);
+                }
 
                 using (var updateApp = new NpgsqlCommand(
                     "update apps set rating = @rating, rating_count = @rating_count where id = @id",

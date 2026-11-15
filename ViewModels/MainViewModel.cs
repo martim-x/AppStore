@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Windows;
 using System.Windows.Input;
 
 namespace Project.ViewModels
@@ -214,7 +215,56 @@ namespace Project.ViewModels
         }
 
         // ── computed ────────────────────────────────────────────────────────
-        public string SelectedCategoryLabel => _selectedTag ?? _selectedCategory;
+        /// <summary>
+        /// Заголовок страницы: тег фильтра либо локализованное название
+        /// категории (навигация и категории каталога — English-строки в БД,
+        /// отображение локализуется через словари Cat…/Cat01…Cat10).
+        /// </summary>
+        public string SelectedCategoryLabel
+        {
+            get
+            {
+                if (_selectedTag != null)
+                    return _selectedTag;
+
+                var label = LocalizeCategory(_selectedCategory);
+                return label ?? _selectedCategory;
+            }
+        }
+
+        /// <summary>Локализовать категорию/раздел, если есть ключ локализации.</summary>
+        private static string? LocalizeCategory(string? category)
+        {
+            if (string.IsNullOrEmpty(category))
+                return category;
+
+            // Навигационные разделы: CatDiscover, CatCreate, CatWork, CatPlay,
+            // CatDevelop, CatCategories, CatInstalled.
+            var navKey = "Cat" + category;
+            if (Application.Current.TryFindResource(navKey) is string navLabel)
+                return navLabel;
+
+            // Категории каталога (данные): Cat01Development…Cat10Health.
+            var dataKey = category switch
+            {
+                "Development" => "Cat01Development",
+                "Design" => "Cat02Design",
+                "Productivity" => "Cat03Productivity",
+                "Games" => "Cat04Games",
+                "Media" => "Cat05Media",
+                "Social" => "Cat06Social",
+                "Utilities" => "Cat07Utilities",
+                "Education" => "Cat08Education",
+                "Finance" => "Cat09Finance",
+                "Health" => "Cat10Health",
+                _ => null,
+            };
+            if (dataKey != null && Application.Current.TryFindResource(dataKey) is string dataLabel)
+                return dataLabel;
+
+            return null;
+        }
+
         public bool IsFeaturedVisible =>
             _selectedCategory == "Discover"
             && string.IsNullOrEmpty(_searchQuery)
@@ -348,9 +398,11 @@ namespace Project.ViewModels
                 if (cat == null)
                     return;
                 _selectedTag = null;
+                // Единый список строк для всех разделов (решение автора
+                // 15.11.2026): сетка карточек для категорий удалена.
+                IsCategoryGridOpen = false;
                 if (cat == "Categories")
                 {
-                    IsCategoryGridOpen = true;
                     IsDetailOpen = false;
                     _selectedCategory = "Categories";
                     _visibleCount = int.MaxValue;
@@ -361,7 +413,6 @@ namespace Project.ViewModels
                 }
                 else
                 {
-                    IsCategoryGridOpen = false;
                     SelectedCategory = cat;
                 }
             });
@@ -372,7 +423,7 @@ namespace Project.ViewModels
                     return;
                 _selectedTag = tag;
                 _visibleCount = int.MaxValue;
-                IsCategoryGridOpen = true;
+                IsCategoryGridOpen = false;
                 IsDetailOpen = false;
                 RefreshList();
                 OnPropertyChanged(nameof(IsFeaturedVisible));
@@ -544,6 +595,10 @@ namespace Project.ViewModels
         {
             _localization.SetLanguage(lang);
             CurrentLanguage = lang;
+
+            // Заголовок страницы и категории пересчитываются под новый язык.
+            OnPropertyChanged(nameof(SelectedCategoryLabel));
+            OnPropertyChanged(nameof(IsFeaturedVisible));
 
             TryPersistPreferences(lang, null);
             // Rebuild collections so converters re-evaluate with new currency/labels

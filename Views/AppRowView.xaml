@@ -42,7 +42,7 @@
             Style="{DynamicResource AppNameStyle}"
             TextTrimming="CharacterEllipsis"
           />
-          <TextBlock Text="{Binding Category}" Style="{DynamicResource AppCategoryStyle}" />
+          <TextBlock Text="{Binding Category, Converter={StaticResource CategoryConv}}" Style="{DynamicResource AppCategoryStyle}" />
           <!-- Рейтинг приложения (APP-003) -->
           <TextBlock
             FontSize="11"

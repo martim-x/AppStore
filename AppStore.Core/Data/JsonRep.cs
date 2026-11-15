@@ -244,7 +244,6 @@ namespace AppStore.Core.Data
 
             var existing = _ratingsCache.FirstOrDefault(r =>
                 r.UserId == _currentUserId.Value && r.AppId == appId);
-            var oldValue = existing?.Value;
 
             if (existing == null)
             {
@@ -262,11 +261,16 @@ namespace AppStore.Core.Data
                 existing.RatedAt = DateTime.Now;
             }
 
-            var (rating, count) = Project.Services.RatingAggregator.Apply(
-                app.Rating, app.RatingCount, oldValue, value);
+            // Оценка приложения = среднее арифметическое оценок пользователей
+            // из хранилища оценок (решение автора 15.11.2026); seed-значения
+            // apps.rating/rating_count больше не участвуют в расчёте.
+            var values = _ratingsCache
+                .Where(r => r.AppId == appId)
+                .Select(r => r.Value)
+                .ToList();
 
-            app.Rating = rating;
-            app.RatingCount = count;
+            app.Rating = values.Count > 0 ? Math.Round(values.Average(), 1) : 0;
+            app.RatingCount = values.Count;
 
             SaveApps();
             SaveRatings();

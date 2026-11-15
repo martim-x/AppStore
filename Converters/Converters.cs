@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Windows;
@@ -334,7 +335,43 @@ namespace Project.Converters
             object value,
             Type targetType,
             object parameter,
-            CultureInfo culture
-        ) => throw new NotSupportedException();
-    }
-}
+                        CultureInfo culture
+                    ) => throw new NotSupportedException();
+                }
+
+                /// <summary>
+                /// Локализация категории приложения (данные в БД хранятся английскими
+                /// строками). Отображаемое название берётся из словаря локализации:
+                /// ключи Cat01Development…Cat10Health; при смене языка WPF обновляет
+                /// значения через Reload() (SwitchLanguage перестраивает коллекции).
+                /// </summary>
+                public class CategoryConverter : IValueConverter
+                {
+                    private static readonly Dictionary<string, string> Map = new(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["Development"] = "Cat01Development",
+                        ["Design"] = "Cat02Design",
+                        ["Productivity"] = "Cat03Productivity",
+                        ["Games"] = "Cat04Games",
+                        ["Media"] = "Cat05Media",
+                        ["Social"] = "Cat06Social",
+                        ["Utilities"] = "Cat07Utilities",
+                        ["Education"] = "Cat08Education",
+                        ["Finance"] = "Cat09Finance",
+                        ["Health"] = "Cat10Health",
+                    };
+
+                    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+                    {
+                        var key = value as string;
+                        if (key != null && Map.TryGetValue(key, out var resourceKey)
+                            && Application.Current.TryFindResource(resourceKey) is string localized)
+                            return localized;
+
+                        return key ?? string.Empty;
+                    }
+
+                    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+                        => throw new NotSupportedException();
+                }
+            }

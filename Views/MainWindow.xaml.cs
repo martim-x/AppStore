@@ -175,11 +175,5 @@ namespace Project.Views
                     Vm.LogoutCommand.Execute(null);
             };
         }
-
-        private void OnGridAppClick(object sender, MouseButtonEventArgs e)
-        {
-            if (sender is FrameworkElement fe && fe.DataContext is App app)
-                Vm.OpenDetailCommand.Execute(app);
-        }
     }
 }

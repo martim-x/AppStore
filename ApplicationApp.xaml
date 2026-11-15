@@ -43,6 +43,7 @@ c:\users\tim\documents\objectorientedprogramming\term2\lab4-12\appstore\applicat
       <converters:RatingStarStateConverter x:Key="StarState" />
       <converters:SizeConverter x:Key="SizeConv" />
       <converters:StringToColorBrushConverter x:Key="ColorBrush" />
+      <converters:CategoryConverter x:Key="CategoryConv" />
       <converters:DiscountVisibilityConverter x:Key="DiscountVis" />
       <converters:RoleNameConverter x:Key="RoleNameConv" />
       <converters:ButtonLabelConverter x:Key="ButtonLabelConv" />

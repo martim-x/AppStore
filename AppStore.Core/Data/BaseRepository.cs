@@ -64,7 +64,7 @@ namespace AppStore.Core.Data
                     ShortName = "Figma",
                     FullName = "Figma – Design & Prototype",
                     Description =
-                        "Figma is a collaborative interface design tool used by teams around the world.",
+                        "Figma — инструмент для совместного проектирования интерфейсов, которым пользуются команды по всему миру.",
                     Developer = "Figma, Inc.",
                     Category = "Design",
                     Rating = 4.8,
@@ -87,7 +87,7 @@ namespace AppStore.Core.Data
                     ShortName = "Slack",
                     FullName = "Slack – Business Communication",
                     Description =
-                        "Slack is a messaging app for business that connects people to the information they need.",
+                        "Slack — корпоративный мессенджер, который соединяет людей с нужной им информацией.",
                     Developer = "Slack Technologies, LLC",
                     Category = "Productivity",
                     Rating = 4.7,
@@ -110,7 +110,7 @@ namespace AppStore.Core.Data
                     ShortName = "Xcode",
                     FullName = "Xcode – Apple Developer IDE",
                     Description =
-                        "Xcode is Apple's integrated development environment for macOS, iOS, watchOS, and tvOS.",
+                        "Xcode — интегрированная среда разработки Apple для macOS, iOS, watchOS и tvOS.",
                     Developer = "Apple",
                     Category = "Development",
                     Rating = 3.9,
@@ -133,7 +133,7 @@ namespace AppStore.Core.Data
                     ShortName = "Photoshop",
                     FullName = "Adobe Photoshop",
                     Description =
-                        "Adobe Photoshop is a raster graphics editor for professionals and enthusiasts alike.",
+                        "Adobe Photoshop — растровый графический редактор для профессионалов и любителей.",
                     Developer = "Adobe Inc.",
                     Category = "Design",
                     Rating = 4.6,
@@ -157,7 +157,7 @@ namespace AppStore.Core.Data
                     ShortName = "Notion",
                     FullName = "Notion – Notes & Workspace",
                     Description =
-                        "Notion is an all-in-one workspace for notes, tasks, wikis, and databases.",
+                        "Notion — универсальное рабочее пространство для заметок, задач, вики и баз данных.",
                     Developer = "Notion Labs, Inc.",
                     Category = "Productivity",
                     Rating = 4.5,
@@ -179,7 +179,7 @@ namespace AppStore.Core.Data
                     Id = Guid.Parse("63ad3a22-fc71-4724-a8a9-5101e15376b5"),
                     ShortName = "Discord",
                     FullName = "Discord – Talk, Chat & Hang Out",
-                    Description = "Discord is the easiest way to talk over voice, video, and text.",
+                    Description = "Discord — самый простой способ общаться голосом, видео и текстом.",
                     Developer = "Discord Inc.",
                     Category = "Social",
                     Rating = 4.6,
@@ -202,7 +202,7 @@ namespace AppStore.Core.Data
                     ShortName = "VS Code",
                     FullName = "Visual Studio Code",
                     Description =
-                        "Visual Studio Code is a lightweight but powerful source code editor.",
+                        "Visual Studio Code — лёгкий, но мощный редактор исходного кода.",
                     Developer = "Microsoft Corporation",
                     Category = "Development",
                     Rating = 4.9,
@@ -225,7 +225,7 @@ namespace AppStore.Core.Data
                     ShortName = "Final Cut Pro",
                     FullName = "Final Cut Pro",
                     Description =
-                        "Final Cut Pro is a professional video editing software by Apple.",
+                        "Final Cut Pro — профессиональная программа для монтажа видео от Apple.",
                     Developer = "Apple",
                     Category = "Media",
                     Rating = 4.7,
@@ -248,7 +248,7 @@ namespace AppStore.Core.Data
                     ShortName = "Logic Pro",
                     FullName = "Logic Pro",
                     Description =
-                        "Logic Pro is a full-featured professional recording studio on the Mac.",
+                        "Logic Pro — полноценная профессиональная студия звукозаписи на Mac.",
                     Developer = "Apple",
                     Category = "Media",
                     Rating = 4.8,
@@ -270,7 +270,7 @@ namespace AppStore.Core.Data
                     Id = Guid.Parse("81bf2563-391e-4b32-8955-863f98b20d65"),
                     ShortName = "Steam",
                     FullName = "Steam – Game Launcher",
-                    Description = "Steam is a video game digital distribution service by Valve.",
+                    Description = "Steam — сервис цифрового распространения видеоигр от Valve.",
                     Developer = "Valve Corporation",
                     Category = "Games",
                     Rating = 4.3,
@@ -292,7 +292,7 @@ namespace AppStore.Core.Data
                     Id = Guid.Parse("7f98ddcd-e009-4aaf-9354-94e5b7c7e0e9"),
                     ShortName = "Spotify",
                     FullName = "Spotify – Music & Podcasts",
-                    Description = "Spotify is a digital music, podcast, and video service.",
+                    Description = "Spotify — сервис цифровой музыки, подкастов и видео.",
                     Developer = "Spotify AB",
                     Category = "Media",
                     Rating = 4.4,
@@ -315,7 +315,7 @@ namespace AppStore.Core.Data
                     ShortName = "Telegram",
                     FullName = "Telegram Messenger",
                     Description =
-                        "Telegram is a cloud-based mobile and desktop messaging app with a focus on security.",
+                        "Telegram — облачный мессенджер для мобильных и настольных устройств с упором на безопасность.",
                     Developer = "Telegram FZ-LLC",
                     Category = "Social",
                     Rating = 4.7,
