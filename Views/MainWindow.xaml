@@ -522,7 +522,7 @@
       >
         <StackPanel>
           <TextBlock
-            Text="{DynamicResource CatCategories}"
+            Text="{DynamicResource CategoriesTitle}"
             FontSize="17"
             FontWeight="Bold"
             Foreground="{DynamicResource TitleTextBrush}"
@@ -612,8 +612,7 @@
         Background="{DynamicResource FilterPopupBgBrush}"
         CornerRadius="12"
         Padding="10,8"
-        Width="360"
-        MinWidth="360"
+        Width="160"
         BorderThickness="1"
         BorderBrush="{DynamicResource FilterPopupBorderBrush}"
       >

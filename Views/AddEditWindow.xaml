@@ -48,6 +48,7 @@
           BorderBrush="{DynamicResource DividerBrush}"
           Text="{Binding App.ShortName, UpdateSourceTrigger=PropertyChanged}"
           Margin="0,0,0,14"
+        Height="36"
         />
         <TextBlock
           Text="{DynamicResource FullName}"
@@ -59,6 +60,7 @@
           BorderBrush="{DynamicResource DividerBrush}"
           Text="{Binding App.FullName, UpdateSourceTrigger=PropertyChanged}"
           Margin="0,0,0,14"
+        Height="36"
         />
         <TextBlock
           Text="{DynamicResource Developer}"
@@ -70,6 +72,7 @@
           BorderBrush="{DynamicResource DividerBrush}"
           Text="{Binding App.Developer, UpdateSourceTrigger=PropertyChanged}"
           Margin="0,0,0,14"
+        Height="36"
         />
         <TextBlock
           Text="{DynamicResource Description}"
@@ -118,6 +121,7 @@
               Style="{DynamicResource FormTextBoxStyle}"
               BorderBrush="{DynamicResource DividerBrush}"
               Text="{Binding App.Price, StringFormat={}{0:F2}, UpdateSourceTrigger=PropertyChanged}"
+            Height="36"
             />
           </StackPanel>
           <StackPanel Grid.Column="2">
@@ -130,6 +134,7 @@
               Style="{DynamicResource FormTextBoxStyle}"
               BorderBrush="{DynamicResource DividerBrush}"
               Text="{Binding App.Rating, StringFormat={}{0:F1}, UpdateSourceTrigger=PropertyChanged}"
+            Height="36"
             />
           </StackPanel>
         </Grid>
@@ -149,6 +154,7 @@
               Style="{DynamicResource FormTextBoxStyle}"
               BorderBrush="{DynamicResource DividerBrush}"
               Text="{Binding App.Version, UpdateSourceTrigger=PropertyChanged}"
+            Height="36"
             />
           </StackPanel>
           <StackPanel Grid.Column="2">
@@ -157,6 +163,7 @@
               Style="{DynamicResource FormTextBoxStyle}"
               BorderBrush="{DynamicResource DividerBrush}"
               Text="{Binding App.SizeMB, StringFormat={}{0:F0}, UpdateSourceTrigger=PropertyChanged}"
+            Height="36"
             />
           </StackPanel>
         </Grid>
@@ -176,6 +183,7 @@
               Style="{DynamicResource FormTextBoxStyle}"
               BorderBrush="{DynamicResource DividerBrush}"
               Text="{Binding App.Country, UpdateSourceTrigger=PropertyChanged}"
+            Height="36"
             />
           </StackPanel>
           <StackPanel Grid.Column="2">
@@ -211,6 +219,7 @@
           BorderBrush="{DynamicResource DividerBrush}"
           Text="{Binding App.DiscountPercent, UpdateSourceTrigger=PropertyChanged}"
           Margin="0,0,0,14"
+        Height="36"
         />
         <!-- REPORT-007: тегами управляет администратор (форма Add/Edit только для Admin) -->
         <StackPanel Margin="0,0,0,14">
@@ -224,6 +233,7 @@
             BorderBrush="{DynamicResource DividerBrush}"
             Text="{Binding TagsText, UpdateSourceTrigger=PropertyChanged}"
             ToolTip="{DynamicResource TagsHint}"
+          Height="36"
           />
         </StackPanel>
         <TextBlock Text="App Color (hex)" Style="{DynamicResource CaptionStyle}" Margin="0,0,0,4" />
@@ -237,6 +247,7 @@
             Style="{DynamicResource FormTextBoxStyle}"
             BorderBrush="{DynamicResource DividerBrush}"
             Text="{Binding App.Color, UpdateSourceTrigger=PropertyChanged}"
+          Height="36"
           />
           <Border
             Grid.Column="1"

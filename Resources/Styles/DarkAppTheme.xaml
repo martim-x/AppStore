@@ -301,7 +301,7 @@
                 x:Name="Placeholder"
                 Text="{TemplateBinding Tag}"
                 Foreground="{DynamicResource TextTertiaryBrush}"
-                FontSize="{TemplateBinding FontSize}"
+                FontSize="12"
                 VerticalAlignment="Center"
                 IsHitTestVisible="False"
                 Visibility="Collapsed"

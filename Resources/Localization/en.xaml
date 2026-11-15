@@ -103,6 +103,7 @@
   <sys:String x:Key="AppsInstalled">installed</sys:String>
   <sys:String x:Key="AppsSuffix">apps</sys:String>
   <sys:String x:Key="SearchCategoriesHint">Search categories…</sys:String>
+  <sys:String x:Key="CategoriesTitle">Catalog Sections</sys:String>
   <!-- Auth -->
   <sys:String x:Key="LoginSubtitle">Sign in to your account</sys:String>
   <sys:String x:Key="LoginLabel">Login</sys:String>

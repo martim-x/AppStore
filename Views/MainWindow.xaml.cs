@@ -127,8 +127,9 @@ namespace Project.Views
             FilterPopup.IsOpen = true;
         }
 
-        // REPORT-010: панель фильтров открывается под кнопкой, а её правый
-        // край совпадает с правым краем главного окна (решение автора 15.11.2026).
+        // REPORT-010: панель фильтров открывается ПОВЕРХ главного окна,
+        // её левый край — сразу справа от кнопки «Фильтры» (решение автора
+        // 15.11.2026): [кнопка [панель]], а не [панель] [кнопка].
         private void OnFilterPopupOpened(object sender, EventArgs e)
         {
             UpdateFilterPopupPosition();
@@ -136,32 +137,8 @@ namespace Project.Views
 
         private void UpdateFilterPopupPosition()
         {
-            if (FilterPopup.Child is FrameworkElement content)
-            {
-                content.SizeChanged -= OnFilterPopupContentSizeChanged;
-                content.SizeChanged += OnFilterPopupContentSizeChanged;
-            }
-
-            if (FilterPopup.PlacementTarget is FrameworkElement target
-                && Window.GetWindow(target) is Window win)
-            {
-                var leftInWin = target.TranslatePoint(new Point(0, 0), win).X;
-                FilterPopup.HorizontalOffset =
-                    win.ActualWidth - FilterPopup.ActualWidth - leftInWin;
-            }
-        }
-
-        // Фактическая ширина попапа известна после layout'а — пересчитываем
-        // позицию, чтобы правый край точно совпал с краем главного окна.
-        private void OnFilterPopupContentSizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            if (FilterPopup.PlacementTarget is FrameworkElement target
-                && Window.GetWindow(target) is Window win)
-            {
-                var leftInWin = target.TranslatePoint(new Point(0, 0), win).X;
-                FilterPopup.HorizontalOffset =
-                    win.ActualWidth - e.NewSize.Width - leftInWin;
-            }
+            if (FilterPopup.PlacementTarget is FrameworkElement target)
+                FilterPopup.HorizontalOffset = target.ActualWidth + 4;
         }
 
         private void OnAddAppClick(object sender, RoutedEventArgs e)
