@@ -138,7 +138,7 @@ namespace Project.Views
         private void UpdateFilterPopupPosition()
         {
             if (FilterPopup.PlacementTarget is FrameworkElement target)
-                FilterPopup.HorizontalOffset = target.ActualWidth + 4;
+                FilterPopup.HorizontalOffset = target.ActualWidth - 30;
         }
 
         private void OnAddAppClick(object sender, RoutedEventArgs e)

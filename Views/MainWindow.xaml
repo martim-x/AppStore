@@ -612,7 +612,7 @@
         Background="{DynamicResource FilterPopupBgBrush}"
         CornerRadius="12"
         Padding="10,8"
-        Width="160"
+        Width="220"
         BorderThickness="1"
         BorderBrush="{DynamicResource FilterPopupBorderBrush}"
       >
