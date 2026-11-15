@@ -127,6 +127,19 @@ namespace Project.Views
             FilterPopup.IsOpen = true;
         }
 
+        // REPORT-010: панель фильтров открывается под кнопкой, а её правый
+        // край совпадает с правым краем главного окна (решение автора 15.11.2026).
+        private void OnFilterPopupOpened(object sender, EventArgs e)
+        {
+            if (FilterPopup.PlacementTarget is FrameworkElement target
+                && Window.GetWindow(target) is Window win)
+            {
+                var leftInWin = target.TranslatePoint(new Point(0, 0), win).X;
+                FilterPopup.HorizontalOffset =
+                    win.ActualWidth - FilterPopup.ActualWidth - leftInWin;
+            }
+        }
+
         private void OnAddAppClick(object sender, RoutedEventArgs e)
         {
             var dlg = _services.GetService<AddEditWindow>() ?? new AddEditWindow(_services);

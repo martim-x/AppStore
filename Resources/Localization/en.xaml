@@ -78,6 +78,7 @@
   <sys:String x:Key="Discount">Discount %</sys:String>
   <sys:String x:Key="TagsHint">comma separated</sys:String>
   <sys:String x:Key="InStock">In Stock</sys:String>
+  <sys:String x:Key="Featured">Featured</sys:String>
   <sys:String x:Key="Cancel">Cancel</sys:String>
   <sys:String x:Key="Save">Save</sys:String>
   <!-- Dialogs -->

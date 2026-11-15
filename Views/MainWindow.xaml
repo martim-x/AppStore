@@ -538,7 +538,9 @@
           <ItemsControl ItemsSource="{Binding CategoriesView}">
             <ItemsControl.ItemsPanel>
               <ItemsPanelTemplate>
-                <WrapPanel Orientation="Horizontal" />
+                <!-- Равномерное растяжение плиток по ширине рабочей области,
+                     без пустот справа; нижняя граница ширины — MinWidth плитки -->
+                <UniformGrid Columns="4" HorizontalAlignment="Stretch" />
               </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
@@ -548,7 +550,8 @@
                   CornerRadius="10"
                   Margin="0,0,12,12"
                   Padding="16,12"
-                  Width="220"
+                  MinWidth="220"
+                  HorizontalAlignment="Stretch"
                   Cursor="Hand"
                   MouseLeftButtonUp="OnCategoryTileClick"
                 >
@@ -578,7 +581,7 @@
                       Grid.Column="1"
                       Text="→"
                       FontSize="14"
-                      Foreground="{DynamicResource SeeAllBrush}"
+                      Foreground="{DynamicResource ArrowBrush}"
                       VerticalAlignment="Center"
                       Margin="10,0,0,0"
                     />
@@ -599,12 +602,12 @@
       <views:AppDetailView DataContext="{Binding}" />
     </Grid>
     <!-- FILTER POPUP -->
-    <Popup x:Name="FilterPopup" Grid.Column="1" StaysOpen="False" AllowsTransparency="True">
+    <Popup x:Name="FilterPopup" Grid.Column="1" StaysOpen="False" AllowsTransparency="True" Opened="OnFilterPopupOpened">
       <Border
         Background="{DynamicResource FilterPopupBgBrush}"
         CornerRadius="12"
-        Padding="18,14"
-        MinWidth="260"
+        Padding="14,10"
+        MinWidth="420"
         BorderThickness="1"
         BorderBrush="{DynamicResource FilterPopupBorderBrush}"
       >
@@ -614,104 +617,124 @@
         <StackPanel>
           <TextBlock
             Text="{DynamicResource Filters}"
-            FontSize="15"
-            FontWeight="SemiBold"
-            Foreground="{DynamicResource TitleTextBrush}"
-            Margin="0,0,0,14"
-          />
-          <TextBlock
-            Text="{DynamicResource SortBy}"
-            FontSize="12"
-            FontWeight="SemiBold"
-            Foreground="{DynamicResource SecondaryTextBrush}"
-            Margin="0,0,0,6"
-          />
-          <ComboBox
-            Margin="0,0,0,14"
             FontSize="13"
-            Padding="8,6"
-            BorderThickness="1"
-            BorderBrush="{DynamicResource DividerBrush}"
-            Background="{DynamicResource InfoCardBgBrush}"
-            Foreground="{DynamicResource TitleTextBrush}"
-            SelectedValue="{Binding SortBy}"
-            SelectedValuePath="Tag"
-          >
-            <ComboBoxItem Content="{DynamicResource SortFeatured}" Tag="featured" />
-            <ComboBoxItem Content="{DynamicResource SortRating}" Tag="rating" />
-            <ComboBoxItem Content="{DynamicResource SortPriceAsc}" Tag="price_asc" />
-            <ComboBoxItem Content="{DynamicResource SortPriceDesc}" Tag="price_desc" />
-            <ComboBoxItem Content="{DynamicResource SortDownloads}" Tag="downloads" />
-            <ComboBoxItem Content="{DynamicResource SortNewest}" Tag="newest" />
-            <ComboBoxItem Content="{DynamicResource SortName}" Tag="name" />
-          </ComboBox>
-          <TextBlock
-            Text="{DynamicResource MinRating}"
-            FontSize="12"
             FontWeight="SemiBold"
-            Foreground="{DynamicResource SecondaryTextBrush}"
-            Margin="0,0,0,4"
+            Foreground="{DynamicResource TitleTextBrush}"
+            Margin="0,0,0,10"
           />
-          <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
-            <TextBlock Text="★" Foreground="{DynamicResource RatingStarBrush}" FontSize="13" />
+          <!-- Сортировка -->
+          <Grid Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
             <TextBlock
-              Text="{Binding MinRating, StringFormat={}{0:F1}}"
+              Text="{DynamicResource SortBy}"
+              FontSize="12"
+              Foreground="{DynamicResource SecondaryTextBrush}"
+              VerticalAlignment="Center"
+              Margin="0,0,10,0"
+            />
+            <ComboBox
+              Grid.Column="1"
+              FontSize="13"
+              Padding="8,0"
+              MinHeight="36"
+              BorderThickness="1"
+              BorderBrush="{DynamicResource DividerBrush}"
+              Background="{DynamicResource InfoCardBgBrush}"
               Foreground="{DynamicResource TitleTextBrush}"
-              FontSize="13"
-              Margin="4,0"
+              SelectedValue="{Binding SortBy}"
+              SelectedValuePath="Tag"
+            >
+              <ComboBoxItem Content="{DynamicResource SortFeatured}" Tag="featured" />
+              <ComboBoxItem Content="{DynamicResource SortRating}" Tag="rating" />
+              <ComboBoxItem Content="{DynamicResource SortPriceAsc}" Tag="price_asc" />
+              <ComboBoxItem Content="{DynamicResource SortPriceDesc}" Tag="price_desc" />
+              <ComboBoxItem Content="{DynamicResource SortDownloads}" Tag="downloads" />
+              <ComboBoxItem Content="{DynamicResource SortNewest}" Tag="newest" />
+              <ComboBoxItem Content="{DynamicResource SortName}" Tag="name" />
+            </ComboBox>
+          </Grid>
+          <!-- Минимальный рейтинг -->
+          <Grid Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,10,0">
+              <TextBlock Text="★" Foreground="{DynamicResource RatingStarBrush}" FontSize="13" />
+              <TextBlock
+                Text="{Binding MinRating, StringFormat={}{0:F1}}"
+                Foreground="{DynamicResource TitleTextBrush}"
+                FontSize="13"
+                Margin="4,0,0,0"
+              />
+            </StackPanel>
+            <Slider
+              Grid.Column="1"
+              Style="{DynamicResource DarkSliderStyle}"
+              Minimum="0"
+              Maximum="5"
+              TickFrequency="0.5"
+              Value="{Binding MinRating}"
+              VerticalAlignment="Center"
             />
-          </StackPanel>
-          <Slider
-            Style="{DynamicResource DarkSliderStyle}"
-            Minimum="0"
-            Maximum="5"
-            TickFrequency="0.5"
-            Value="{Binding MinRating}"
-            Margin="0,0,0,14"
-          />
-          <TextBlock
-            Text="{DynamicResource PriceRange}"
-            FontSize="12"
-            FontWeight="SemiBold"
-            Foreground="{DynamicResource SecondaryTextBrush}"
-            Margin="0,0,0,4"
-          />
-          <TextBlock
-            Text="{Binding MaxPrice, StringFormat=Max: ${0:F0}}"
-            Foreground="{DynamicResource TitleTextBrush}"
-            FontSize="13"
-            Margin="0,0,0,4"
-          />
-          <Slider
-            Style="{DynamicResource DarkSliderStyle}"
-            Minimum="0"
-            Maximum="1000"
-            Value="{Binding MaxPrice}"
-            Margin="0,0,0,14"
-          />
-          <CheckBox
-            Content="{DynamicResource DownloadedOnly}"
-            Style="{DynamicResource DarkCheckBoxStyle}"
-            IsChecked="{Binding DownloadedOnly}"
-            Margin="0,0,0,14"
-          />
-          <Border Height="1" Background="{DynamicResource SeparatorBrush}" Margin="0,0,0,10" />
-          <Button
-            Style="{DynamicResource GetButtonStyle}"
-            HorizontalAlignment="Stretch"
-            Margin="0,0,0,8"
-            Click="OnResetFilters"
-          >
+          </Grid>
+          <!-- Максимальная цена -->
+          <Grid Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
             <TextBlock
-              Text="{DynamicResource ResetFilters}"
-              Foreground="{DynamicResource GetBtnTextBrush}"
-              FontSize="13"
-              FontWeight="SemiBold"
+              Text="{Binding MaxPrice, StringFormat=Max: ${0:F0}}"
+              Foreground="{DynamicResource TitleTextBrush}"
+              FontSize="12"
+              VerticalAlignment="Center"
+              Margin="0,0,10,0"
             />
-          </Button>
+            <Slider
+              Grid.Column="1"
+              Style="{DynamicResource DarkSliderStyle}"
+              Minimum="0"
+              Maximum="1000"
+              Value="{Binding MaxPrice}"
+              VerticalAlignment="Center"
+            />
+          </Grid>
+          <!-- Загруженные + кнопки в один ряд -->
+          <Grid Margin="0,4,0,8">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <CheckBox
+              Grid.Column="0"
+              Content="{DynamicResource DownloadedOnly}"
+              Style="{DynamicResource DarkCheckBoxStyle}"
+              IsChecked="{Binding DownloadedOnly}"
+              VerticalAlignment="Center"
+            />
+            <Button
+              Grid.Column="2"
+              Style="{DynamicResource GetButtonStyle}"
+              MinHeight="36"
+              Click="OnResetFilters"
+            >
+              <TextBlock
+                Text="{DynamicResource ResetFilters}"
+                Foreground="{DynamicResource GetBtnTextBrush}"
+                FontSize="13"
+                FontWeight="SemiBold"
+              />
+            </Button>
+          </Grid>
           <Button
             Style="{DynamicResource DangerButtonStyle}"
             HorizontalAlignment="Stretch"
+            MinHeight="36"
             Click="OnRestoreData"
           >
             <TextBlock Text="{DynamicResource RestoreData}" FontSize="13" />

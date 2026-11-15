@@ -78,6 +78,7 @@
   <sys:String x:Key="Discount">Скидка %</sys:String>
   <sys:String x:Key="TagsHint">через запятую</sys:String>
   <sys:String x:Key="InStock">В наличии</sys:String>
+  <sys:String x:Key="Featured">Рекомендуемое</sys:String>
   <sys:String x:Key="Cancel">Отмена</sys:String>
   <sys:String x:Key="Save">Сохранить</sys:String>
   <!-- Dialogs -->
