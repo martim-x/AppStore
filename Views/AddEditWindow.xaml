@@ -241,25 +241,28 @@
           <Border
             Grid.Column="1"
             Width="36"
-            Height="36"
-            CornerRadius="8"
+            VerticalAlignment="Stretch"
+            CornerRadius="10"
             Margin="8,0,0,0"
             Background="{Binding App.Color, Converter={StaticResource ColorBrush}}"
           />
         </Grid>
-        <WrapPanel Margin="0,0,0,8">
+        <!-- Чекбоксы на одной горизонтали (решение автора 15.11.2026) -->
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
           <CheckBox
             Content="{DynamicResource InStock}"
             Style="{DynamicResource DarkCheckBoxStyle}"
             IsChecked="{Binding App.IsInStock}"
-            Margin="0,0,20,8"
+            VerticalAlignment="Center"
+            Margin="0,0,24,0"
           />
           <CheckBox
             Content="{DynamicResource Featured}"
             Style="{DynamicResource DarkCheckBoxStyle}"
             IsChecked="{Binding App.IsFeatured}"
+            VerticalAlignment="Center"
           />
-        </WrapPanel>
+        </StackPanel>
         <!-- Удаление приложения (REPORT-010: без промежуточного диалога) -->
         <Button
           Style="{DynamicResource DangerButtonStyle}"

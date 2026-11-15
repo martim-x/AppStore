@@ -540,7 +540,12 @@
               <ItemsPanelTemplate>
                 <!-- Равномерное растяжение плиток по ширине рабочей области,
                      без пустот справа; нижняя граница ширины — MinWidth плитки -->
-                <UniformGrid Columns="4" HorizontalAlignment="Stretch" />
+                <UniformGrid
+                  x:Name="CategoriesGrid"
+                  Columns="4"
+                  HorizontalAlignment="Stretch"
+                  SizeChanged="OnCategoriesGridSizeChanged"
+                />
               </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>

@@ -194,5 +194,14 @@ namespace Project.Views
             if (sender is FrameworkElement fe && fe.DataContext is MainViewModel.CategoryItem cat)
                 Vm.SelectCategoryCommand.Execute(cat.Name);
         }
+
+        // Плитки категорий: число колонок подстраивается под ширину рабочей
+        // области (мин. ширина плитки 220 + отступ 12), чтобы при сжатии окна
+        // стрелка не уезжала за край плитки.
+        private void OnCategoriesGridSizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (sender is UniformGrid grid)
+                grid.Columns = Math.Max(1, (int)(e.NewSize.Width / 232));
+        }
     }
 }
