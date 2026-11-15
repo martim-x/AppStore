@@ -170,7 +170,7 @@
             FontSize="14"
             Foreground="{DynamicResource TitleTextBrush}"
             CaretBrush="{DynamicResource AccentBlueBrush}"
-            Padding="12,7"
+            Padding="12,4"
             GotFocus="OnPasswordBoxGotFocus"
             LostFocus="OnPasswordBoxLostFocus"
           >
@@ -204,7 +204,7 @@
             FontSize="14"
             Foreground="{DynamicResource TitleTextBrush}"
             CaretBrush="{DynamicResource AccentBlueBrush}"
-            Padding="12,7"
+            Padding="12,4"
             GotFocus="OnPasswordBoxGotFocus"
             LostFocus="OnPasswordBoxLostFocus"
           >

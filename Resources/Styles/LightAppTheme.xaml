@@ -41,7 +41,7 @@
   <SolidColorBrush x:Key="DangerBrush" Color="#FF3B30" />
   <SolidColorBrush x:Key="FeaturedBannerLightStartBrush" Color="#E8F4FD" />
   <SolidColorBrush x:Key="FeaturedBannerLightEndBrush" Color="#D6EAFF" />
-  <SolidColorBrush x:Key="FeaturedBannerTextBrush" Color="#FFFFFF" />
+  <SolidColorBrush x:Key="FeaturedBannerTextBrush" Color="#272727" />
   <SolidColorBrush x:Key="FilterPopupBgBrush" Color="#FFFFFF" />
   <SolidColorBrush x:Key="FilterPopupBorderBrush" Color="#00000000" />
   <!-- ─── Scalar values reused in templates ─────── -->
@@ -283,7 +283,7 @@
     <Setter Property="CaretBrush" Value="{DynamicResource AccentBlueBrush}" />
     <Setter Property="FontSize" Value="{StaticResource FormFontSize}" />
     <Setter Property="BorderThickness" Value="1.5" />
-    <Setter Property="Padding" Value="12,7" />
+    <Setter Property="Padding" Value="12,4" />
     <Setter Property="MinHeight" Value="36" />
     <Setter Property="FocusVisualStyle" Value="{x:Null}" />
     <Setter Property="Template">
@@ -298,7 +298,9 @@
             Padding="{TemplateBinding Padding}"
           >
             <Grid>
-              <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center" />
+              <!-- PART_ContentHost растягивается на всю высоту: центрирование
+                   при фикс. Height обрезает строку до 1px (текст «невидим») -->
+              <ScrollViewer x:Name="PART_ContentHost" Focusable="False" />
               <!-- Placeholder layer — shown when empty and not focused -->
               <TextBlock
                 x:Name="Placeholder"

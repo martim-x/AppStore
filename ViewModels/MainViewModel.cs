@@ -631,9 +631,20 @@ namespace Project.ViewModels
             return _sortBy switch
             {
                 "name" => query.OrderBy(a => a.ShortName),
-                "price" => query.OrderBy(a => a.FinalPrice),
+                // Цена: сначала бесплатные (FinalPrice = 0), затем платные по возрастанию;
+                // при равной цене — выше рейтинг (доп. задание 15.11.2026).
+                "price" or "price_asc" => query
+                    .OrderBy(a => a.FinalPrice)
+                    .ThenByDescending(a => a.Rating),
+                // Дорогие в начале, бесплатные остаются в конце (0 — минимум).
+                "price_desc" => query
+                    .OrderByDescending(a => a.FinalPrice)
+                    .ThenByDescending(a => a.Rating),
                 "rating" => query.OrderByDescending(a => a.Rating),
                 "newest" => query.OrderByDescending(a => a.ReleaseDate),
+                "downloads" => query
+                    .OrderByDescending(a => a.DownloadCount)
+                    .ThenByDescending(a => a.Rating),
                 "featured" => query
                     .OrderByDescending(a => a.IsFeatured)
                     .ThenByDescending(a => a.Rating),
