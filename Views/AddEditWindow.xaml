@@ -36,7 +36,7 @@
       />
     </Grid>
     <!-- Form -->
-    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="0,0,14,0">
       <StackPanel>
         <TextBlock
           Text="{DynamicResource ShortName}"
