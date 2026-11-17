@@ -267,7 +267,7 @@ namespace Project.Converters
     /// <summary>
     /// Формирует подпись на кнопке в зависимости от:
     /// values[0] = IsDownloaded (bool) — приложение уже установлено;
-    /// values[1] = Price (double/decimal/float) — цена;
+    /// values[1] = FinalPrice (double/decimal/float) — цена с учётом скидки;
     /// values[2] = CurrentLanguage ("en" | "ru" и т.п.) — текущий язык, триггер пересчёта.
     /// </summary>
     public class ButtonLabelConverter : IMultiValueConverter
@@ -280,10 +280,10 @@ namespace Project.Converters
         )
         {
             if (values.Length < 3)
-                return "Get";
+                return Application.Current.TryFindResource("BtnGet") as string ?? "Установить";
 
             bool isDownloaded = values[0] is bool b && b;
-            double price = values[1] switch
+            double finalPrice = values[1] switch
             {
                 double d => d,
                 decimal dc => (double)dc,
@@ -292,21 +292,55 @@ namespace Project.Converters
             };
             string lang = values[2] as string ?? "en";
 
-            // Уже установлено — показываем локализованную кнопку открытия
+            // Установленное приложение можно удалить.
             if (isDownloaded)
             {
-                // "Open" / "Открыть" из ресурсов (ResourceDictionary)
-                return Application.Current.TryFindResource("BtnOpen") as string ?? "Open";
+                return Application.Current.TryFindResource("BtnUninstall") as string ?? "Delete";
             }
 
-            // Бесплатное приложение — локализованная подпись "Get"/"Установить"
-            if (price <= 0)
-                return Application.Current.TryFindResource("BtnGet") as string ?? "Get";
+            var getLabel = Application.Current.TryFindResource("BtnGet") as string
+                ?? (lang == "ru" ? "Установить" : "Install");
 
-            // Платное приложение — форматируем цену в валюте текущего языка
-            return lang == "ru"
-                ? $"{price * 2.97:F0} BYN" // грубое преобразование из USD в BYN
-                : $"${price:F2}"; // цена в долларах США
+            // Бесплатное приложение — короткий глагол действия.
+            if (finalPrice <= 0)
+                return getLabel;
+
+            // Для платного приложения показываем только цену.
+            var formattedPrice = lang == "ru"
+                ? $"{finalPrice * 2.97:F0} BYN"
+                : $"${finalPrice.ToString("F2", CultureInfo.GetCultureInfo("en-US"))}";
+            return formattedPrice;
+        }
+
+        public object[] ConvertBack(
+            object value,
+            Type[] targetTypes,
+            object parameter,
+            CultureInfo culture
+        ) => throw new NotSupportedException();
+    }
+
+    // ── 12. LocalizedDescriptionConverter ────────────────────────────────────
+    /// <summary>
+    /// Описание приложения на языке интерфейса.
+    /// values[0] = App — модель с Description (русский) и DescriptionEn;
+    /// values[1] = CurrentLanguage ("en" | "ru") — триггер пересчёта при смене
+    /// языка: карточка, уже открытая в этот момент, обновляется на лету.
+    /// Логика выбора/fallback живёт в Core (App.GetDescriptionByLang).
+    /// </summary>
+    public class LocalizedDescriptionConverter : IMultiValueConverter
+    {
+        public object Convert(
+            object[] values,
+            Type targetType,
+            object parameter,
+            CultureInfo culture
+        )
+        {
+            if (values is not { Length: >= 2 } || values[0] is not AppStore.Core.Data.App app)
+                return string.Empty;
+
+            return app.GetDescriptionByLang(values[1] as string);
         }
 
         public object[] ConvertBack(

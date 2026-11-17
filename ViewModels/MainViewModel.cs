@@ -398,8 +398,7 @@ namespace Project.ViewModels
                 if (cat == null)
                     return;
                 _selectedTag = null;
-                // Единый список строк для всех разделов (решение автора
-                // 15.11.2026): сетка карточек для категорий удалена.
+                // Категории открываются отдельной сеткой плиток.
                 IsCategoryGridOpen = false;
                 if (cat == "Categories")
                 {
@@ -495,7 +494,7 @@ namespace Project.ViewModels
 
         private void RefreshList()
         {
-            // Экран «Категории»: плитки категорий с поиском (решение автора
+            // Экран «Категории»: плитки категорий (решение автора
             // 15.11.2026) — список приложений на нём не показывается.
             if (_selectedCategory == "Categories")
             {
@@ -538,19 +537,6 @@ namespace Project.ViewModels
 
         public bool IsCategoriesViewOpen => _selectedCategory == "Categories" && !IsDetailOpen;
 
-        private string _categorySearchQuery = string.Empty;
-
-        /// <summary>Поисковый запрос на экране «Категории» (фильтр плиток).</summary>
-        public string CategorySearchQuery
-        {
-            get => _categorySearchQuery;
-            set
-            {
-                if (SetField(ref _categorySearchQuery, value))
-                    BuildCategoriesView();
-            }
-        }
-
         public ObservableCollection<CategoryItem> CategoriesView { get; } = new();
 
         /// <summary>Плитка категории: имя в БД + локализованное название + число приложений.</summary>
@@ -560,7 +546,6 @@ namespace Project.ViewModels
         {
             CategoriesView.Clear();
 
-            var q = _categorySearchQuery.Trim().ToLowerInvariant();
             var groups = _repo
                 .GetAllApps()
                 .GroupBy(a => a.Category)
@@ -568,10 +553,6 @@ namespace Project.ViewModels
                     g.Key,
                     LocalizeCategory(g.Key) ?? g.Key,
                     g.Count()))
-                .Where(c =>
-                    string.IsNullOrEmpty(q)
-                    || c.Name.ToLowerInvariant().Contains(q)
-                    || c.LocalizedName.ToLowerInvariant().Contains(q))
                 .OrderBy(c => c.LocalizedName);
 
             foreach (var item in groups)
@@ -597,25 +578,17 @@ namespace Project.ViewModels
             if (_minRating > 0)
                 all = all.Where(a => a.Rating >= _minRating);
 
-            // Search takes priority
+            // Search narrows the result set but keeps the selected ordering.
             if (!string.IsNullOrWhiteSpace(_searchQuery))
             {
                 var q = _searchQuery.ToLowerInvariant();
-                return _sortBy == "name"
-                    ? SearchFilter(all, q).OrderBy(a => a.ShortName)
-                    : SearchFilter(all, q).OrderByDescending(a => a.Rating);
+                all = SearchFilter(all, q);
             }
 
-            // Tag filter
             if (_selectedTag != null)
-            {
-                var tagged = all.Where(a => a.Tags.Contains(_selectedTag));
-                return _sortBy == "name"
-                    ? tagged.OrderBy(a => a.ShortName)
-                    : tagged.OrderByDescending(a => a.Rating);
-            }
+                all = all.Where(a => a.Tags.Contains(_selectedTag));
 
-            // Show all categories alphabetically
+            // On the category overview, keep its established alphabetical layout.
             if (_selectedCategory == "Categories")
                 return all.OrderBy(a => a.ShortName);
 
@@ -628,28 +601,7 @@ namespace Project.ViewModels
             if (dbCat != null)
                 query = query.Where(a => a.Category == dbCat);
 
-            return _sortBy switch
-            {
-                "name" => query.OrderBy(a => a.ShortName),
-                // Цена: сначала бесплатные (FinalPrice = 0), затем платные по возрастанию;
-                // при равной цене — выше рейтинг (доп. задание 15.11.2026).
-                "price" or "price_asc" => query
-                    .OrderBy(a => a.FinalPrice)
-                    .ThenByDescending(a => a.Rating),
-                // Дорогие в начале, бесплатные остаются в конце (0 — минимум).
-                "price_desc" => query
-                    .OrderByDescending(a => a.FinalPrice)
-                    .ThenByDescending(a => a.Rating),
-                "rating" => query.OrderByDescending(a => a.Rating),
-                "newest" => query.OrderByDescending(a => a.ReleaseDate),
-                "downloads" => query
-                    .OrderByDescending(a => a.DownloadCount)
-                    .ThenByDescending(a => a.Rating),
-                "featured" => query
-                    .OrderByDescending(a => a.IsFeatured)
-                    .ThenByDescending(a => a.Rating),
-                _ => query.OrderByDescending(a => a.IsFeatured).ThenByDescending(a => a.Rating),
-            };
+            return AppOrdering.Apply(query, _sortBy);
         }
 
         /// <summary>

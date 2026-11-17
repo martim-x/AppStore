@@ -45,12 +45,12 @@ namespace AppStore.UnitTests.Models
         }
 
         [Fact]
-        public void ButtonLabel_NotDownloaded_FreeApp_ReturnsDownload()
+        public void ButtonLabel_NotDownloaded_FreeApp_ReturnsInstallAction()
         {
             WithInvariantCulture(() =>
             {
                 var app = new App { Price = 0, IsDownloaded = false };
-                app.ButtonLabel.Should().Be("Загрузить");
+                app.ButtonLabel.Should().Be("Установить");
             });
         }
 
@@ -65,12 +65,12 @@ namespace AppStore.UnitTests.Models
         }
 
         [Fact]
-        public void ButtonLabel_Downloaded_ReturnsOpen()
+        public void ButtonLabel_Downloaded_ReturnsDeleteAction()
         {
             WithInvariantCulture(() =>
             {
                 var app = new App { Price = 99.99, IsDownloaded = true };
-                app.ButtonLabel.Should().Be("Открыть");
+                app.ButtonLabel.Should().Be("Удалить");
             });
         }
 

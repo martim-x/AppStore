@@ -1,4 +1,4 @@
-<UserControl
+﻿<UserControl
   x:Class="Project.Views.AppRowView"
   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -61,19 +61,19 @@
           Grid.Column="2"
           VerticalAlignment="Center"
           Style="{DynamicResource GetButtonStyle}"
-          MinWidth="65"
+          Width="104"
           Command="{Binding DownloadCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
           CommandParameter="{Binding}"
         >
           <TextBlock
             Foreground="{DynamicResource GetBtnTextBrush}"
-            FontSize="13"
+            FontSize="14"
             FontWeight="SemiBold"
           >
             <TextBlock.Text>
               <MultiBinding Converter="{StaticResource ButtonLabelConv}">
                 <Binding Path="IsDownloaded" />
-                <Binding Path="Price" />
+                <Binding Path="FinalPrice" />
                 <Binding
                   Path="DataContext.CurrentLanguage"
                   RelativeSource="{RelativeSource AncestorType=Window}"

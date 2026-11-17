@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -482,6 +483,131 @@ namespace AppStore.IntegrationTests
 
             apps.Should().NotBeEmpty();
             apps.Should().OnlyContain(a => !a.IsDownloaded);
+        }
+
+        // ── Локализация описаний RU/EN: ADO-репозиторий ─────────────────────
+
+        /// <summary>
+        /// PostgreSQLRepADO читает .env (AppContext.BaseDirectory или CWD),
+        /// а не переменные окружения — в тестовом bin .env нет, и ADO падает
+        /// на fallback-хосте 0.0.0.0. Создаём .env с тестовыми значениями.
+        ///
+        /// Схема ADO отличается от EF-схемы (apps.country_id, apps.logo —
+        /// только в DDL ADO), поэтому ADO-тесты идут в отдельную БД
+        /// appstore_test_ado: это же проверяет путь «свежая БД + DDL ADO»
+        /// с колонкой description_en.
+        /// </summary>
+        private const string AdoTestDbName = "appstore_test_ado";
+
+        private static void EnsureAdoTestEnvironment()
+        {
+            var envPath = Path.Combine(AppContext.BaseDirectory, ".env");
+            File.WriteAllLines(
+                envPath,
+                new[]
+                {
+                    "DB_HOST=localhost",
+                    "DB_PORT_FROM=5433",
+                    $"DB_NAME={AdoTestDbName}",
+                    "DB_ADMIN=postgres",
+                    "DB_ADMIN_PASS=changeme",
+                });
+
+            var adminBuilder = new NpgsqlConnectionStringBuilder(
+                Settings.Instance.ConnectionString)
+            {
+                Database = "postgres",
+            };
+
+            using var connection = new NpgsqlConnection(adminBuilder.ConnectionString);
+            connection.Open();
+
+            using (var exists = new NpgsqlCommand(
+                "select 1 from pg_database where datname = @name", connection))
+            {
+                exists.Parameters.AddWithValue("name", AdoTestDbName);
+                if (exists.ExecuteScalar() != null)
+                    return;
+            }
+
+            using var create = new NpgsqlCommand(
+                $"create database \"{AdoTestDbName}\"", connection);
+            create.ExecuteNonQuery();
+        }
+
+        /// <summary>
+        /// ADO-репозиторий должен сохранять и читать description_en
+        /// (SELECT/INSERT/UPDATE/reader/параметры) без потери русского текста.
+        /// </summary>
+        [Fact]
+        public void AdoRepository_DescriptionEn_RoundTripsThroughCrud()
+        {
+            EnsureAdoTestEnvironment();
+            var ado = new PostgreSQLRepADO();
+
+            var app = new App
+            {
+                ShortName = "LocTest",
+                FullName = "Localization Test App",
+                Description = "Русское описание",
+                DescriptionEn = "English description",
+                Developer = "TestDev",
+                Category = "Testing",
+                Rating = 4.0,
+                RatingCount = 10,
+                Price = 0,
+                Version = "1.0",
+                SizeMB = 10,
+                Country = "US",
+                AgeRating = "4+",
+                Color = "#00FF00",
+                IsFeatured = false,
+                IsInStock = true,
+                DiscountPercent = null,
+                ReleaseDate = DateTime.Now,
+                Tags = new List<string> { "test" },
+            };
+
+            ado.AddApp(app);
+
+            try
+            {
+                var read = ado.GetAppById(app.Id);
+                read.Should().NotBeNull();
+                read!.Description.Should().Be("Русское описание");
+                read.DescriptionEn.Should().Be("English description");
+
+                // NULL в description_en: fallback на Description.
+                read.DescriptionEn = null;
+                ado.UpdateApp(read);
+
+                var read2 = ado.GetAppById(app.Id);
+                read2.Should().NotBeNull();
+                read2!.DescriptionEn.Should().BeNull();
+                read2.GetDescriptionByLang("en").Should().Be("Русское описание");
+            }
+            finally
+            {
+                ado.DeleteApp(app.Id);
+            }
+        }
+
+        [Fact]
+        public void AdoRepository_SeedApps_HaveBothLanguageDescriptions()
+        {
+            EnsureAdoTestEnvironment();
+            var ado = new PostgreSQLRepADO();
+            var apps = ado.GetAllApps();
+
+            apps.Should().HaveCountGreaterOrEqualTo(12);
+
+            foreach (var app in apps.Where(a => a.FullName.Contains("Figma") ||
+                                                a.FullName.Contains("Telegram") ||
+                                                a.FullName.Contains("Visual Studio Code")))
+            {
+                app.Description.Should().NotBeNullOrWhiteSpace();
+                app.DescriptionEn.Should().NotBeNullOrWhiteSpace();
+            }
         }
     }
 }

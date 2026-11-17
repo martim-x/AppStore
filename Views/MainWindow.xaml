@@ -1,4 +1,4 @@
-<Window
+﻿<Window
   x:Class="Project.Views.MainWindow"
   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -66,33 +66,16 @@
           </StackPanel>
         </StackPanel>
         <!-- Search -->
-        <Border DockPanel.Dock="Top" Margin="12,0,12,12">
+        <Border DockPanel.Dock="Top" Margin="8,0,8,12">
           <Border
             x:Name="SearchBorder"
             Background="{DynamicResource SearchBubbleBgBrush}"
-            CornerRadius="8"
-            Padding="12,8"
+            BorderBrush="{DynamicResource DividerBrush}"
+            BorderThickness="1.5"
+            CornerRadius="10"
+            Height="36"
+            Padding="12,4"
           >
-            <Border.Style>
-              <Style TargetType="Border">
-                <Setter Property="BorderThickness" Value="0" />
-                <Setter Property="BorderBrush" Value="Transparent" />
-                <Style.Triggers>
-                  <DataTrigger Binding="{Binding SearchQuery}" Value="">
-                    <Setter Property="BorderThickness" Value="0" />
-                    <Setter Property="BorderBrush" Value="Transparent" />
-                  </DataTrigger>
-                  <DataTrigger Binding="{Binding SearchQuery}" Value="{x:Null}">
-                    <Setter Property="BorderThickness" Value="0" />
-                    <Setter Property="BorderBrush" Value="Transparent" />
-                  </DataTrigger>
-                  <DataTrigger Binding="{Binding SearchQuery.Length}" Value="1">
-                    <Setter Property="BorderThickness" Value="2" />
-                    <Setter Property="BorderBrush" Value="LimeGreen" />
-                  </DataTrigger>
-                </Style.Triggers>
-              </Style>
-            </Border.Style>
             <Grid>
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
@@ -128,13 +111,13 @@
                 Visibility="{Binding SearchQuery, Converter={StaticResource NullToVis}}"
               >
                 <Canvas Width="16" Height="16" MouseLeftButtonDown="OnClearSearch">
-                  <Ellipse Width="16" Height="16" Fill="#717171" />
+                  <Ellipse Width="16" Height="16" Fill="{DynamicResource SearchClearBgBrush}" />
                   <Line
                     X1="5"
                     Y1="5"
                     X2="11"
                     Y2="11"
-                    Stroke="#E0E0E1"
+                    Stroke="{DynamicResource SearchClearFgBrush}"
                     StrokeThickness="1.6"
                     StrokeStartLineCap="Round"
                     StrokeEndLineCap="Round"
@@ -144,7 +127,7 @@
                     Y1="5"
                     X2="5"
                     Y2="11"
-                    Stroke="#E0E0E1"
+                    Stroke="{DynamicResource SearchClearFgBrush}"
                     StrokeThickness="1.6"
                     StrokeStartLineCap="Round"
                     StrokeEndLineCap="Round"
@@ -372,8 +355,8 @@
           <Button
             Grid.Column="1"
             Style="{DynamicResource IconButtonStyle}"
-            Width="34"
-            Height="34"
+            Width="36"
+            Height="36"
             Margin="0,0,8,0"
             Padding="0"
             Command="{Binding UndoCommand}"
@@ -392,8 +375,8 @@
           <Button
             Grid.Column="2"
             Style="{DynamicResource IconButtonStyle}"
-            Width="34"
-            Height="34"
+            Width="36"
+            Height="36"
             Margin="0,0,10,0"
             Padding="0"
             Command="{Binding RedoCommand}"
@@ -512,7 +495,7 @@
           </StackPanel>
         </StackPanel>
       </ScrollViewer>
-      <!-- CATEGORIES SCREEN: плитки категорий с поиском (решение автора 15.11.2026) -->
+      <!-- CATEGORIES SCREEN: плитки категорий без поиска -->
       <ScrollViewer
         Grid.Row="2"
         Padding="20,14,20,20"
@@ -526,13 +509,6 @@
             FontSize="17"
             FontWeight="Bold"
             Foreground="{DynamicResource TitleTextBrush}"
-            Margin="0,0,0,10"
-          />
-          <TextBox
-            Style="{DynamicResource FormTextBoxStyle}"
-            BorderBrush="{DynamicResource DividerBrush}"
-            Text="{Binding CategorySearchQuery, UpdateSourceTrigger=PropertyChanged}"
-            Tag="{DynamicResource SearchCategoriesHint}"
             Margin="0,0,0,14"
           />
           <ItemsControl ItemsSource="{Binding CategoriesView}">

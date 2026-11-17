@@ -86,7 +86,7 @@ namespace AppStore.Core.Data
             connection.Open();
 
             const string sql = """
-                select a.id, a.short_name, a.full_name, a.description,
+                select a.id, a.short_name, a.full_name, a.description, a.description_en,
                        coalesce(d.name, '') as developer,
                        coalesce(c.name, '') as category,
                        a.rating, a.rating_count, a.price, a.version, a.size_mb,
@@ -104,7 +104,7 @@ namespace AppStore.Core.Data
                 left join categories c on c.id = a.category_id
                 left join countries n on n.id = d.country_id
                 left join age_ratings r on r.id = a.age_rating_id
-                order by full_name, id
+                order by a.full_name, a.id
                 """;
 
             using var command = new NpgsqlCommand(sql, connection);
@@ -126,7 +126,7 @@ namespace AppStore.Core.Data
             connection.Open();
 
             const string sql = """
-                select a.id, a.short_name, a.full_name, a.description,
+                select a.id, a.short_name, a.full_name, a.description, a.description_en,
                        coalesce(d.name, '') as developer,
                        coalesce(c.name, '') as category,
                        a.rating, a.rating_count, a.price, a.version, a.size_mb,
@@ -144,7 +144,7 @@ namespace AppStore.Core.Data
                 left join categories c on c.id = a.category_id
                 left join countries n on n.id = d.country_id
                 left join age_ratings r on r.id = a.age_rating_id
-                where id = @id
+                where a.id = @id
                 limit 1
                 """;
 
@@ -173,14 +173,14 @@ namespace AppStore.Core.Data
                 const string sql = """
                     insert into apps
                     (
-                        id, short_name, full_name, description, developer_id, category_id,
+                        id, short_name, full_name, description, description_en, developer_id, category_id,
                         country_id, age_rating_id, rating, rating_count, price, version,
                         size_mb, color, is_featured, is_in_stock, download_count,
                         discount_percent, release_date, logo
                     )
                     values
                     (
-                        @id, @short_name, @full_name, @description, @developer_id, @category_id,
+                        @id, @short_name, @full_name, @description, @description_en, @developer_id, @category_id,
                         @country_id, @age_rating_id, @rating, @rating_count, @price, @version,
                         @size_mb, @color, @is_featured, @is_in_stock, @download_count,
                         @discount_percent, @release_date, @logo
@@ -220,6 +220,7 @@ namespace AppStore.Core.Data
                     set short_name = @short_name,
                         full_name = @full_name,
                         description = @description,
+                        description_en = @description_en,
                         developer_id = @developer_id,
                         category_id = @category_id,
                         country_id = @country_id,
@@ -701,6 +702,7 @@ namespace AppStore.Core.Data
             }
         }
 
+
         // =========================
         // Инфраструктура
         // =========================
@@ -775,6 +777,10 @@ namespace AppStore.Core.Data
                     tag_id uuid not null references tags(id) on delete cascade,
                     primary key (app_id, tag_id)
                 );
+
+                -- Старые БД (до этой версии): колонка английского описания.
+                alter table apps
+                    add column if not exists description_en text null;
 
                 create table if not exists users
                 (
@@ -865,14 +871,14 @@ namespace AppStore.Core.Data
                     """
                     insert into apps
                     (
-                        id, short_name, full_name, description, developer_id, category_id,
+                        id, short_name, full_name, description, description_en, developer_id, category_id,
                         country_id, age_rating_id, rating, rating_count, price, version,
                         size_mb, color, is_featured, is_in_stock, download_count,
                         discount_percent, release_date, logo
                     )
                     values
                     (
-                        @id, @short_name, @full_name, @description, @developer_id, @category_id,
+                        @id, @short_name, @full_name, @description, @description_en, @developer_id, @category_id,
                         @country_id, @age_rating_id, @rating, @rating_count, @price, @version,
                         @size_mb, @color, @is_featured, @is_in_stock, @download_count,
                         @discount_percent, @release_date, @logo
@@ -968,22 +974,23 @@ namespace AppStore.Core.Data
                 ShortName = reader.GetString(1),
                 FullName = reader.GetString(2),
                 Description = reader.GetString(3),
-                Developer = reader.GetString(4),
-                Category = reader.GetString(5),
-                Rating = reader.GetDouble(6),
-                RatingCount = reader.GetInt32(7),
-                Price = reader.GetDouble(8),
-                Version = reader.GetString(9),
-                SizeMB = reader.GetDouble(10),
-                Country = reader.GetString(11),
-                AgeRating = reader.GetString(12),
-                Color = reader.GetString(13),
-                IsFeatured = reader.GetBoolean(14),
-                IsInStock = reader.GetBoolean(15),
-                DownloadCount = reader.GetInt32(16),
-                DiscountPercent = reader.IsDBNull(17) ? null : reader.GetDouble(17),
-                ReleaseDate = reader.GetDateTime(18),
-                Tags = ParseTags(reader.GetString(19)),
+                DescriptionEn = reader.IsDBNull(4) ? null : reader.GetString(4),
+                Developer = reader.GetString(5),
+                Category = reader.GetString(6),
+                Rating = reader.GetDouble(7),
+                RatingCount = reader.GetInt32(8),
+                Price = reader.GetDouble(9),
+                Version = reader.GetString(10),
+                SizeMB = reader.GetDouble(11),
+                Country = reader.GetString(12),
+                AgeRating = reader.GetString(13),
+                Color = reader.GetString(14),
+                IsFeatured = reader.GetBoolean(15),
+                IsInStock = reader.GetBoolean(16),
+                DownloadCount = reader.GetInt32(17),
+                DiscountPercent = reader.IsDBNull(18) ? null : reader.GetDouble(18),
+                ReleaseDate = reader.GetDateTime(19),
+                Tags = ParseTags(reader.GetString(20)),
             };
         }
 
@@ -1146,9 +1153,11 @@ namespace AppStore.Core.Data
             command.Parameters.AddWithValue("short_name", app.ShortName);
             command.Parameters.AddWithValue("full_name", app.FullName);
             command.Parameters.AddWithValue("description", app.Description);
+            command.Parameters.AddWithValue("description_en", (object?)app.DescriptionEn ?? DBNull.Value);
             // ссылки на справочники разрешаются отдельным вызовом (см. ResolveDictionaries)
             command.Parameters.AddWithValue("developer_id", (object?)app.DeveloperId ?? DBNull.Value);
             command.Parameters.AddWithValue("category_id", (object?)app.CategoryId ?? DBNull.Value);
+            command.Parameters.AddWithValue("country_id", (object?)app.CountryId ?? DBNull.Value);
             command.Parameters.AddWithValue("rating", app.Rating);
             command.Parameters.AddWithValue("rating_count", app.RatingCount);
             command.Parameters.AddWithValue("price", app.Price);

@@ -1,4 +1,4 @@
-<ResourceDictionary
+﻿<ResourceDictionary
   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:sys="clr-namespace:System;assembly=mscorlib"
@@ -20,6 +20,8 @@
   <SolidColorBrush x:Key="SeparatorBrush" Color="#F3F3F3" />
   <SolidColorBrush x:Key="DividerBrush" Color="#E6E6E6" />
   <SolidColorBrush x:Key="InfoCardBgBrush" Color="#F7F7F8" />
+  <SolidColorBrush x:Key="SearchClearBgBrush" Color="#8E8E93" />
+  <SolidColorBrush x:Key="SearchClearFgBrush" Color="#FFFFFF" />
   <SolidColorBrush x:Key="SearchBubbleBgBrush" Color="#F2F2F7" />
   <SolidColorBrush x:Key="SearchTextBrush" Color="#828282" />
   <SolidColorBrush x:Key="SearchFocusBrush" Color="#0072F7" />
@@ -68,7 +70,9 @@
     <Setter Property="Background" Value="Transparent" />
     <Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}" />
     <Setter Property="FontSize" Value="{StaticResource NavFontSize}" />
-    <Setter Property="Padding" Value="12,8" />
+    <Setter Property="Padding" Value="12,7" />
+    <!-- Единая высота с инпут-блоками и кнопками (36) -->
+    <Setter Property="MinHeight" Value="36" />
     <Setter Property="HorizontalAlignment" Value="Stretch" />
     <Setter Property="HorizontalContentAlignment" Value="Left" />
     <Setter Property="Cursor" Value="Hand" />
@@ -130,7 +134,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="TextBox">
-          <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center" />
+          <ScrollViewer x:Name="PART_ContentHost" />
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -170,7 +174,7 @@
     <Setter Property="Foreground" Value="{DynamicResource GetBtnTextBrush}" />
     <Setter Property="FontSize" Value="{StaticResource NavFontSize}" />
     <Setter Property="FontWeight" Value="SemiBold" />
-    <Setter Property="Padding" Value="18,0" />
+    <Setter Property="Padding" Value="12,0" />
     <Setter Property="MinHeight" Value="36" />
     <Setter Property="Cursor" Value="Hand" />
     <Setter Property="FocusVisualStyle" Value="{x:Null}" />
@@ -206,7 +210,7 @@
     <Setter Property="Foreground" Value="White" />
     <Setter Property="FontSize" Value="{StaticResource NavFontSize}" />
     <Setter Property="FontWeight" Value="SemiBold" />
-    <Setter Property="Padding" Value="18,0" />
+    <Setter Property="Padding" Value="12,0" />
     <Setter Property="MinHeight" Value="36" />
     <Setter Property="Cursor" Value="Hand" />
     <Setter Property="FocusVisualStyle" Value="{x:Null}" />
@@ -216,7 +220,7 @@
           <Border
             x:Name="Bd"
             Background="{TemplateBinding Background}"
-            CornerRadius="14"
+            CornerRadius="10"
             Padding="{TemplateBinding Padding}"
           >
             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
@@ -283,7 +287,8 @@
     <Setter Property="CaretBrush" Value="{DynamicResource AccentBlueBrush}" />
     <Setter Property="FontSize" Value="{StaticResource FormFontSize}" />
     <Setter Property="BorderThickness" Value="1.5" />
-    <Setter Property="Padding" Value="4,4" />
+    <Setter Property="BorderBrush" Value="{DynamicResource DividerBrush}" />
+    <Setter Property="Padding" Value="8,4" />
     <Setter Property="MinHeight" Value="36" />
     <Setter Property="FocusVisualStyle" Value="{x:Null}" />
     <Setter Property="Template">
@@ -300,7 +305,12 @@
             <Grid>
               <!-- PART_ContentHost растягивается на всю высоту: центрирование
                    при фикс. Height обрезает строку до 1px (текст «невидим») -->
-              <ScrollViewer x:Name="PART_ContentHost" Focusable="False" />
+              <ScrollViewer
+                x:Name="PART_ContentHost"
+                Focusable="False"
+                HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
+                VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}"
+              />
               <!-- Placeholder layer — shown when empty and not focused -->
               <TextBlock
                 x:Name="Placeholder"

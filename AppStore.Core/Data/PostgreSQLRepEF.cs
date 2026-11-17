@@ -53,6 +53,7 @@ namespace AppStore.Core.Data
                 e.Property(a => a.ShortName).HasColumnName("short_name");
                 e.Property(a => a.FullName).HasColumnName("full_name");
                 e.Property(a => a.Description).HasColumnName("description");
+                e.Property(a => a.DescriptionEn).HasColumnName("description_en");
                 e.Property(a => a.Rating).HasColumnName("rating");
                 e.Property(a => a.RatingCount).HasColumnName("rating_count");
                 e.Property(a => a.Price).HasColumnName("price");
@@ -461,6 +462,7 @@ namespace AppStore.Core.Data
             existing.ShortName = app.ShortName;
             existing.FullName = app.FullName;
             existing.Description = app.Description;
+            existing.DescriptionEn = app.DescriptionEn;
             existing.Rating = app.Rating;
             existing.RatingCount = app.RatingCount;
             existing.Price = app.Price;

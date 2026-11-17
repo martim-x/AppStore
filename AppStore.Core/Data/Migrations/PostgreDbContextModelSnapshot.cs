@@ -69,6 +69,10 @@ namespace AppStore.Core.Data.Migrations
                         .HasColumnType("text")
                         .HasColumnName("description");
 
+                    b.Property<string>("DescriptionEn")
+                        .HasColumnType("text")
+                        .HasColumnName("description_en");
+
                     b.Property<Guid?>("DeveloperId")
                         .HasColumnType("uuid")
                         .HasColumnName("developer_id");

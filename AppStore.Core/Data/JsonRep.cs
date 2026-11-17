@@ -287,6 +287,7 @@ namespace AppStore.Core.Data
                     if (!string.IsNullOrWhiteSpace(json) && json != "[]")
                     {
                         _appsCache = JsonConvert.DeserializeObject<List<App>>(json) ?? SeedApps();
+                        SaveApps();
                         return;
                     }
                 }

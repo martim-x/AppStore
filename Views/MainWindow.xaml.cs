@@ -112,7 +112,8 @@ namespace Project.Views
 
         private void OnSearchLostFocus(object sender, RoutedEventArgs e)
         {
-            SearchBorder.BorderThickness = new Thickness(0);
+            SearchBorder.BorderThickness = new Thickness(1.5);
+            SearchBorder.BorderBrush = (System.Windows.Media.Brush)FindResource("DividerBrush");
         }
 
         private void OnClearSearch(object sender, MouseButtonEventArgs e)

@@ -107,7 +107,6 @@ namespace Project.Views
             ToggleModeText.Text = Localized(_registerMode ? "HaveAccount" : "NoAccount");
 
             ConfirmPanel.Visibility = _registerMode ? Visibility.Visible : Visibility.Collapsed;
-            LoginHintText.Visibility = _registerMode ? Visibility.Collapsed : Visibility.Visible;
 
             ErrorBorder.Visibility = Visibility.Collapsed;
             PassBox.Clear();

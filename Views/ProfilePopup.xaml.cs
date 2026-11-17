@@ -27,6 +27,7 @@ namespace Project.Views
             var health = _services.GetService<IHealthCheckService>();
 
             Owner = owner;
+            MaxHeight = SystemParameters.WorkArea.Height - 32;
             var user = auth.CurrentUser!;
             AvatarLetter.Text = user.AvatarLetter;
             LoginText.Text = user.Login;

@@ -118,6 +118,7 @@ namespace Project.ViewModels
                 ShortName = s.ShortName,
                 FullName = s.FullName,
                 Description = s.Description,
+                DescriptionEn = s.DescriptionEn,
                 Developer = s.Developer,
                 Category = s.Category,
                 Rating = s.Rating,

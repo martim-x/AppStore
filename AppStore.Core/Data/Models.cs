@@ -19,8 +19,14 @@ namespace AppStore.Core.Data
         /// <summary>Полное название приложения.</summary>
         public string FullName { get; set; } = string.Empty;
 
-        /// <summary>Описание приложения.</summary>
+        /// <summary>Описание приложения (русский текст — legacy/canonical).</summary>
         public string Description { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Описание приложения на английском. NULL/пусто для старых записей —
+        /// тогда берётся Description (см. GetDescriptionByLang).
+        /// </summary>
+        public string? DescriptionEn { get; set; }
 
         /// <summary>Разработчик/издатель (наименование из справочника developers).</summary>
         [NotMapped]
@@ -104,13 +110,18 @@ namespace AppStore.Core.Data
         public double FinalPrice =>
             DiscountPercent.HasValue ? Price * (1.0 - DiscountPercent.Value / 100.0) : Price;
 
-        /// <summary>
-        /// Текст кнопки: цена / "Загрузить" / "Открыть".
-        /// </summary>
         public string ButtonLabel =>
-            IsDownloaded ? "Открыть"
-            : Price == 0 ? "Загрузить"
+            IsDownloaded ? "Удалить"
+            : FinalPrice <= 0 ? "Установить"
             : $"${FinalPrice:F2}";
+
+        /// <summary>
+        /// Описание для указанного языка интерфейса ("en", "ru" и т.п.).
+        /// Английский берётся из DescriptionEn, когда он непустой; для старых
+        /// записей (DescriptionEn = null/пусто) и остальных языков — Description.
+        /// </summary>
+        public string GetDescriptionByLang(string? lang) =>
+            lang == "en" && !string.IsNullOrWhiteSpace(DescriptionEn) ? DescriptionEn! : Description;
     }
 
     /// <summary>
